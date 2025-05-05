@@ -1,0 +1,103 @@
+name: Labeler and Validator
+
+on:
+    pull_request:
+        types: [opened, edited]
+
+jobs:
+    label_and_validate:
+        permissions:
+            contents: read
+            pull-requests: write
+        runs-on: ubuntu-latest
+        env:
+            IS_VALID_TRIGGER: ${{ github.event.action == 'opened' || github.event.changes.title.from }}
+        steps:
+            - name: Add labels to PR
+              id: labeler
+              uses: actions/labeler@v5
+              with:
+                  repo-token: ${{ secrets.GH_TOKEN }}
+                  configuration-path: ".github/labeler.yaml"
+
+            - name: Check branch name format
+              run: |
+                  branch_name=$(echo "${{ github.event.pull_request.head.ref }}")
+                  echo "branch_name=$branch_name" >> "$GITHUB_ENV"
+
+                  if [[ $branch_name =~ ^revert ]]; then
+                    exit 0
+                  fi
+
+                  if [[ ! $branch_name =~ ^(frontend|backend|infra)\/RING-[1-9][0-9]*$ ]]; then
+                    echo "is_invalid_branch_name=true" >> "$GITHUB_ENV"
+                  fi
+
+            - name: Add comment for invalid branch name
+              if: env.is_invalid_branch_name == 'true'
+              uses: actions/github-script@v7
+              env:
+                  BRANCH_NAME: ${{ env.branch_name }}
+              with:
+                  github-token: ${{ secrets.GH_TOKEN }}
+                  script: |
+                      const branchName = process.env.BRANCH_NAME;
+                      const message = "## :warning: Branch Naming Convention 위반\n" +
+                                      "Branch 이름(\"" + branchName + "\")이 프로젝트의 Branch Naming Convention에 맞지 않습니다.\n" +
+                                      "다음과 같은 형식으로 수정해 주세요.\n" +
+                                      "```\n" +
+                                      "[role]/[Task-ID]\n\n" +
+                                      "ex.\n" +
+                                      "    frontend/RING-1\n" +
+                                      "    backend/RING-2\n" +
+                                      "    infra/RING-3\n" +
+                                      "```";
+                      const isValidTrigger = process.env.IS_VALID_TRIGGER;
+                      if (isValidTrigger) {
+                        await github.rest.issues.createComment({
+                          owner: context.repo.owner,
+                          repo: context.repo.repo,
+                          issue_number: context.payload.pull_request.number,
+                          body: message
+                        });
+                      }
+
+                      core.setFailed("Branch Naming Convention 위반");
+
+            - name: Check PR title format
+              run: |
+                  title_regex="^\[RING-[1-9][0-9]*\] .+$"
+                  pr_title="${{ github.event.pull_request.title }}"
+                  echo "pr_title=$pr_title" >> "$GITHUB_ENV"
+                  if [[ ! $pr_title =~ $title_regex ]]; then
+                    echo "is_invalid_title=true" >> "$GITHUB_ENV"
+                  fi
+
+            - name: Add comment for invalid PR title
+              if: env.is_invalid_title == 'true'
+              uses: actions/github-script@v7
+              env:
+                  PR_TITLE: ${{ env.pr_title }}
+              with:
+                  github-token: ${{ secrets.GH_TOKEN }}
+                  script: |
+                      const prTitle = process.env.PR_TITLE;
+                      const message = "## :warning: PR Title Convention 위반\n" +
+                                      "작성하신 PR 제목(\"" + prTitle + "\")이 프로젝트의 PR Title Convention에 맞지 않습니다.\n" +
+                                      "다음과 같은 형식으로 수정해 주세요.\n" +
+                                      "```\n" +
+                                      "[Task-ID]: [description]\n\n" +
+                                      "ex.\n" +
+                                      "    [RING-1] PR에서 수행한 작업 간략히 설명\n" +
+                                      "```";
+                      const isValidTrigger = process.env.IS_VALID_TRIGGER;
+                      if (isValidTrigger) {
+                        await github.rest.issues.createComment({
+                          owner: context.repo.owner,
+                          repo: context.repo.repo,
+                          issue_number: context.payload.pull_request.number,
+                          body: message
+                        });
+                      }
+
+                      core.setFailed("PR Title Convention 위반");
