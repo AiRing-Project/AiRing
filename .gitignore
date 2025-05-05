@@ -1,0 +1,65 @@
+# --- Global ---
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+*.swp
+*.log
+
+# --- Environment Files ---
+.env
+.env.*
+.envrc
+*.local
+
+# --- Node / React Native ---
+**/node_modules/
+**/dist/
+**/coverage/
+**/yarn-error.log
+**/npm-debug.log
+**/metro-cache/
+**/.expo/
+**/.expo-shared/
+
+# --- iOS (React Native) ---
+**/ios/build/
+**/ios/Pods/
+**/ios/Podfile.lock
+**/ios/*.xcworkspace
+**/ios/*.xcuserstate
+
+# --- Android (React Native) ---
+**/android/.gradle/
+**/android/.idea/
+**/android/build/
+**/android/app/build/
+**/android/local.properties
+
+# --- Java / Spring Boot ---
+**/target/
+**/build/
+**/.classpath
+**/.project
+**/.settings/
+**/.mvn/
+**/logs/
+**/tmp/
+**/*.iml
+**/.idea/
+
+# --- Docker ---
+**/docker-compose.override.yml
+**/.docker/
+**/*.pid
+**/tmp/
+**/var/
+**/log/
+**/docker-volume/
+**/*.sock
+
+# --- IDEs / Editors ---
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
