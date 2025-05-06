@@ -1,4 +1,0 @@
-※ 이 파일은 폴더를 만들기 위해 생성했으므로 환경 구성 후 반드시 삭제
-
-- react-native-cli 기반 project 생성하기
-- .gitignore 파일은 root에서 한번에 관리합니다.
