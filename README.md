@@ -13,9 +13,9 @@
 | 이름   | 역할                            | GitHub                      |
 | ------ | ------------------------------- | --------------------------- |
 | 황재경 | Team Leader, Full Stack, DevOps | https://github.com/do0ori   |
-| 김채은 | Frontend                        | https://github.com/username |
-| 조민형 | Backend                         | https://github.com/username |
-| 홍아름 | AI                              | https://github.com/username |
+| 김채은 | Frontend                        | https://github.com/ricomados |
+| 조민형 | Backend                         | https://github.com/Pandarang |
+| 홍아름 | AI                              | https://github.com/armihong |
 
 # 🚀 시작 가이드
 
