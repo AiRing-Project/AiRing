@@ -20,18 +20,6 @@ Desktop.ini
 **/npm-debug.log
 **/yarn-error.log
 
-# === Java / Spring Boot ===
-**/target/
-**/build/
-**/.classpath
-**/.project
-**/.settings/
-**/.mvn/
-**/logs/
-**/tmp/
-**/*.iml
-**/.idea/
-
 # === Docker ===
 **/docker-compose.override.yml
 **/.docker/
