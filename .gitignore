@@ -1,64 +1,36 @@
-# --- Global ---
+# === Global OS Files ===
 .DS_Store
 Thumbs.db
 ehthumbs.db
 Desktop.ini
 *.swp
 *.log
+*.hprof
 
-# --- Environment Files ---
+# === Environment Files ===
 .env
 .env.*
 .envrc
 *.local
 
-# --- Node / React Native ---
+# === Node (공통) ===
 **/node_modules/
 **/dist/
 **/coverage/
-**/yarn-error.log
 **/npm-debug.log
-**/metro-cache/
-**/.expo/
-**/.expo-shared/
+**/yarn-error.log
 
-# --- iOS (React Native) ---
-**/ios/build/
-**/ios/Pods/
-**/ios/Podfile.lock
-**/ios/*.xcworkspace
-**/ios/*.xcuserstate
-
-# --- Android (React Native) ---
-**/android/.gradle/
-**/android/.idea/
-**/android/build/
-**/android/app/build/
-**/android/local.properties
-
-# --- Java / Spring Boot ---
-**/target/
-**/build/
-**/.classpath
-**/.project
-**/.settings/
-**/.mvn/
-**/logs/
-**/tmp/
-**/*.iml
-**/.idea/
-
-# --- Docker ---
+# === Docker ===
 **/docker-compose.override.yml
 **/.docker/
 **/*.pid
-**/tmp/
+**/*.sock
+**/docker-volume/
 **/var/
 **/log/
-**/docker-volume/
-**/*.sock
+**/tmp/
 
-# --- IDEs / Editors ---
+# === IDEs / Editors ===
 .vscode/
 .idea/
 *.sublime-project
