@@ -17,7 +17,7 @@ jobs:
               id: labeler
               uses: actions/labeler@v5
               with:
-                  repo-token: ${{ secrets.GH_TOKEN }}
+                  repo-token: ${{ secrets.GITHUB_TOKEN }}
                   configuration-path: ".github/labeler.yaml"
 
             - name: Check branch name format
@@ -39,7 +39,7 @@ jobs:
               env:
                   BRANCH_NAME: ${{ env.branch_name }}
               with:
-                  github-token: ${{ secrets.GH_TOKEN }}
+                  github-token: ${{ secrets.GITHUB_TOKEN }}
                   script: |
                       const branchName = process.env.BRANCH_NAME;
                       const message = "## :warning: Branch Naming Convention 위반\n" +
@@ -79,7 +79,7 @@ jobs:
               env:
                   PR_TITLE: ${{ env.pr_title }}
               with:
-                  github-token: ${{ secrets.GH_TOKEN }}
+                  github-token: ${{ secrets.GITHUB_TOKEN }}
                   script: |
                       const prTitle = process.env.PR_TITLE;
                       const message = "## :warning: PR Title Convention 위반\n" +
