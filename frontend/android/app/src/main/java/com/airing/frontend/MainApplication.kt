@@ -1,4 +1,4 @@
-package com.airing
+package com.airing.frontend
 
 import android.app.Application
 import com.facebook.react.PackageList
