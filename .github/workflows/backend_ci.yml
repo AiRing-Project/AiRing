@@ -1,0 +1,157 @@
+name: Backend CI
+
+on:
+    pull_request:
+        branches: [main]
+        paths:
+            - "backend/**"
+
+jobs:
+    test:
+        runs-on: ubuntu-latest
+        timeout-minutes: 15
+
+        services:
+            postgres:
+                image: postgres:16
+                env:
+                    POSTGRES_DB: airing
+                    POSTGRES_USER: postgres
+                    POSTGRES_PASSWORD: postgres
+                ports:
+                    - 5432:5432
+                options: >-
+                    --health-cmd="pg_isready -U postgres"
+                    --health-interval=10s
+                    --health-timeout=5s
+                    --health-retries=5
+
+        steps:
+            - uses: actions/checkout@v3
+
+            - name: Set up JDK 17
+              uses: actions/setup-java@v3
+              with:
+                  java-version: "17"
+                  distribution: "temurin"
+                  cache: gradle
+
+            - name: Cache Gradle packages
+              uses: actions/cache@v3
+              with:
+                  path: |
+                      ~/.gradle/caches
+                      ~/.gradle/wrapper
+                  key: ${{ runner.os }}-gradle-${{ hashFiles('backend/**/*.gradle*', 'backend/gradle/wrapper/gradle-wrapper.properties') }}
+                  restore-keys: |
+                      ${{ runner.os }}-gradle-
+
+            - name: Grant execute permission for gradlew
+              run: chmod +x backend/gradlew
+
+            - name: Run Tests
+              id: test
+              working-directory: ./backend
+              run: |
+                  # 테스트 실행 및 결과 수집
+                  TEST_OUTPUT=$(./gradlew test --console=plain || true)
+                  EXIT_CODE=$?
+
+                  # 멀티라인 결과는 GITHUB_ENV에 저장
+                  {
+                      echo "TEST_RESULTS<<EOF"
+                      FAILED_COUNT=$(echo "$TEST_OUTPUT" | grep -c "FAILED" || echo "0")
+                      echo "## ⚠️ Failed Tests (${FAILED_COUNT})"
+                      echo "\`\`\`"
+                      echo "$TEST_OUTPUT" | grep -A 1 "FAILED" | grep -v "^--$" || true
+                      echo "\`\`\`"
+                      echo "EOF"
+                  } >> $GITHUB_ENV
+
+                  # 단순 상태는 GITHUB_OUTPUT에 저장
+                  if [ $EXIT_CODE -ne 0 ]; then
+                    echo "test_status=failure" >> $GITHUB_OUTPUT
+                  else
+                    echo "test_status=success" >> $GITHUB_OUTPUT
+                  fi
+              env:
+                  SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/airing
+                  SPRING_DATASOURCE_USERNAME: postgres
+                  SPRING_DATASOURCE_PASSWORD: postgres
+                  GRADLE_OPTS: -Dorg.gradle.daemon=false
+                  JAVA_OPTS: -Xmx2048m
+
+            - name: Comment Test Results
+              if: always()
+              uses: actions/github-script@v6
+              env:
+                  TEST_RESULTS: ${{ env.TEST_RESULTS }}
+                  TEST_STATUS: ${{ steps.test.outputs.test_status }}
+              with:
+                  script: |
+                      if (process.env.TEST_STATUS === 'failure') {
+                          const message = `${process.env.TEST_RESULTS}\n\n자세한 내용은 Checks 탭에서 확인해주세요.`;
+                          
+                          github.rest.issues.createComment({
+                              issue_number: context.issue.number,
+                              owner: context.repo.owner,
+                              repo: context.repo.repo,
+                              body: message
+                          });
+                      }
+
+            - name: Stop on Test Failure
+              if: ${{ steps.test.outputs.test_status == 'failure' }}
+              run: |
+                  echo "❌ Tests failed. Stopping workflow."
+                  exit 1
+
+    build:
+        needs: test
+        runs-on: ubuntu-latest
+        timeout-minutes: 15
+
+        steps:
+            - uses: actions/checkout@v3
+
+            - name: Set up JDK 17
+              uses: actions/setup-java@v3
+              with:
+                  java-version: "17"
+                  distribution: "temurin"
+                  cache: gradle
+
+            - name: Cache Gradle packages
+              uses: actions/cache@v3
+              with:
+                  path: |
+                      ~/.gradle/caches
+                      ~/.gradle/wrapper
+                  key: ${{ runner.os }}-gradle-${{ hashFiles('backend/**/*.gradle*', 'backend/gradle/wrapper/gradle-wrapper.properties') }}
+                  restore-keys: |
+                      ${{ runner.os }}-gradle-
+
+            - name: Grant execute permission for gradlew
+              run: chmod +x backend/gradlew
+
+            - name: Build
+              id: gradle
+              working-directory: ./backend
+              run: |
+                  ./gradlew build -x test --console=plain
+              env:
+                  GRADLE_OPTS: -Dorg.gradle.daemon=false
+                  JAVA_OPTS: -Xmx2048m
+
+            - name: Set up Docker Buildx
+              uses: docker/setup-buildx-action@v2
+
+            - name: Build Docker image
+              id: docker
+              working-directory: ./backend
+              run: |
+                  docker buildx build \
+                      --cache-from type=gha \
+                      --cache-to type=gha,mode=max \
+                      -t airing-backend:latest \
+                      .
