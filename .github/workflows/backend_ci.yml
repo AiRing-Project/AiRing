@@ -34,19 +34,31 @@ jobs:
             - name: Grant execute permission for gradlew
               run: chmod +x backend/gradlew
 
-            - name: Build
-              id: gradle
+            - name: Start Database
               working-directory: ./backend
               run: |
-                  ./gradlew build -x test --console=plain
-              env:
-                  GRADLE_OPTS: -Dorg.gradle.daemon=false
-                  JAVA_OPTS: -Xmx2048m
+                  docker-compose up -d postgres
+                  # 데이터베이스가 준비될 때까지 대기
+                  echo "Waiting for database to be ready..."
+                  for i in {1..30}; do
+                    if docker-compose exec -T postgres pg_isready -U postgres; then
+                      echo "Database is ready!"
+                      break
+                    fi
+                    if [ $i -eq 30 ]; then
+                      echo "Database failed to start in time"
+                      exit 1
+                    fi
+                    echo "Waiting for database... ($i/30)"
+                    sleep 2
+                  done
 
             - name: Run Tests
               id: test
+              continue-on-error: true
               working-directory: ./backend
               run: |
+                  # 테스트 실행 및 결과 수집
                   TEST_OUTPUT=$(./gradlew test --console=plain)
                   TEST_STATUS=$?
 
@@ -60,23 +72,20 @@ jobs:
                       echo "EOF"
                   } >> $GITHUB_ENV
 
-                  echo "TEST_STATUS=$([ $TEST_STATUS -eq 0 ] && echo 'success' || echo 'failure')" >> $GITHUB_ENV
+                  # 테스트 상태 설정 (실패한 테스트가 있으면 failure)
+                  if echo "$TEST_OUTPUT" | grep -q "FAILED"; then
+                      echo "TEST_STATUS=failure" >> $GITHUB_ENV
+                  else
+                      echo "TEST_STATUS=success" >> $GITHUB_ENV
+                  fi
               env:
                   GRADLE_OPTS: -Dorg.gradle.daemon=false
                   JAVA_OPTS: -Xmx2048m
 
-            - name: Set up Docker Buildx
-              uses: docker/setup-buildx-action@v2
-
-            - name: Build Docker image
-              id: docker
+            - name: Stop Database
+              if: always()
               working-directory: ./backend
-              run: |
-                  docker buildx build \
-                      --cache-from type=gha \
-                      --cache-to type=gha,mode=max \
-                      -t airing-backend:latest \
-                      .
+              run: docker-compose down
 
             - name: Comment Test Results
               if: always()
@@ -96,4 +105,28 @@ jobs:
                           repo: context.repo.repo,
                           body: message
                         });
+                        
+                        process.exit(1);
                       }
+
+            - name: Build
+              id: gradle
+              working-directory: ./backend
+              run: |
+                  ./gradlew build -x test --console=plain
+              env:
+                  GRADLE_OPTS: -Dorg.gradle.daemon=false
+                  JAVA_OPTS: -Xmx2048m
+
+            - name: Set up Docker Buildx
+              uses: docker/setup-buildx-action@v2
+
+            - name: Build Docker image
+              id: docker
+              working-directory: ./backend
+              run: |
+                  docker buildx build \
+                      --cache-from type=gha \
+                      --cache-to type=gha,mode=max \
+                      -t airing-backend:latest \
+                      .
