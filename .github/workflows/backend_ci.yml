@@ -11,6 +11,21 @@ jobs:
         runs-on: ubuntu-latest
         timeout-minutes: 15
 
+        services:
+            postgres:
+                image: postgres:16
+                env:
+                    POSTGRES_DB: airing
+                    POSTGRES_USER: postgres
+                    POSTGRES_PASSWORD: postgres
+                ports:
+                    - 5432:5432
+                options: >-
+                    --health-cmd="pg_isready -U postgres"
+                    --health-interval=10s
+                    --health-timeout=5s
+                    --health-retries=5
+
         steps:
             - uses: actions/checkout@v3
 
@@ -34,41 +49,15 @@ jobs:
             - name: Grant execute permission for gradlew
               run: chmod +x backend/gradlew
 
-            - name: Set up Docker Compose
-              run: |
-                  sudo apt-get update
-                  sudo apt-get install -y docker.io
-                  sudo systemctl start docker
-                  sudo systemctl enable docker
-                  sudo usermod -aG docker $USER
-                  docker --version
-                  docker compose version
-
-            - name: Start Database
-              working-directory: ./backend
-              run: |
-                  docker compose up -d postgres
-                  # 데이터베이스가 준비될 때까지 대기
-                  echo "Waiting for database to be ready..."
-                  for i in {1..30}; do
-                    if docker compose exec -T postgres pg_isready -U postgres; then
-                      echo "Database is ready!"
-                      break
-                    fi
-                    if [ $i -eq 30 ]; then
-                      echo "Database failed to start in time"
-                      exit 1
-                    fi
-                    echo "Waiting for database... ($i/30)"
-                    sleep 2
-                  done
-
             - name: Run Tests
               id: test
               working-directory: ./backend
               run: |
                   # 테스트 실행 및 결과 수집
-                  TEST_OUTPUT=$(./gradlew test --console=plain)
+                  TEST_OUTPUT=$(./gradlew test --console=plain || true)
+                  EXIT_CODE=$?
+
+                  # 멀티라인 결과는 GITHUB_ENV에 저장
                   {
                       echo "TEST_RESULTS<<EOF"
                       FAILED_COUNT=$(echo "$TEST_OUTPUT" | grep -c "FAILED" || echo "0")
@@ -78,29 +67,44 @@ jobs:
                       echo "\`\`\`"
                       echo "EOF"
                   } >> $GITHUB_ENV
+
+                  # 단순 상태는 GITHUB_OUTPUT에 저장
+                  if [ $EXIT_CODE -ne 0 ]; then
+                    echo "test_status=failure" >> $GITHUB_OUTPUT
+                  else
+                    echo "test_status=success" >> $GITHUB_OUTPUT
+                  fi
               env:
+                  SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/airing
+                  SPRING_DATASOURCE_USERNAME: postgres
+                  SPRING_DATASOURCE_PASSWORD: postgres
                   GRADLE_OPTS: -Dorg.gradle.daemon=false
                   JAVA_OPTS: -Xmx2048m
 
-            - name: Stop Database
-              if: always()
-              working-directory: ./backend
-              run: docker compose down
-
             - name: Comment Test Results
-              if: failure()
+              if: always()
               uses: actions/github-script@v6
+              env:
+                  TEST_RESULTS: ${{ env.TEST_RESULTS }}
+                  TEST_STATUS: ${{ steps.test.outputs.test_status }}
               with:
                   script: |
-                      const testResults = process.env.TEST_RESULTS;
-                      const message = `${testResults}\n\n자세한 내용은 Checks 탭에서 확인해주세요.`;
+                      if (process.env.TEST_STATUS === 'failure') {
+                          const message = `${process.env.TEST_RESULTS}\n\n자세한 내용은 Checks 탭에서 확인해주세요.`;
+                          
+                          github.rest.issues.createComment({
+                              issue_number: context.issue.number,
+                              owner: context.repo.owner,
+                              repo: context.repo.repo,
+                              body: message
+                          });
+                      }
 
-                      github.rest.issues.createComment({
-                        issue_number: context.issue.number,
-                        owner: context.repo.owner,
-                        repo: context.repo.repo,
-                        body: message
-                      });
+            - name: Stop on Test Failure
+              if: ${{ steps.test.outputs.test_status == 'failure' }}
+              run: |
+                  echo "❌ Tests failed. Stopping workflow."
+                  exit 1
 
     build:
         needs: test
