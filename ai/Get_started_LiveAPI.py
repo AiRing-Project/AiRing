@@ -209,7 +209,7 @@ class AudioLoop:
                 tg.create_task(self.receive_audio())
                 tg.create_task(self.play_audio())
 
-                await asyncio.Event().wait()  # 무한 대기, 종료는 Ctrl+c로
+                await asyncio.Event().wait()  # 무한 대기, Ctrl+c로 종료
 
         except asyncio.CancelledError:
             pass
