@@ -29,7 +29,7 @@ jobs:
                     exit 0
                   fi
 
-                  if [[ ! $branch_name =~ ^(frontend|backend|infra)\/RING-[1-9][0-9]*$ ]]; then
+                  if [[ ! $branch_name =~ ^(frontend|backend|infra|ai)\/RING-[1-9][0-9]*$ ]]; then
                     echo "is_invalid_branch_name=true" >> "$GITHUB_ENV"
                   fi
 
@@ -51,6 +51,7 @@ jobs:
                                       "    frontend/RING-1\n" +
                                       "    backend/RING-2\n" +
                                       "    infra/RING-3\n" +
+                                      "    ai/RING-4\n" +
                                       "```";
                       const isValidTrigger = process.env.IS_VALID_TRIGGER;
                       if (isValidTrigger) {

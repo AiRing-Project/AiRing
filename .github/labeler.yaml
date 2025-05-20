@@ -6,3 +6,6 @@
 
 🌿infra:
     - head-branch: ["^infra"]
+
+🤖ai:
+    - head-branch: ["^ai"]
