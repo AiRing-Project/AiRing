@@ -19,7 +19,7 @@
 To run the script:
 
 ```
-python Get_started_LiveAPI.py --mode none
+python Get_started_LiveAPI.py
 ```
 """
 
@@ -37,13 +37,23 @@ from dotenv import load_dotenv
 
 load_dotenv(".env")
 
-client = genai.Client(api_key=os.environ["GOOGLE_API_KEY"])
+try:
+    api_key = os.environ["GOOGLE_API_KEY"]
+except KeyError as exc:
+    raise RuntimeError(
+        "Environment variable GOOGLE_API_KEY is not set. "
+        "Create a .env file or export the variable before running."
+    ) from exc
+
+client = genai.Client(api_key=api_key)
+
 
 if sys.version_info < (3, 11, 0):
     import taskgroup, exceptiongroup
 
     asyncio.TaskGroup = taskgroup.TaskGroup
     asyncio.ExceptionGroup = exceptiongroup.ExceptionGroup
+    ExceptionGroup = exceptiongroup.ExceptionGroup
 
 FORMAT = pyaudio.paInt16
 CHANNELS = 1
@@ -187,7 +197,7 @@ class AudioLoop:
             ):
                 self.session = session
 
-                self.audio_in_queue = asyncio.Queue()
+                self.audio_in_queue = asyncio.Queue(maxsize=96)
                 self.out_queue = asyncio.Queue(maxsize=5)
 
                 await session.send_client_content(
@@ -214,7 +224,7 @@ class AudioLoop:
         except asyncio.CancelledError:
             pass
         except KeyboardInterrupt:
-        # Ctrl+C로 종료될 때 대화 기록 저장
+            # Ctrl+C로 종료될 때 대화 기록 저장
             with open("conversation_log.json", "w", encoding="utf-8") as f:
                 json.dump(self.conversation_log, f, ensure_ascii=False, indent=2)
             print("대화 기록이 저장되었습니다.")
