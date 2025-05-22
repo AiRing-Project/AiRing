@@ -59,7 +59,7 @@ FORMAT = pyaudio.paInt16
 CHANNELS = 1
 SEND_SAMPLE_RATE = 16000
 RECEIVE_SAMPLE_RATE = 24000
-CHUNK_SIZE = 1024
+CHUNK_SIZE = 2048
 
 MODEL = "models/gemini-2.0-flash-live-001"
 
@@ -185,9 +185,63 @@ class AudioLoop:
             rate=RECEIVE_SAMPLE_RATE,
             output=True,
         )
-        while True:
-            bytestream = await self.audio_in_queue.get()
-            await asyncio.to_thread(stream.write, bytestream)
+        
+        # 오디오 버퍼 관리
+        buffer = []
+        initial_buffer_size = 10  # 재생 시작 전 초기 버퍼 크기
+        minimum_buffer_size = 5   # 재생 중 최소 버퍼 크기
+        
+        print("🔊 오디오 버퍼 준비 중...")
+        
+        # 초기 버퍼 채우기
+        while len(buffer) < initial_buffer_size:
+            try:
+                if not self.audio_in_queue.empty():
+                    chunk = await asyncio.wait_for(self.audio_in_queue.get(), timeout=0.1)
+                    buffer.append(chunk)
+                else:
+                    await asyncio.sleep(0.05)
+            except asyncio.TimeoutError:
+                continue
+            except asyncio.CancelledError:
+                return
+        
+        print("🔊 오디오 재생 시작")
+        
+        try:
+            while True:
+                # 버퍼가 최소 크기 이하로 떨어지면 더 채움
+                if len(buffer) <= minimum_buffer_size:
+                    refill_count = 0
+                    while len(buffer) < initial_buffer_size and refill_count < 3:
+                        try:
+                            if not self.audio_in_queue.empty():
+                                chunk = await asyncio.wait_for(self.audio_in_queue.get(), timeout=0.1)
+                                buffer.append(chunk)
+                                refill_count += 1
+                            else:
+                                break
+                        except asyncio.TimeoutError:
+                            break
+                
+                # 버퍼에서 청크 재생
+                if buffer:
+                    chunk = buffer.pop(0)
+                    await asyncio.to_thread(stream.write, chunk)
+                else:
+                    # 버퍼가 비었으면 큐에서 직접 가져와 재생
+                    try:
+                        if not self.audio_in_queue.empty():
+                            chunk = await asyncio.wait_for(self.audio_in_queue.get(), timeout=0.1)
+                            await asyncio.to_thread(stream.write, chunk)
+                        else:
+                            # 버퍼와 큐가 모두 비었으면 잠시 대기
+                            await asyncio.sleep(0.02)
+                    except asyncio.TimeoutError:
+                        await asyncio.sleep(0.02)
+        
+        except asyncio.CancelledError:
+            print("🔊 오디오 재생 중단")
 
     async def run(self):
         try:
@@ -197,7 +251,7 @@ class AudioLoop:
             ):
                 self.session = session
 
-                self.audio_in_queue = asyncio.Queue(maxsize=96)
+                self.audio_in_queue = asyncio.Queue(maxsize=192)  # 기존 96에서 증가
                 self.out_queue = asyncio.Queue(maxsize=5)
 
                 await session.send_client_content(
@@ -211,7 +265,6 @@ class AudioLoop:
                     },
                     turn_complete=True,
                 )
-
 
                 tg.create_task(self.send_realtime())
                 tg.create_task(self.listen_audio())
