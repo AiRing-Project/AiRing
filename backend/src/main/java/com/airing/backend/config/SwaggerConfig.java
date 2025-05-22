@@ -29,7 +29,6 @@ public class SwaggerConfig {
     private Info apiInfo() {
         return new Info()
                 .title("AiRing API")
-                .description("Let's practice Swagger UI")
                 .version("1.0.0");
     }
 }
