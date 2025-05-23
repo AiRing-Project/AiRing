@@ -8,12 +8,9 @@ on:
 
 jobs:
   ping:
-    env:
-      PING_ENABLED:    ${{ secrets.PING_ENABLED }}
-      RENDER_PING_URL: ${{ secrets.RENDER_PING_URL }}
-    if: env.PING_ENABLED == 'true'
     runs-on: ubuntu-latest
 
     steps:
       - name: Ping Render Health Check
-        run: curl -m 10 "${{ env.RENDER_PING_URL }}"
+        if: ${{ secrets.PING_ENABLED == 'true' }}
+        run: curl -m 10 "${{ secrets.RENDER_PING_URL }}"
