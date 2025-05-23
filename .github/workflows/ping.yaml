@@ -12,5 +12,10 @@ jobs:
 
     steps:
       - name: Ping Render Health Check
-        if: ${{ secrets.PING_ENABLED == 'true' }}
-        run: curl -m 10 "${{ secrets.RENDER_PING_URL }}"
+        env:
+          PING_ENABLED:    ${{ secrets.PING_ENABLED }}
+          RENDER_PING_URL: ${{ secrets.RENDER_PING_URL }}
+        if: ${{ env.PING_ENABLED == 'true' }}
+        run: |
+          echo "Pinging Render instance..."
+          curl -m 10 "$RENDER_PING_URL" || echo "⚠️ Ping timed out, but continuing..."
