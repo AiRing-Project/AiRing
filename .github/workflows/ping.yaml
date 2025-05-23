@@ -1,0 +1,15 @@
+name: Keep Render Alive (${{ secrets.PING_ENABLED == 'true' && 'ENABLED' || 'DISABLED' }})
+
+on:
+  schedule:
+    - cron: '*/14 23-15 * * *'  # KST 08:00 ~ 24:00
+  workflow_dispatch:
+
+jobs:
+  ping:
+    if: ${{ secrets.PING_ENABLED == 'true' }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Ping Render Health Check
+        run: curl -m 10 "${{ secrets.RENDER_PING_URL }}"
