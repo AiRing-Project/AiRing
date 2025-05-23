@@ -1,7 +1,4 @@
-name: Keep Render Alive (${{ vars.pingEnabled == 'true' && 'ENABLED' || 'DISABLED' }})
-
-vars:
-  pingEnabled: ${{ secrets.PING_ENABLED }}
+name: Keep Render Alive
 
 on:
   schedule:
