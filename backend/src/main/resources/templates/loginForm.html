@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>로그인 페이지</title>
+    <style>
+        .button-group {
+            margin-top: 10px;
+        }
+        .button-group button {
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+<h1>로그인 페이지</h1>
+<hr>
+
+<form th:action="@{/login}" method="post">
+    <input type="text" name="username" placeholder="Username" /> <br/>
+    <input type="password" name="password" placeholder="Password" /> <br/>
+
+    <div class="button-group">
+        <button type="submit">로그인</button>
+        <a th:href="@{/joinForm}">
+            <button type="button">회원가입</button>
+        </a>
+    </div>
+</form>
+
+</body>
+</html>
