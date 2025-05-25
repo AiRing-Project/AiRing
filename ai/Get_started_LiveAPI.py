@@ -118,10 +118,25 @@ class AudioLoop:
         self.session_active = True
 
     async def send_realtime(self):
-        while self.session_active:
-            msg = await self.out_queue.get()
-            blob = types.Blob(data=msg["data"], mime_type="audio/pcm;rate=16000")
-            await self.session.send_realtime_input(audio=blob)
+        try:
+            while self.session_active:
+                try:
+                    msg = await self.out_queue.get()
+                    blob = types.Blob(data=msg["data"], mime_type="audio/pcm;rate=16000")
+                    await self.session.send_realtime_input(audio=blob)
+                except websockets.exceptions.ConnectionClosedOK:
+                    # 정상적인 연결 종료
+                    return
+                except Exception as e:
+                    if not self.session_active:
+                        return
+                    print(f"send_realtime 오류: {str(e)}")
+                    continue
+        except asyncio.CancelledError:
+            return
+        except Exception as e:
+            print(f"send_realtime 예외: {str(e)}")
+            return
 
     async def listen_audio(self):
         mic_info = pya.get_default_input_device_info()
@@ -143,64 +158,77 @@ class AudioLoop:
             await self.out_queue.put({"data": data, "mime_type": "audio/pcm"})
 
     async def receive_audio(self):
-        while self.session_active:
-            turn = self.session.receive()
-            async for response in turn:
-                # 사용자 음성 텍스트 누적 (부분 응답)
-                if (
-                hasattr(response, "server_content")
-                and hasattr(response.server_content, "input_transcription")
-                and response.server_content.input_transcription
-                and hasattr(response.server_content.input_transcription, "text")
-                and response.server_content.input_transcription.text):
-                    user_text = response.server_content.input_transcription.text
-                    self.user_buffer += user_text
-                    self.last_user_input_time = time.time()  # 마지막 입력 시각 갱신
+        try:
+            while self.session_active:
+                turn = self.session.receive()
+                async for response in turn:
+                    if not self.session_active:
+                        return
 
-                    # 종료 발화 감지
-                    if any(keyword in user_text for keyword in END_KEYWORDS):
-                        print("사용자 종료 발화 감지, 세션 종료")
-                        self.session_active = False
-                        if self.session:
-                            await self.session.close()
-                        # 생성한 태스크만 취소
-                        for task in self._tasks:
-                            task.cancel()
-                        await asyncio.gather(*self._tasks, return_exceptions=True)
-                        break
+                    # 사용자 음성 텍스트 누적 (부분 응답)
+                    if (
+                    hasattr(response, "server_content")
+                    and hasattr(response.server_content, "input_transcription")
+                    and response.server_content.input_transcription
+                    and hasattr(response.server_content.input_transcription, "text")
+                    and response.server_content.input_transcription.text):
+                        user_text = response.server_content.input_transcription.text
+                        self.user_buffer += user_text
+                        self.last_user_input_time = time.time()  # 마지막 입력 시각 갱신
 
-                # AI 응답 텍스트 누적 (부분 응답)
-                if (
-                hasattr(response, "server_content")
-                and hasattr(response.server_content, "output_transcription")
-                and response.server_content.output_transcription
-                and hasattr(response.server_content.output_transcription, "text")
-                and response.server_content.output_transcription.text):
-                    
-                    ai_text = response.server_content.output_transcription.text
-                    self.ai_buffer += ai_text
+                        # 종료 발화 감지
+                        if any(keyword in user_text for keyword in END_KEYWORDS):
+                            print("사용자 종료 발화 감지, 세션 종료")
+                            self.session_active = False
+                            if self.session:
+                                await self.session.close()
+                            return
 
-                # 턴 종료 신호(turn_complete)에서 한 번에 저장
-                if (
-                hasattr(response, "server_content")
-                and hasattr(response.server_content, "turn_complete")
-                and response.server_content.turn_complete):
-                    
-                    if self.user_buffer.strip():
-                        self.conversation_log.append({"role": "USER", "text": self.user_buffer.strip()})
-                        self.user_buffer = ""
-                    if self.ai_buffer.strip():
-                        self.conversation_log.append({"role": "AI", "text": self.ai_buffer.strip()})
-                        self.ai_buffer = ""
+                    # AI 응답 텍스트 누적 (부분 응답)
+                    if (
+                    hasattr(response, "server_content")
+                    and hasattr(response.server_content, "output_transcription")
+                    and response.server_content.output_transcription
+                    and hasattr(response.server_content.output_transcription, "text")
+                    and response.server_content.output_transcription.text):
+                        
+                        ai_text = response.server_content.output_transcription.text
+                        self.ai_buffer += ai_text
 
-                if data := response.data:
-                    self.audio_in_queue.put_nowait(data)
-                    continue
-                if text := response.text:
-                    print(text, end="")
+                    # 턴 종료 신호(turn_complete)에서 한 번에 저장
+                    if (
+                    hasattr(response, "server_content")
+                    and hasattr(response.server_content, "turn_complete")
+                    and response.server_content.turn_complete):
+                        
+                        if self.user_buffer.strip():
+                            self.conversation_log.append({"role": "USER", "text": self.user_buffer.strip()})
+                            self.user_buffer = ""
+                        if self.ai_buffer.strip():
+                            self.conversation_log.append({"role": "AI", "text": self.ai_buffer.strip()})
+                            self.ai_buffer = ""
 
-            while not self.audio_in_queue.empty():
-                self.audio_in_queue.get_nowait()
+                    if data := response.data:
+                        if self.session_active:  # 세션이 활성화된 상태에서만 큐에 추가
+                            self.audio_in_queue.put_nowait(data)
+                        continue
+                    if text := response.text:
+                        print(text, end="")
+
+                # 큐 정리
+                if not self.session_active:
+                    while not self.audio_in_queue.empty():
+                        try:
+                            self.audio_in_queue.get_nowait()
+                        except asyncio.QueueEmpty:
+                            break
+                    return
+
+        except asyncio.CancelledError:
+            return
+        except Exception as e:
+            print(f"receive_audio 오류: {str(e)}")
+            return
 
     async def timeout_checker(self):
         while self.session_active:
@@ -307,13 +335,9 @@ class AudioLoop:
                 output_audio_transcription={}
             )
 
-            async with (
-                client.aio.live.connect(model=MODEL, config=CONFIG) as session,
-                asyncio.TaskGroup() as tg,
-            ):
+            async with client.aio.live.connect(model=MODEL, config=CONFIG) as session:
                 self.session = session
-
-                self.audio_in_queue = asyncio.Queue(maxsize=192)  # 기존 96에서 증가
+                self.audio_in_queue = asyncio.Queue(maxsize=192)
                 self.out_queue = asyncio.Queue(maxsize=5)
 
                 await session.send_client_content(
@@ -328,18 +352,43 @@ class AudioLoop:
                     turn_complete=True,
                 )
 
-                # 태스크 생성 및 관리
-                self._tasks = [
-                    tg.create_task(self.send_realtime()),
-                    tg.create_task(self.listen_audio()),
-                    tg.create_task(self.receive_audio()),
-                    tg.create_task(self.play_audio()),
-                    tg.create_task(self.timeout_checker())
-                ]
+                # 태스크 생성 및 실행
+                tasks = []
+                try:
+                    # 각 태스크를 순차적으로 생성하고 실행
+                    tasks.append(asyncio.create_task(self.send_realtime()))
+                    tasks.append(asyncio.create_task(self.listen_audio()))
+                    tasks.append(asyncio.create_task(self.receive_audio()))
+                    tasks.append(asyncio.create_task(self.play_audio()))
+                    tasks.append(asyncio.create_task(self.timeout_checker()))
+                    self._tasks = tasks
 
-                while self.session_active:
-                    await asyncio.sleep(0.5)
-                print("세션이 종료되었습니다.")
+                    # 메인 루프
+                    while self.session_active:
+                        await asyncio.sleep(0.5)
+                    print("세션이 종료되었습니다.")
+
+                finally:
+                    # 세션 종료 처리
+                    self.session_active = False
+                    
+                    # 태스크 정리 - 새로운 방식
+                    for task in tasks:
+                        if not task.done():
+                            try:
+                                # 태스크 취소 시도
+                                task.cancel()
+                            except Exception:
+                                pass
+                    
+                    # 모든 태스크가 완료될 때까지 대기
+                    pending = [t for t in tasks if not t.done()]
+                    if pending:
+                        try:
+                            # 타임아웃을 0.1초로 줄여서 빠르게 종료
+                            await asyncio.wait(pending, timeout=0.1)
+                        except asyncio.TimeoutError:
+                            pass
 
         except asyncio.CancelledError:
             pass
@@ -360,12 +409,27 @@ class AudioLoop:
             # 정상적인 종료 메시지는 출력하지 않음
             pass
         finally:
-            # 생성한 태스크 정리
-            for task in self._tasks:
-                if not task.done():
-                    task.cancel()
-            await asyncio.gather(*self._tasks, return_exceptions=True)
+            # 최종 정리
+            if hasattr(self, '_tasks'):
+                self.session_active = False
+                for task in self._tasks:
+                    if not task.done():
+                        try:
+                            # 태스크 취소 시도
+                            task.cancel()
+                        except Exception:
+                            pass
+                
+                # 남은 태스크 정리
+                pending = [t for t in self._tasks if not t.done()]
+                if pending:
+                    try:
+                        # 타임아웃을 0.1초로 줄여서 빠르게 종료
+                        await asyncio.wait(pending, timeout=0.1)
+                    except asyncio.TimeoutError:
+                        pass
             
+            # 대화 기록 저장
             with open("conversation_log.json", "w", encoding="utf-8") as f:
                 json.dump(self.conversation_log, f, ensure_ascii=False, indent=2)
 
