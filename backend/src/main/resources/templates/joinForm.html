@@ -1,7 +1,8 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>회원가입 페이지</title>
 </head>
 <body>
@@ -9,9 +10,22 @@
 <hr>
 
 <form th:action="@{/join}" method="post">
-    <input type="text" name="username" placeholder="Username" /> <br/>
-    <input type="password" name="password" placeholder="Password" /> <br/>
-    <input type="email" name="email" placeholder="Email" /> <br/>
+<div>
+    <label for="username">사용자명:</label>
+    <input type="text" id="username" name="username" placeholder="사용자명" required minlength="3" maxlength="20" /> <br/>
+</div>
+<div>
+    <label for="password">비밀번호:</label>
+    <input type="password" id="password" name="password" placeholder="비밀번호" required minlength="8" /> <br/>
+</div>
+<div>
+    <label for="passwordConfirm">비밀번호 확인:</label>
+    <input type="password" id="passwordConfirm" name="passwordConfirm" placeholder="비밀번호 확인" required /> <br/>
+</div>
+<div>
+    <label for="email">이메일:</label>
+    <input type="email" id="email" name="email" placeholder="이메일" required /> <br/>
+</div>
     <button type="submit">회원가입</button>
 </form>
 </body>
