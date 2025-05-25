@@ -13,7 +13,6 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @Table(name = "\"user\"")
-@ToString
 public class User {
     @Id // Primary Key
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -21,7 +20,7 @@ public class User {
     private String username;
     private String password;
     private String email;
-    private String role;
+    private String roles;
     @CreationTimestamp
-    private LocalDateTime createData;
+    private LocalDateTime createdDate;
 }
