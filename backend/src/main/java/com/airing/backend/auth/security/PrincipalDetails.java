@@ -1,4 +1,4 @@
-package com.airing.backend.auth;
+package com.airing.backend.auth.security;
 
 
 import com.airing.backend.user.entity.User;
@@ -31,7 +31,7 @@ public class PrincipalDetails implements UserDetails {
     public Collection<? extends GrantedAuthority> getAuthorities() {
 
         Collection<GrantedAuthority> authorities = new ArrayList<>();
-        authorities.add(new SimpleGrantedAuthority(user.getRole()));
+        authorities.add(new SimpleGrantedAuthority(user.getRoles()));
 
         return authorities;
     }

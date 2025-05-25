@@ -1,4 +1,4 @@
-package com.airing.backend.auth;
+package com.airing.backend.auth.security;
 
 import com.airing.backend.user.entity.User;
 import com.airing.backend.user.repository.UserRepository;
@@ -22,11 +22,9 @@ public class PrincipalDetailsService implements UserDetailsService {
     private UserRepository userRepository;
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-         Optional<User> userEntity = userRepository.findByUsername(username);
-         if (userEntity.isPresent()) {
-             User user = userEntity.get();
-             return new PrincipalDetails(user); // UserDetails 타입
-         } else throw new UsernameNotFoundException("사용자를 찾을 수 없습니다: " + username);
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        return userRepository.findByEmail(email)
+                .map(PrincipalDetails::new)
+                .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다: " + email));
     }
 }
