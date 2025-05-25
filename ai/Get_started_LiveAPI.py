@@ -22,11 +22,15 @@ To run the script:
 python Get_started_LiveAPI.py
 ```
 """
+# 30초 무응답 시 자동 종료 
+# 종료 발화 시 자동 종료
+
 
 import asyncio
 import os
 import sys
 import traceback
+import time
 
 import pyaudio
 import json
@@ -34,6 +38,8 @@ from google import genai
 from google.genai import types
 
 from dotenv import load_dotenv
+
+import websockets
 
 load_dotenv(".env")
 
@@ -47,13 +53,14 @@ except KeyError as exc:
 
 client = genai.Client(api_key=api_key)
 
-
 if sys.version_info < (3, 11, 0):
     import taskgroup, exceptiongroup
 
     asyncio.TaskGroup = taskgroup.TaskGroup
     asyncio.ExceptionGroup = exceptiongroup.ExceptionGroup
     ExceptionGroup = exceptiongroup.ExceptionGroup
+
+pya = pyaudio.PyAudio()
 
 FORMAT = pyaudio.paInt16
 CHANNELS = 1
@@ -65,30 +72,38 @@ MODEL = "models/gemini-2.0-flash-live-001"
 
 DEFAULT_MODE = "none"
 
+# 사용 가능한 음성 목록 정의
+AI_VOICES = {
+    "1": "Aoede",
+    "2": "Puck",
+    "3": "Charon",
+    "4": "Kore",
+    "5": "Fenrir",
+    "6": "Leda",
+    "7": "Orus",
+    "8": "Zephyr"
+}
 
-CONFIG = types.LiveConnectConfig(
-    response_modalities=["AUDIO"],
-    speech_config=types.SpeechConfig(language_code="ko-KR"),
-    system_instruction=types.Part(
-        text=(
-            "너는 오늘 하루 일기 작성을 돕는 대화 도우미야."
-            "사용자에게 오늘 어떤 일이 있었는지, 기분은 어땠는지, 기억에 남는 일은 무엇이었는지 자연스럽고 친근하게 차근차근 하나씩 질문해줘."
-            "일기 작성에 도움이 될 만한 질문을 이어가고, 한 번에 질문은 하나씩만 해."
-            "사용자의 대답에는 공감도 표현하기도 하고, 답변 내용에 맞는 질문도 해줘."
-            "그리고 답변은 한 문장 이내로 자연스럽게 해줘. 질문이나 답변이 끊기지 않았으면 좋겠어."
-        )
-    ),
-    input_audio_transcription={},
-    output_audio_transcription={},
-)
+END_KEYWORDS = ["통화 종료", "종료할게", "끝낼게", "그만하고 싶어", 
+                    "그만할래","그만할게", "끊을게", "끊어", "끊는다"]
 
-pya = pyaudio.PyAudio()
-
+def select_voice():
+    print("\n=== AI 음성 선택 ===")
+    print("사용 가능한 음성 목록:")
+    for key, voice in AI_VOICES.items():
+        print(f"{key}. {voice}")
+    
+    while True:
+        choice = input("\n원하는 음성 번호를 선택하세요 (1-8): ")
+        if choice in AI_VOICES:
+            return AI_VOICES[choice]
+        print("잘못된 선택입니다. 1-8 사이의 숫자를 입력해주세요.")
 
 class AudioLoop:
     def __init__(self, video_mode=DEFAULT_MODE):
         self.video_mode = video_mode
-
+        self.selected_voice = select_voice()  # 음성 선택 추가
+        
         self.audio_in_queue = None
         self.out_queue = None
 
@@ -101,8 +116,11 @@ class AudioLoop:
         self.ai_buffer = "" #AI 응답 누적 버퍼 추가
         self.user_buffer = "" #사용자 응답 누적 버퍼 추가
 
+        self.last_user_input_time = time.time()
+        self.session_active = True
+
     async def send_realtime(self):
-        while True:
+        while self.session_active:
             msg = await self.out_queue.get()
             blob = types.Blob(data=msg["data"], mime_type="audio/pcm;rate=16000")
             await self.session.send_realtime_input(audio=blob)
@@ -122,16 +140,14 @@ class AudioLoop:
             kwargs = {"exception_on_overflow": False}
         else:
             kwargs = {}
-        while True:
+        while self.session_active:
             data = await asyncio.to_thread(self.audio_stream.read, CHUNK_SIZE, **kwargs)
             await self.out_queue.put({"data": data, "mime_type": "audio/pcm"})
 
     async def receive_audio(self):
-        "Background task to reads from the websocket and write pcm chunks to the output queue"
-        while True:
+        while self.session_active:
             turn = self.session.receive()
             async for response in turn:
-
                 # 사용자 음성 텍스트 누적 (부분 응답)
                 if (
                 hasattr(response, "server_content")
@@ -139,11 +155,22 @@ class AudioLoop:
                 and response.server_content.input_transcription
                 and hasattr(response.server_content.input_transcription, "text")
                 and response.server_content.input_transcription.text):
-                    
                     user_text = response.server_content.input_transcription.text
                     self.user_buffer += user_text
-        
-                
+                    self.last_user_input_time = time.time()  # 마지막 입력 시각 갱신
+
+                    # 종료 발화 감지
+                    if any(keyword in user_text for keyword in END_KEYWORDS):
+                        print("사용자 종료 발화 감지, 세션 종료")
+                        self.session_active = False
+                        if self.session:
+                            await self.session.close()
+                        # 모든 태스크를 취소
+                        for task in asyncio.all_tasks():
+                            if task != asyncio.current_task():
+                                task.cancel()
+                        break
+
                 # AI 응답 텍스트 누적 (부분 응답)
                 if (
                 hasattr(response, "server_content")
@@ -177,6 +204,20 @@ class AudioLoop:
             while not self.audio_in_queue.empty():
                 self.audio_in_queue.get_nowait()
 
+    async def timeout_checker(self):
+        while self.session_active:
+            await asyncio.sleep(1)
+            if time.time() - self.last_user_input_time > 30:
+                print("30초 무응답, 세션 종료")
+                self.session_active = False
+                if self.session:
+                    await self.session.close()
+                # 모든 태스크를 취소
+                for task in asyncio.all_tasks():
+                    if task != asyncio.current_task():
+                        task.cancel()
+                break
+
     async def play_audio(self):
         stream = await asyncio.to_thread(
             pya.open,
@@ -186,21 +227,21 @@ class AudioLoop:
             output=True,
         )
         
-        # 오디오 버퍼 관리
+        # 오디오 버퍼 관리 - AI 대화 시작 시점 고려
         buffer = []
-        initial_buffer_size = 10  # 재생 시작 전 초기 버퍼 크기
-        minimum_buffer_size = 5   # 재생 중 최소 버퍼 크기
+        initial_buffer_size = 5  # 초기 버퍼 크기 (AI 첫 응답을 위한 충분한 버퍼)
+        minimum_buffer_size = 3  # 최소 버퍼 크기 (대화 중 끊김 방지)
         
         print("🔊 오디오 버퍼 준비 중...")
         
-        # 초기 버퍼 채우기
+        # 초기 버퍼 채우기 - AI 첫 응답을 위한 준비
         while len(buffer) < initial_buffer_size:
             try:
                 if not self.audio_in_queue.empty():
-                    chunk = await asyncio.wait_for(self.audio_in_queue.get(), timeout=0.1)
+                    chunk = await asyncio.wait_for(self.audio_in_queue.get(), timeout=0.1)  # 첫 응답을 위한 여유 시간
                     buffer.append(chunk)
                 else:
-                    await asyncio.sleep(0.05)
+                    await asyncio.sleep(0.05)  # 대기 시간
             except asyncio.TimeoutError:
                 continue
             except asyncio.CancelledError:
@@ -209,14 +250,14 @@ class AudioLoop:
         print("🔊 오디오 재생 시작")
         
         try:
-            while True:
+            while self.session_active:
                 # 버퍼가 최소 크기 이하로 떨어지면 더 채움
                 if len(buffer) <= minimum_buffer_size:
                     refill_count = 0
-                    while len(buffer) < initial_buffer_size and refill_count < 3:
+                    while len(buffer) < initial_buffer_size and refill_count < 3:  # 안정적인 대화를 위한 충분한 리필
                         try:
                             if not self.audio_in_queue.empty():
-                                chunk = await asyncio.wait_for(self.audio_in_queue.get(), timeout=0.1)
+                                chunk = await asyncio.wait_for(self.audio_in_queue.get(), timeout=0.08)  # 대화 중 적절한 대기 시간
                                 buffer.append(chunk)
                                 refill_count += 1
                             else:
@@ -232,19 +273,42 @@ class AudioLoop:
                     # 버퍼가 비었으면 큐에서 직접 가져와 재생
                     try:
                         if not self.audio_in_queue.empty():
-                            chunk = await asyncio.wait_for(self.audio_in_queue.get(), timeout=0.1)
+                            chunk = await asyncio.wait_for(self.audio_in_queue.get(), timeout=0.08)  # 대화 중 적절한 대기 시간
                             await asyncio.to_thread(stream.write, chunk)
                         else:
-                            # 버퍼와 큐가 모두 비었으면 잠시 대기
-                            await asyncio.sleep(0.02)
+                            await asyncio.sleep(0.03)  # 대화 중 적절한 대기 시간
                     except asyncio.TimeoutError:
-                        await asyncio.sleep(0.02)
+                        await asyncio.sleep(0.03)
         
         except asyncio.CancelledError:
             print("🔊 오디오 재생 중단")
 
     async def run(self):
         try:
+            # 음성 설정 업데이트
+            CONFIG = types.LiveConnectConfig(
+                response_modalities=["AUDIO"],
+                speech_config=types.SpeechConfig(
+                    language_code="ko-KR",  # 한국어 설정
+                    voice_config=types.VoiceConfig(
+                        prebuilt_voice_config=types.PrebuiltVoiceConfig(
+                            voice_name=self.selected_voice
+                        )
+                    )
+                ),
+                system_instruction=types.Part(
+                    text=(
+                        "너는 오늘 하루 일기 작성을 돕는 대화 도우미야."
+                        "사용자에게 오늘 어떤 일이 있었는지, 기분은 어땠는지, 기억에 남는 일은 무엇이었는지 자연스럽고 친근하게 차근차근 하나씩 질문해줘."
+                        "일기 작성에 도움이 될 만한 질문을 이어가고, 한 번에 질문은 하나씩만 해."
+                        "사용자의 대답에는 공감도 표현하기도 하고, 답변 내용에 맞는 질문도 해줘."
+                        "그리고 답변은 한 문장 이내로 자연스럽게 해줘. 질문이나 답변이 끊기지 않았으면 좋겠어."
+                    )
+                ),
+                input_audio_transcription={},
+                output_audio_transcription={}
+            )
+
             async with (
                 client.aio.live.connect(model=MODEL, config=CONFIG) as session,
                 asyncio.TaskGroup() as tg,
@@ -268,11 +332,13 @@ class AudioLoop:
 
                 tg.create_task(self.send_realtime())
                 tg.create_task(self.listen_audio())
-
                 tg.create_task(self.receive_audio())
                 tg.create_task(self.play_audio())
+                tg.create_task(self.timeout_checker())
 
-                await asyncio.Event().wait()  # 무한 대기, Ctrl+c로 종료
+                while self.session_active:
+                    await asyncio.sleep(0.5)
+                print("세션이 종료되었습니다.")
 
         except asyncio.CancelledError:
             pass
@@ -284,14 +350,18 @@ class AudioLoop:
         except ExceptionGroup as EG:
             if hasattr(self, "audio_stream") and self.audio_stream is not None:
                 self.audio_stream.close()
-            traceback.print_exception(EG)
+            # 예외 그룹의 각 예외를 개별적으로 처리
+            for exc in EG.exceptions:
+                if isinstance(exc, websockets.exceptions.ConnectionClosedOK):
+                    continue
+                print(f"오류 발생: {str(exc)}")
+        except websockets.exceptions.ConnectionClosedOK:
+            # 정상적인 종료 메시지는 출력하지 않음
+            pass
         finally:
             with open("conversation_log.json", "w", encoding="utf-8") as f:
                 json.dump(self.conversation_log, f, ensure_ascii=False, indent=2)    
 
-
-
 if __name__ == "__main__":
-
     main = AudioLoop(video_mode="none")
     asyncio.run(main.run())
