@@ -87,19 +87,14 @@ function renderTab(
       : String(options.tabBarLabel);
   const isFocused = state.index === index;
 
-  let IconComponent: React.FC<any> = () => null;
-  if (route.name === 'Diary') {
-    IconComponent = CalendarIcon;
-  }
-  if (route.name === 'Report') {
-    IconComponent = ReportIcon;
-  }
-  if (route.name === 'Log') {
-    IconComponent = LogIcon;
-  }
-  if (route.name === 'Settings') {
-    IconComponent = SettingsIcon;
-  }
+  const ICON_MAP: Record<string, React.FC<any>> = {
+    Diary: CalendarIcon,
+    Report: ReportIcon,
+    Log: LogIcon,
+    Settings: SettingsIcon,
+  };
+
+  const IconComponent = ICON_MAP[route.name] || (() => null);
 
   return (
     <TouchableOpacity
