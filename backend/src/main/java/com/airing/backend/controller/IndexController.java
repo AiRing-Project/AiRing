@@ -19,11 +19,6 @@ public class IndexController {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    @GetMapping({"", "/"})
-    public String index() {
-        return "index";
-    }
-
     @GetMapping("/user")
     public @ResponseBody String user() {
         return "user";
