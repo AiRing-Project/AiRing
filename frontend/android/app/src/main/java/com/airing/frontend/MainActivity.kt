@@ -1,4 +1,4 @@
-package com.airing
+package com.airing.frontend
 
 import com.facebook.react.ReactActivity
 import com.facebook.react.ReactActivityDelegate
