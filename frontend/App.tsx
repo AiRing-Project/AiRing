@@ -5,7 +5,7 @@
  * @format
  */
 
-import React, {useState} from 'react';
+import React, {useCallback, useState} from 'react';
 import {
   View,
   TouchableOpacity,
@@ -38,6 +38,7 @@ import SettingsScreen from './src/screens/SettingsScreen';
 const Tab = createBottomTabNavigator();
 
 // Dummy(빈) 화면 컴포넌트
+// eslint-disable-next-line react-native/no-inline-styles
 const DummyScreen = () => <View style={{flex: 1, backgroundColor: '#fff'}} />;
 
 function CustomTabBar({
@@ -86,11 +87,14 @@ function renderTab(
       : String(options.tabBarLabel);
   const isFocused = state.index === index;
 
-  let IconComponent: React.FC<any> = () => null;
-  if (route.name === 'Diary') IconComponent = CalendarIcon;
-  if (route.name === 'Report') IconComponent = ReportIcon;
-  if (route.name === 'Log') IconComponent = LogIcon;
-  if (route.name === 'Settings') IconComponent = SettingsIcon;
+  const ICON_MAP: Record<string, React.FC<any>> = {
+    Diary: CalendarIcon,
+    Report: ReportIcon,
+    Log: LogIcon,
+    Settings: SettingsIcon,
+  };
+
+  const IconComponent = ICON_MAP[route.name] || (() => null);
 
   return (
     <TouchableOpacity
@@ -105,7 +109,13 @@ function renderTab(
         height={22}
         fill={isFocused ? '#222222' : '#C9CACC'}
       />
-      <Text style={styles.tabLabel}>{label}</Text>
+      <Text
+        style={[
+          styles.tabLabel,
+          isFocused ? styles.tabLabelFocused : styles.tabLabelUnfocused,
+        ]}>
+        {label}
+      </Text>
     </TouchableOpacity>
   );
 }
@@ -113,16 +123,18 @@ function renderTab(
 const App = () => {
   const [modalVisible, setModalVisible] = useState(false);
 
+  const renderTabBar = useCallback(
+    (props: BottomTabBarProps) => (
+      <CustomTabBar {...props} onCallPress={() => setModalVisible(true)} />
+    ),
+    [],
+  );
+
   return (
     <SafeAreaProvider>
       <NavigationContainer>
         <Tab.Navigator
-          tabBar={props => (
-            <CustomTabBar
-              {...props}
-              onCallPress={() => setModalVisible(true)}
-            />
-          )}
+          tabBar={renderTabBar}
           screenOptions={{headerShown: false}}>
           <Tab.Screen
             name="Diary"
@@ -201,13 +213,14 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
   },
   tabLabel: {
-    color: '#B2B2B2',
     fontSize: 12,
     fontWeight: '600',
     letterSpacing: 0.24, // 2% of 12px
     fontFamily: 'Pretendard-SemiBold', // 폰트 적용 시
     marginTop: 2,
   },
+  tabLabelFocused: {color: '#222222'},
+  tabLabelUnfocused: {color: '#B2B2B2'},
   fab: {
     width: 43,
     height: 43,
