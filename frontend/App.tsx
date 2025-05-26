@@ -5,7 +5,7 @@
  * @format
  */
 
-import React, {useState} from 'react';
+import React, {useCallback, useState} from 'react';
 import {
   View,
   TouchableOpacity,
@@ -38,6 +38,7 @@ import SettingsScreen from './src/screens/SettingsScreen';
 const Tab = createBottomTabNavigator();
 
 // Dummy(빈) 화면 컴포넌트
+// eslint-disable-next-line react-native/no-inline-styles
 const DummyScreen = () => <View style={{flex: 1, backgroundColor: '#fff'}} />;
 
 function CustomTabBar({
@@ -87,10 +88,18 @@ function renderTab(
   const isFocused = state.index === index;
 
   let IconComponent: React.FC<any> = () => null;
-  if (route.name === 'Diary') IconComponent = CalendarIcon;
-  if (route.name === 'Report') IconComponent = ReportIcon;
-  if (route.name === 'Log') IconComponent = LogIcon;
-  if (route.name === 'Settings') IconComponent = SettingsIcon;
+  if (route.name === 'Diary') {
+    IconComponent = CalendarIcon;
+  }
+  if (route.name === 'Report') {
+    IconComponent = ReportIcon;
+  }
+  if (route.name === 'Log') {
+    IconComponent = LogIcon;
+  }
+  if (route.name === 'Settings') {
+    IconComponent = SettingsIcon;
+  }
 
   return (
     <TouchableOpacity
@@ -113,16 +122,18 @@ function renderTab(
 const App = () => {
   const [modalVisible, setModalVisible] = useState(false);
 
+  const renderTabBar = useCallback(
+    (props: BottomTabBarProps) => (
+      <CustomTabBar {...props} onCallPress={() => setModalVisible(true)} />
+    ),
+    [],
+  );
+
   return (
     <SafeAreaProvider>
       <NavigationContainer>
         <Tab.Navigator
-          tabBar={props => (
-            <CustomTabBar
-              {...props}
-              onCallPress={() => setModalVisible(true)}
-            />
-          )}
+          tabBar={renderTabBar}
           screenOptions={{headerShown: false}}>
           <Tab.Screen
             name="Diary"
