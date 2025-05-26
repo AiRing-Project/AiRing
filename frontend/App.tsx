@@ -110,8 +110,10 @@ function renderTab(
         fill={isFocused ? '#222222' : '#C9CACC'}
       />
       <Text
-        // eslint-disable-next-line react-native/no-inline-styles
-        style={[styles.tabLabel, {color: isFocused ? '#222222' : '#B2B2B2'}]}>
+        style={[
+          styles.tabLabel,
+          isFocused ? styles.tabLabelFocused : styles.tabLabelUnfocused,
+        ]}>
         {label}
       </Text>
     </TouchableOpacity>
@@ -211,13 +213,14 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
   },
   tabLabel: {
-    color: '#B2B2B2',
     fontSize: 12,
     fontWeight: '600',
     letterSpacing: 0.24, // 2% of 12px
     fontFamily: 'Pretendard-SemiBold', // 폰트 적용 시
     marginTop: 2,
   },
+  tabLabelFocused: {color: '#222222'},
+  tabLabelUnfocused: {color: '#B2B2B2'},
   fab: {
     width: 43,
     height: 43,
