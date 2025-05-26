@@ -17,7 +17,6 @@ import {
 } from 'react-native';
 import {NavigationContainer} from '@react-navigation/native';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
-import Icon from 'react-native-vector-icons/MaterialIcons';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 import type {BottomTabBarProps} from '@react-navigation/bottom-tabs';
 import type {
@@ -25,6 +24,11 @@ import type {
   ParamListBase,
   TabNavigationState,
 } from '@react-navigation/native';
+import CalendarIcon from './src/assets/icons/tab_calendar.svg';
+import ReportIcon from './src/assets/icons/tab_report.svg';
+import LogIcon from './src/assets/icons/tab_log.svg';
+import SettingsIcon from './src/assets/icons/tab_settings.svg';
+import CenterIcon from './src/assets/icons/tab_center.svg';
 
 import CalendarScreen from './src/screens/CalendarScreen';
 import ReportScreen from './src/screens/ReportScreen';
@@ -53,7 +57,7 @@ function CustomTabBar({
                 style={styles.fab}
                 onPress={onCallPress}
                 activeOpacity={0.8}>
-                <Icon name="phone" size={36} color="#fff" />
+                <CenterIcon width={18} height={18} fill="#fff" />
               </TouchableOpacity>
             </View>
           );
@@ -82,11 +86,11 @@ function renderTab(
       : String(options.tabBarLabel);
   const isFocused = state.index === index;
 
-  let iconName = '';
-  if (route.name === 'Diary') iconName = 'calendar-today';
-  if (route.name === 'Report') iconName = 'bar-chart';
-  if (route.name === 'Log') iconName = 'chat';
-  if (route.name === 'Settings') iconName = 'settings';
+  let IconComponent: React.FC<any> = () => null;
+  if (route.name === 'Diary') IconComponent = CalendarIcon;
+  if (route.name === 'Report') IconComponent = ReportIcon;
+  if (route.name === 'Log') IconComponent = LogIcon;
+  if (route.name === 'Settings') IconComponent = SettingsIcon;
 
   return (
     <TouchableOpacity
@@ -96,7 +100,11 @@ function renderTab(
       onPress={() => navigation.navigate(route.name)}
       style={styles.tabItem}
       activeOpacity={0.7}>
-      <Icon name={iconName} size={32} color="#BDBDBD" />
+      <IconComponent
+        width={22}
+        height={22}
+        fill={isFocused ? '#222222' : '#C9CACC'}
+      />
       <Text style={styles.tabLabel}>{label}</Text>
     </TouchableOpacity>
   );
@@ -173,37 +181,41 @@ const App = () => {
 const styles = StyleSheet.create({
   tabBar: {
     flexDirection: 'row',
-    height: 90,
-    backgroundColor: '#F8F8F8',
+    height: 85,
+    backgroundColor: '#FFFFFF',
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(0,0,0,0.04)',
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: -2},
+    shadowOpacity: 0.04,
+    shadowRadius: 6,
+    elevation: 8,
     alignItems: 'center',
     justifyContent: 'space-around',
-    position: 'relative',
     paddingBottom: Platform.OS === 'ios' ? 20 : 0,
   },
   tabItem: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 10,
+    paddingVertical: 8,
   },
   tabLabel: {
-    color: '#BDBDBD',
-    fontSize: 14,
-    marginTop: 4,
+    color: '#B2B2B2',
+    fontSize: 12,
+    fontWeight: '600',
+    letterSpacing: 0.24, // 2% of 12px
+    fontFamily: 'Pretendard-SemiBold', // 폰트 적용 시
+    marginTop: 2,
   },
   fab: {
-    width: 72,
-    height: 72,
-    borderRadius: 36,
-    backgroundColor: '#222',
+    width: 43,
+    height: 43,
+    borderRadius: 21.5,
+    backgroundColor: '#222222',
     alignItems: 'center',
     justifyContent: 'center',
-    elevation: 5,
-    zIndex: 10,
-    shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
+    marginBottom: 16,
   },
   dummyTab: {
     flex: 1,
