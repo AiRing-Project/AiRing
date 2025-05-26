@@ -38,7 +38,7 @@ public class AuthService {
         }
 
         String accessToken = jwtProvider.createToken(user.getEmail(), user.getRoles());
-        String refreshToken = generateSecureRefreshToken();
+        String refreshToken = jwtProvider.createRefreshToken(user.getEmail());
 
         refreshTokenRepository.save(new RefreshToken(user.getEmail(), refreshToken));
 
@@ -60,12 +60,16 @@ public class AuthService {
     }
 
     public UserLoginResponse reissue(TokenReissueRequest request) {
-        Optional<RefreshToken> optionalToken = refreshTokenRepository.findByToken(request.getRefreshToken());
-        if (optionalToken.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Refresh Token이 유효하지 않습니다.");
+        String refreshToken = request.getRefreshToken();
+
+        try {
+            jwtProvider.validateRefreshTokenOrThrow(refreshToken);
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Refresh Token이 만료되었거나 유효하지 않습니다.");
         }
 
-        RefreshToken stored = optionalToken.get();
+        RefreshToken stored = refreshTokenRepository.findByToken(refreshToken)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Refresh Token이 유효하지 않습니다."));
 
         User user = userRepository.findByEmail(stored.getEmail())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "사용자를 찾을 수 없습니다."));
@@ -73,7 +77,7 @@ public class AuthService {
         refreshTokenRepository.deleteById(user.getEmail());
 
         String newAccessToken = jwtProvider.createToken(user.getEmail(), user.getRoles());
-        String newRefreshToken = generateSecureRefreshToken();
+        String newRefreshToken = jwtProvider.createRefreshToken(user.getEmail());
 
         refreshTokenRepository.save(new RefreshToken(user.getEmail(), newRefreshToken));
 
@@ -86,6 +90,8 @@ public class AuthService {
         }
 
         String refreshToken = authorizationHeader.substring(7);
+
+        jwtProvider.validateRefreshTokenOrThrow(refreshToken);
 
         refreshTokenRepository.findByToken(refreshToken)
                 .ifPresent(refreshTokenRepository::delete);
@@ -113,11 +119,5 @@ public class AuthService {
         String encodedNewPassword = passwordEncoder.encode(request.getNewPassword());
         user.setPassword(encodedNewPassword);
         userRepository.save(user);
-    }
-
-    private String generateSecureRefreshToken() {
-        byte[] randomBytes = new byte[64];
-        new SecureRandom().nextBytes(randomBytes);
-        return Base64.getUrlEncoder().withoutPadding().encodeToString(randomBytes);
     }
 }
