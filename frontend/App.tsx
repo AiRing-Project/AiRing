@@ -114,7 +114,11 @@ function renderTab(
         height={22}
         fill={isFocused ? '#222222' : '#C9CACC'}
       />
-      <Text style={styles.tabLabel}>{label}</Text>
+      <Text
+        // eslint-disable-next-line react-native/no-inline-styles
+        style={[styles.tabLabel, {color: isFocused ? '#222222' : '#B2B2B2'}]}>
+        {label}
+      </Text>
     </TouchableOpacity>
   );
 }
