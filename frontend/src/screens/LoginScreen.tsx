@@ -26,9 +26,9 @@ type LoginScreenNavigationProp = CompositeNavigationProp<
 const LoginScreen = () => {
   const navigation = useNavigation<LoginScreenNavigationProp>();
   const setLoggedIn = useAuthStore(s => s.setLoggedIn);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [email, setEmail] = useState<string>('');
+  const [password, setPassword] = useState<string>('');
+  const [loading, setLoading] = useState<boolean>(false);
 
   const handleLogin = async () => {
     if (!email || !password) {
