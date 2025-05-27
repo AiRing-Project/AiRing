@@ -67,6 +67,17 @@ class AudioClient:
             print("[클라이언트] 오디오 스트림 설정 완료")
         except Exception as e:
             print(f"[클라이언트] 오디오 스트림 설정 중 오류: {str(e)}")
+            # 이미 열려 있는 스트림이 있다면 안전하게 닫습니다.
+            if self.stream is not None:
+                self.stream.stop_stream()
+                self.stream.close()
+                self.stream = None
+            if self.output_stream is not None:
+                self.output_stream.stop_stream()
+                self.output_stream.close()
+                self.output_stream = None
+            # PyAudio 인스턴스도 해제
+            self.p.terminate()
             raise
 
     def process_audio_input(self, data):
