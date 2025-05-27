@@ -1,9 +1,7 @@
 import { create } from 'zustand';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import * as Keychain from 'react-native-keychain';
 import { jwtDecode } from 'jwt-decode';
-import axios from 'axios';
-import { API_BASE_URL } from '@env';
+import { tryRefreshToken } from '../utils/tokenManager';
 
 interface AuthState {
     isLoading: boolean;
@@ -35,23 +33,8 @@ export const useAuthStore = create<AuthState>((set) => ({
             set({ isLoggedIn: true, isLoading: false });
             return;
         }
-        // accessToken이 만료된 경우 refreshToken으로 자동 로그인 시도 (axios 기본 인스턴스 사용)
-        try {
-            const creds = await Keychain.getGenericPassword();
-            if (!creds) { throw new Error('No refresh token'); }
-            const refreshToken = creds.password;
-            const res = await axios.post(`${API_BASE_URL}/auth/reissue`, { refreshToken }, { timeout: 5000 });
-            const newAccessToken = res.data.accessToken;
-            const newRefreshToken = res.data.refreshToken;
-            await AsyncStorage.setItem('accessToken', newAccessToken);
-            if (newRefreshToken) {
-                await Keychain.setGenericPassword('refreshToken', newRefreshToken);
-            }
-            set({ isLoggedIn: true, isLoading: false });
-        } catch {
-            await AsyncStorage.removeItem('accessToken');
-            await Keychain.resetGenericPassword();
-            set({ isLoggedIn: false, isLoading: false });
-        }
+        // accessToken이 만료된 경우 refreshToken으로 자동 로그인 시도
+        const ok = await tryRefreshToken();
+        set({ isLoggedIn: ok, isLoading: false });
     },
 }));
