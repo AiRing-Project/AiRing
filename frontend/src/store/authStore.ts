@@ -40,7 +40,7 @@ export const useAuthStore = create<AuthState>((set) => ({
             const creds = await Keychain.getGenericPassword();
             if (!creds) { throw new Error('No refresh token'); }
             const refreshToken = creds.password;
-            const res = await axios.post(`${API_BASE_URL}/auth/reissue`, { refreshToken });
+            const res = await axios.post(`${API_BASE_URL}/auth/reissue`, { refreshToken }, { timeout: 5000 });
             const newAccessToken = res.data.accessToken;
             const newRefreshToken = res.data.refreshToken;
             await AsyncStorage.setItem('accessToken', newAccessToken);
