@@ -37,7 +37,7 @@ class AudioClient:
         print(f"[클라이언트] 초기화: URI={self.uri}")
         self.websocket = None
         self.p = pyaudio.PyAudio()
-        self.RATE = 16000
+        self.RATE = 24000  # 24kHz로 변경
         self.CHUNK = 2048
         self.FORMAT = pyaudio.paInt16
         self.CHANNELS = 1
@@ -46,6 +46,7 @@ class AudioClient:
         self.running = False
         self.noise_gate = 0.01  # 노이즈 게이트 임계값
         self.normalization_factor = 1.5  # 오디오 정규화 계수
+        self._shutdown_event = asyncio.Event()
 
     def setup_audio_streams(self):
         """오디오 스트림을 설정합니다."""
@@ -166,7 +167,12 @@ class AudioClient:
                 try:
                     response = await self.websocket.recv()
                     if isinstance(response, bytes):
-                        self.output_stream.write(response)
+                        try:
+                            # 오디오 데이터 재생
+                            self.output_stream.write(response)
+                            print(f"[클라이언트] 오디오 데이터 재생: {len(response)} bytes")
+                        except Exception as e:
+                            print(f"[클라이언트] 오디오 재생 중 오류: {str(e)}")
                 except websockets.exceptions.ConnectionClosed:
                     print("[클라이언트] WebSocket 연결이 종료되었습니다")
                     break
@@ -180,18 +186,37 @@ class AudioClient:
                 await asyncio.sleep(0.1)
 
     async def stop(self):
-        """클라이언트를 종료합니다."""
+        """클라이언트를 안전하게 종료합니다."""
+        print("[클라이언트] 종료 시작...")
         self.running = False
+        self._shutdown_event.set()
+        
         if self.websocket:
-            await self.websocket.close()
+            try:
+                await self.websocket.close()
+            except Exception as e:
+                print(f"[클라이언트] WebSocket 종료 중 오류: {str(e)}")
+        
         if self.stream:
-            self.stream.stop_stream()
-            self.stream.close()
+            try:
+                self.stream.stop_stream()
+                self.stream.close()
+            except Exception as e:
+                print(f"[클라이언트] 입력 스트림 종료 중 오류: {str(e)}")
+        
         if self.output_stream:
-            self.output_stream.stop_stream()
-            self.output_stream.close()
-        self.p.terminate()
-        print("[클라이언트] 종료됨")
+            try:
+                self.output_stream.stop_stream()
+                self.output_stream.close()
+            except Exception as e:
+                print(f"[클라이언트] 출력 스트림 종료 중 오류: {str(e)}")
+        
+        try:
+            self.p.terminate()
+        except Exception as e:
+            print(f"[클라이언트] PyAudio 종료 중 오류: {str(e)}")
+        
+        print("[클라이언트] 종료 완료")
 
 async def main():
     # 사용 가능한 음성 목록 출력
@@ -219,25 +244,36 @@ async def main():
         print("잘못된 선택입니다. 다시 선택해주세요.")
 
     client = AudioClient(voice=selected_voice)
+    tasks = []
+    
     try:
         await client.connect()
-        send_task = asyncio.create_task(client.send_audio())
-        receive_task = asyncio.create_task(client.receive_audio())
+        tasks.append(asyncio.create_task(client.send_audio()))
+        tasks.append(asyncio.create_task(client.receive_audio()))
         
-        # Ctrl+C를 누를 때까지 대기
-        while True:
-            await asyncio.sleep(1)
+        # 종료 이벤트 대기
+        while not client._shutdown_event.is_set():
+            await asyncio.sleep(0.1)
             
     except KeyboardInterrupt:
         print("\n프로그램을 종료합니다...")
     except Exception as e:
         print(f"오류 발생: {str(e)}")
     finally:
+        # 모든 태스크 취소
+        for task in tasks:
+            if not task.done():
+                task.cancel()
+        
+        # 태스크가 완료될 때까지 대기
+        if tasks:
+            await asyncio.gather(*tasks, return_exceptions=True)
+        
+        # 클라이언트 종료
         await client.stop()
-        if 'send_task' in locals():
-            send_task.cancel()
-        if 'receive_task' in locals():
-            receive_task.cancel()
 
 if __name__ == "__main__":
-    asyncio.run(main()) 
+    try:
+        asyncio.run(main())
+    except KeyboardInterrupt:
+        print("\n프로그램이 종료되었습니다.") 
