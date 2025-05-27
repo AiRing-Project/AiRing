@@ -5,7 +5,7 @@
  * @format
  */
 
-import React from 'react';
+import React, {useEffect} from 'react';
 import {NavigationContainer} from '@react-navigation/native';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 import HomeTabs from './src/navigation/HomeTabs';
@@ -13,18 +13,33 @@ import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {enableScreens} from 'react-native-screens';
 import AuthStack from './src/navigation/AuthStack';
 import type {RootStackParamList} from './src/types/navigation';
+import {useAuthStore} from './src/store/authStore';
+import SplashScreen from './src/screens/SplashScreen';
 
 enableScreens();
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 const App = () => {
+  const {isLoading, isLoggedIn, checkAuth} = useAuthStore();
+
+  useEffect(() => {
+    checkAuth();
+  }, [checkAuth]);
+
+  if (isLoading) {
+    return <SplashScreen />;
+  }
+
   return (
     <SafeAreaProvider>
       <NavigationContainer>
         <Stack.Navigator screenOptions={{headerShown: false}}>
+          {isLoggedIn ? (
+            <Stack.Screen name="Home" component={HomeTabs} />
+          ) : (
           <Stack.Screen name="Auth" component={AuthStack} />
-          <Stack.Screen name="Home" component={HomeTabs} />
+          )}
         </Stack.Navigator>
       </NavigationContainer>
     </SafeAreaProvider>

@@ -5,13 +5,58 @@ import {
   TextInput,
   StyleSheet,
   TouchableOpacity,
+  Alert,
+  ActivityIndicator,
 } from 'react-native';
-import {useNavigation} from '@react-navigation/native';
+import {useNavigation, CompositeNavigationProp} from '@react-navigation/native';
+import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
+import type {RootStackParamList} from '../types/navigation';
+import type {AuthStackParamList} from '../types/navigation';
+import {loginApi} from '../api/authApi';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as Keychain from 'react-native-keychain';
+import {useAuthStore} from '../store/authStore';
+
+// CompositeNavigationProp<현재Stack, 부모Stack>
+type LoginScreenNavigationProp = CompositeNavigationProp<
+  NativeStackNavigationProp<AuthStackParamList, 'Login'>,
+  NativeStackNavigationProp<RootStackParamList>
+>;
 
 const LoginScreen = () => {
-  const navigation = useNavigation<any>(); // Home은 RootStack에 있으므로 any로 처리
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const navigation = useNavigation<LoginScreenNavigationProp>();
+  const setLoggedIn = useAuthStore(s => s.setLoggedIn);
+  const [email, setEmail] = useState<string>('');
+  const [password, setPassword] = useState<string>('');
+  const [loading, setLoading] = useState<boolean>(false);
+
+  const handleLogin = async () => {
+    if (!email || !password) {
+      Alert.alert('입력 오류', '이메일과 비밀번호를 모두 입력해주세요.');
+      return;
+    }
+    setLoading(true);
+    try {
+      const {accessToken, refreshToken} = await loginApi({email, password});
+      await AsyncStorage.setItem('accessToken', accessToken);
+      await Keychain.setGenericPassword('refreshToken', refreshToken);
+      setLoggedIn(true);
+    } catch (e: any) {
+      const status = e?.response?.status;
+      const url = e?.response?.config?.url;
+      const message =
+        e?.response?.data?.message || e.message || '알 수 없는 오류';
+      let alertMessage = `상태 코드: ${status ?? '-'}\n요청 URL: ${
+        url ?? '-'
+      }\n메시지: ${message}`;
+      if (status === 401) {
+        alertMessage = '가입되지 않은 계정이거나 비밀번호가 올바르지 않습니다.';
+      }
+      Alert.alert('로그인 실패', alertMessage);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -36,13 +81,15 @@ const LoginScreen = () => {
         textContentType="password"
       />
       <TouchableOpacity
-        style={styles.loginButton}
+        style={[styles.loginButton, loading && {opacity: 0.6}]}
         activeOpacity={0.8}
-        onPress={() => {
-          /* TODO: 로그인 로직 */
-          navigation.replace('Home');
-        }}>
-        <Text style={styles.loginButtonText}>로그인</Text>
+        onPress={handleLogin}
+        disabled={loading}>
+        {loading ? (
+          <ActivityIndicator color="#fff" />
+        ) : (
+          <Text style={styles.loginButtonText}>로그인</Text>
+        )}
       </TouchableOpacity>
       <View style={styles.signupContainer}>
         <Text style={styles.signupText}>아직 계정이 없으신가요? </Text>
