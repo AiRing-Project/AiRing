@@ -112,7 +112,7 @@ function renderTab(
 }
 
 const HomeTabs = () => {
-  const [modalVisible, setModalVisible] = useState(false);
+  const [modalVisible, setModalVisible] = useState<boolean>(false);
 
   const renderTabBar = useCallback(
     (props: BottomTabBarProps) => (
