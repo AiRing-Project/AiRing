@@ -46,12 +46,13 @@ const LoginScreen = () => {
       const url = e?.response?.config?.url;
       const message =
         e?.response?.data?.message || e.message || '알 수 없는 오류';
-      Alert.alert(
-        '로그인 실패',
-        `상태 코드: ${status ?? '-'}\n요청 URL: ${
-          url ?? '-'
-        }\n메시지: ${message}`,
-      );
+      let alertMessage = `상태 코드: ${status ?? '-'}\n요청 URL: ${
+        url ?? '-'
+      }\n메시지: ${message}`;
+      if (status === 401) {
+        alertMessage = '가입되지 않은 계정이거나 비밀번호가 올바르지 않습니다.';
+      }
+      Alert.alert('로그인 실패', alertMessage);
     } finally {
       setLoading(false);
     }
