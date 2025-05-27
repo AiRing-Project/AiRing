@@ -6,6 +6,7 @@ import {
   StyleSheet,
   TouchableOpacity,
   Alert,
+  ActivityIndicator,
 } from 'react-native';
 import {useNavigation, CompositeNavigationProp} from '@react-navigation/native';
 import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
@@ -83,9 +84,11 @@ const LoginScreen = () => {
         activeOpacity={0.8}
         onPress={handleLogin}
         disabled={loading}>
-        <Text style={styles.loginButtonText}>
-          {loading ? '로그인 중...' : '로그인'}
-        </Text>
+        {loading ? (
+          <ActivityIndicator color="#fff" />
+        ) : (
+          <Text style={styles.loginButtonText}>로그인</Text>
+        )}
       </TouchableOpacity>
       <View style={styles.signupContainer}>
         <Text style={styles.signupText}>아직 계정이 없으신가요? </Text>

@@ -6,6 +6,7 @@ import {
   StyleSheet,
   TouchableOpacity,
   Alert,
+  ActivityIndicator,
 } from 'react-native';
 import {useNavigation, CompositeNavigationProp} from '@react-navigation/native';
 import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
@@ -89,9 +90,11 @@ const SignUpScreen = () => {
         activeOpacity={0.8}
         onPress={handleSignUp}
         disabled={loading}>
-        <Text style={styles.signUpButtonText}>
-          {loading ? '회원가입 중...' : '회원가입'}
-        </Text>
+        {loading ? (
+          <ActivityIndicator color="#fff" />
+        ) : (
+          <Text style={styles.signUpButtonText}>회원가입</Text>
+        )}
       </TouchableOpacity>
     </View>
   );
