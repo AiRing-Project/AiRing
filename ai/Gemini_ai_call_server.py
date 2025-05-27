@@ -65,7 +65,7 @@ pya = pyaudio.PyAudio()
 
 FORMAT = pyaudio.paInt16
 CHANNELS = 1
-SEND_SAMPLE_RATE = 16000
+SEND_SAMPLE_RATE = 24000
 RECEIVE_SAMPLE_RATE = 24000
 CHUNK_SIZE = 2048
 
@@ -90,6 +90,7 @@ END_KEYWORDS = ["통화 종료", "종료할게", "끝낼게", "그만하고 싶�
 # 전역 변수로 관리할 연결 및 태스크 저장소
 active_sessions: Dict[str, 'AudioLoop'] = {}
 shutdown_event = asyncio.Event()
+shutdown_tasks = set()  # 종료 시 정리할 태스크들을 추적
 
 # FastAPI 앱 초기화
 app = FastAPI()
@@ -192,28 +193,35 @@ class AudioLoop:
         if not self.session_active:
             return
 
-        self.session_active = False
-        self._stop_event.set()
+        async with self._cleanup_lock:
+            if not self.session_active:  # 이중 체크
+                return
 
-        if self.session:
-            try:
-                await self.session.close()
-            except Exception as e:
-                print(f"세션 종료 중 오류: {str(e)}")
+            self.session_active = False
+            self._stop_event.set()
 
-        # 실행 중인 태스크 취소
-        for task in self._tasks:
-            if not task.done():
-                task.cancel()
+            if self.session:
+                try:
+                    await self.session.close()
+                except Exception as e:
+                    print(f"세션 종료 중 오류: {str(e)}")
 
-        # 모든 태스크가 완료될 때까지 대기
-        if self._tasks:
-            try:
-                await asyncio.gather(*self._tasks, return_exceptions=True)
-            except Exception as e:
-                print(f"태스크 정리 중 오류: {str(e)}")
-        
-        self._tasks.clear()
+            # 현재 실행 중인 태스크(자기 자신)는 제외하고 취소
+            current_task = asyncio.current_task()
+            tasks_to_cancel = [t for t in list(self._tasks) if t is not current_task]
+            
+            for task in tasks_to_cancel:
+                if not task.done():
+                    task.cancel()
+
+            # 모든 태스크가 완료될 때까지 대기
+            if tasks_to_cancel:
+                try:
+                    await asyncio.gather(*tasks_to_cancel, return_exceptions=True)
+                except Exception as e:
+                    print(f"태스크 정리 중 오류: {str(e)}")
+            
+            self._tasks.clear()
 
     def create_task(self, coro):
         """새로운 태스크를 생성하고 관리합니다."""
@@ -291,7 +299,7 @@ class AudioLoop:
         while not self._stop_event.is_set() and not shutdown_event.is_set():
             try:
                 await asyncio.sleep(1)
-                if time.time() - self.last_user_input_time > 30:  # 60초에서 30초로 다시 변경
+                if time.time() - self.last_user_input_time > 30:  
                     print("30초 무응답, 세션 종료")
                     await self.stop()
                     break
@@ -483,15 +491,20 @@ async def websocket_endpoint(
         
         # 세션을 백그라운드에서 실행
         session_task = asyncio.create_task(audio_loop.start_session())
+        shutdown_tasks.add(session_task)
         
         # 세션 종료 시 정리 작업을 위한 콜백 설정
         def cleanup_session(task):
             try:
-                task.result()  # 예외가 있다면 다시 발생시킴
+                if not task.cancelled():
+                    task.result()  # 예외가 있다면 다시 발생시킴
+            except asyncio.CancelledError:
+                print(f"[서버] 세션 태스크 취소됨: {session_key}")
             except Exception as e:
                 print(f"[서버] 세션 종료 중 오류: {str(e)}")
             finally:
-                if not task.cancelled() and session_key in manager.audio_loops:
+                shutdown_tasks.discard(task)
+                if session_key in manager.audio_loops:
                     asyncio.create_task(manager.disconnect(session_key))
         
         session_task.add_done_callback(cleanup_session)
@@ -505,19 +518,21 @@ async def websocket_endpoint(
                 break
                 
             try:
+                # 클라이언트로부터 오디오 데이터 수신
                 data = await websocket.receive_bytes()
                 if session_key in manager.audio_loops:
                     audio_loop = manager.audio_loops[session_key]
                     await audio_loop.out_queue.put({"data": data, "mime_type": "audio/pcm"})
                     
-                    # 논블로킹으로 여러 오디오 청크 처리
+                    # AI 응답 오디오 데이터 처리
                     try:
-                        while True:
-                            response_data = audio_loop.audio_in_queue.get_nowait()
-                            print(f"[서버] 오디오 데이터 전송: {len(response_data)} bytes")
-                            await manager.send_audio(session_key, response_data)
-                    except asyncio.QueueEmpty:
-                        pass  # 큐가 비어있으면 계속 진행
+                        while not audio_loop.audio_in_queue.empty():
+                            response_data = await audio_loop.audio_in_queue.get()
+                            if response_data:  # None이 아닌 경우에만 전송
+                                print(f"[서버] 오디오 데이터 전송: {len(response_data)} bytes")
+                                await manager.send_audio(session_key, response_data)
+                    except Exception as e:
+                        print(f"[서버] 오디오 데이터 처리 중 오류: {str(e)}")
                         
             except WebSocketDisconnect:
                 print(f"[서버] WebSocket 연결 종료 감지: {session_key}")
@@ -535,7 +550,6 @@ async def websocket_endpoint(
         print(f"[서버] 오류 상세: {traceback.format_exc()}")
         if 'session_key' in locals():
             await manager.disconnect(session_key)
-        # 예외를 다시 발생시켜 FastAPI가 적절히 처리하도록 함
         raise
 
 @app.post("/select_voice")
@@ -566,19 +580,47 @@ if __name__ == "__main__":
     import signal
     import sys
 
-    def signal_handler(sig, frame):
-        print("\n프로그램을 종료합니다...")
-        # 모든 연결된 클라이언트 정리
+    async def shutdown():
+        """서버를 안전하게 종료합니다."""
+        print("\n서버를 종료합니다...")
+        shutdown_event.set()
+        
+        # 모든 세션 종료
         for session_key in list(manager.active_connections.keys()):
             if session_key in manager.audio_loops:
                 audio_loop = manager.audio_loops[session_key]
                 try:
-                    loop = asyncio.get_event_loop()
-                    if loop.is_running():
-                        loop.create_task(audio_loop.stop())
+                    await audio_loop.stop()
                 except Exception as e:
                     print(f"세션 종료 중 오류: {str(e)}")
-        sys.exit(0)
+        
+        # 현재 실행 중인 태스크(자기 자신)는 제외하고 취소
+        current_task = asyncio.current_task()
+        tasks_to_cancel = [t for t in list(shutdown_tasks) if t is not current_task]
+        
+        for task in tasks_to_cancel:
+            if not task.done():
+                task.cancel()
+        
+        # 모든 태스크가 완료될 때까지 대기
+        if tasks_to_cancel:
+            try:
+                await asyncio.gather(*tasks_to_cancel, return_exceptions=True)
+            except Exception as e:
+                print(f"태스크 종료 중 오류: {str(e)}")
+        
+        print("서버가 안전하게 종료되었습니다.")
+
+    def signal_handler(sig, frame):
+        """시그널 핸들러"""
+        print("\n종료 시그널을 받았습니다...")
+        try:
+            loop = asyncio.get_event_loop()
+            if loop.is_running():
+                loop.create_task(shutdown())
+        except Exception as e:
+            print(f"종료 처리 중 오류: {str(e)}")
+            sys.exit(1)
 
     # SIGINT (Ctrl+C) 시그널 핸들러 등록
     signal.signal(signal.SIGINT, signal_handler)
@@ -594,14 +636,13 @@ if __name__ == "__main__":
         )
     except KeyboardInterrupt:
         print("\n프로그램을 종료합니다...")
+    except Exception as e:
+        print(f"서버 실행 중 오류: {str(e)}")
     finally:
-        # 모든 연결된 클라이언트 정리
-        for session_key in list(manager.active_connections.keys()):
-            if session_key in manager.audio_loops:
-                audio_loop = manager.audio_loops[session_key]
-                try:
-                    loop = asyncio.get_event_loop()
-                    if loop.is_running():
-                        loop.create_task(audio_loop.stop())
-                except Exception as e:
-                    print(f"세션 종료 중 오류: {str(e)}")
+        try:
+            loop = asyncio.get_event_loop()
+            if loop.is_running():
+                loop.run_until_complete(shutdown())
+        except Exception as e:
+            print(f"종료 처리 중 오류: {str(e)}")
+            sys.exit(1)
