@@ -104,7 +104,8 @@ app.add_middleware(
 )
 
 # 테스트용 SECRET_KEY 설정
-SECRET_KEY = "test_secret_key"  # 테스트용 임시 키
+SECRET_KEY = os.getenv("JWT_SECRET_KEY", "test_secret_key")  # 테스트용 기본값 설정
+print(f"[서버] JWT_SECRET_KEY {'환경 변수에서 로드됨' if os.getenv('JWT_SECRET_KEY') else '테스트용 키 사용'}")
 
 def get_user_id_from_token(token: str) -> tuple[bool, str, str]:
     """
@@ -480,7 +481,20 @@ async def websocket_endpoint(
         active_sessions[session_key] = audio_loop
         manager.active_connections[session_key] = websocket
         
-        await audio_loop.start_session()
+        # 세션을 백그라운드에서 실행
+        session_task = asyncio.create_task(audio_loop.start_session())
+        
+        # 세션 종료 시 정리 작업을 위한 콜백 설정
+        def cleanup_session(task):
+            try:
+                task.result()  # 예외가 있다면 다시 발생시킴
+            except Exception as e:
+                print(f"[서버] 세션 종료 중 오류: {str(e)}")
+            finally:
+                if not task.cancelled() and session_key in manager.audio_loops:
+                    asyncio.create_task(manager.disconnect(session_key))
+        
+        session_task.add_done_callback(cleanup_session)
         print(f"[서버] AudioLoop 세션 시작 완료: {session_key}")
         
         # 5. 메인 루프
@@ -495,10 +509,16 @@ async def websocket_endpoint(
                 if session_key in manager.audio_loops:
                     audio_loop = manager.audio_loops[session_key]
                     await audio_loop.out_queue.put({"data": data, "mime_type": "audio/pcm"})
-                    if not audio_loop.audio_in_queue.empty():
-                        response_data = await audio_loop.audio_in_queue.get()
-                        print(f"[서버] 오디오 데이터 전송: {len(response_data)} bytes")
-                        await manager.send_audio(session_key, response_data)
+                    
+                    # 논블로킹으로 여러 오디오 청크 처리
+                    try:
+                        while True:
+                            response_data = audio_loop.audio_in_queue.get_nowait()
+                            print(f"[서버] 오디오 데이터 전송: {len(response_data)} bytes")
+                            await manager.send_audio(session_key, response_data)
+                    except asyncio.QueueEmpty:
+                        pass  # 큐가 비어있으면 계속 진행
+                        
             except WebSocketDisconnect:
                 print(f"[서버] WebSocket 연결 종료 감지: {session_key}")
                 break
