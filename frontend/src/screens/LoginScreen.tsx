@@ -23,6 +23,8 @@ const LoginScreen = () => {
         onChangeText={setEmail}
         autoCapitalize="none"
         keyboardType="email-address"
+        autoComplete="email"
+        textContentType="username"
       />
       <TextInput
         style={styles.input}
@@ -30,6 +32,8 @@ const LoginScreen = () => {
         value={password}
         onChangeText={setPassword}
         secureTextEntry
+        autoComplete="password"
+        textContentType="password"
       />
       <TouchableOpacity
         style={styles.loginButton}
