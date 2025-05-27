@@ -5,17 +5,55 @@ import {
   TextInput,
   StyleSheet,
   TouchableOpacity,
+  Alert,
 } from 'react-native';
-import {useNavigation} from '@react-navigation/native';
+import {useNavigation, CompositeNavigationProp} from '@react-navigation/native';
 import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import type {AuthStackParamList} from '../types/navigation';
+import type {RootStackParamList} from '../types/navigation';
+import {signUpApi} from '../api/authApi';
+
+// CompositeNavigationProp<현재Stack, 부모Stack>
+type SignUpScreenNavigationProp = CompositeNavigationProp<
+  NativeStackNavigationProp<AuthStackParamList, 'SignUp'>,
+  NativeStackNavigationProp<RootStackParamList>
+>;
 
 const SignUpScreen = () => {
-  const navigation =
-    useNavigation<NativeStackNavigationProp<AuthStackParamList>>();
+  const navigation = useNavigation<SignUpScreenNavigationProp>();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [username, setUsername] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const handleSignUp = async () => {
+    if (!email || !password || !username) {
+      Alert.alert(
+        '입력 오류',
+        '이메일, 비밀번호, 사용자 이름을 모두 입력해주세요.',
+      );
+      return;
+    }
+    setLoading(true);
+    try {
+      await signUpApi({email, username, password});
+      Alert.alert('회원가입 완료', '이제 로그인해 주세요.');
+      navigation.replace('Login');
+    } catch (e: any) {
+      const status = e?.response?.status;
+      const url = e?.response?.config?.url;
+      const message =
+        e?.response?.data?.message || e.message || '알 수 없는 오류';
+      Alert.alert(
+        '회원가입 실패',
+        `상태 코드: ${status ?? '-'}\n요청 URL: ${
+          url ?? '-'
+        }\n메시지: ${message}`,
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -27,6 +65,8 @@ const SignUpScreen = () => {
         onChangeText={setEmail}
         autoCapitalize="none"
         keyboardType="email-address"
+        autoComplete="email"
+        textContentType="emailAddress"
       />
       <TextInput
         style={styles.input}
@@ -34,21 +74,24 @@ const SignUpScreen = () => {
         value={password}
         onChangeText={setPassword}
         secureTextEntry
+        autoComplete="new-password"
+        textContentType="newPassword"
       />
       <TextInput
         style={styles.input}
         placeholder="사용자 이름"
         value={username}
         onChangeText={setUsername}
+        autoCapitalize="none"
       />
       <TouchableOpacity
-        style={styles.signUpButton}
+        style={[styles.signUpButton, loading && {opacity: 0.6}]}
         activeOpacity={0.8}
-        onPress={() => {
-          /* TODO: 회원가입 로직 */
-          navigation.navigate('Login');
-        }}>
-        <Text style={styles.signUpButtonText}>회원가입</Text>
+        onPress={handleSignUp}
+        disabled={loading}>
+        <Text style={styles.signUpButtonText}>
+          {loading ? '회원가입 중...' : '회원가입'}
+        </Text>
       </TouchableOpacity>
     </View>
   );
