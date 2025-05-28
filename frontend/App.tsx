@@ -39,7 +39,7 @@ const App = () => {
           {isLoggedIn ? (
             <Stack.Screen name="Home" component={HomeTabs} />
           ) : (
-          <Stack.Screen name="Auth" component={AuthStack} />
+            <Stack.Screen name="Auth" component={AuthStack} />
           )}
         </Stack.Navigator>
       </NavigationContainer>
