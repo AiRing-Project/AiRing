@@ -12,6 +12,8 @@ import {
 } from 'react-native';
 import * as yup from 'yup';
 
+import {resetPasswordApi} from '../../api/authApi';
+
 const schema = yup.object({
   currentPassword: yup.string().required('현재 비밀번호를 입력하세요.'),
   newPassword: yup
@@ -44,13 +46,27 @@ const ResetPasswordScreen = () => {
 
   const onSubmit = async (data: ResetPasswordFormData) => {
     setLoading(true);
-    // 실제 API 연동은 추후 구현
-    console.log(data);
-    setTimeout(() => {
-      setLoading(false);
+    try {
+      await resetPasswordApi({
+        currentPassword: data.currentPassword,
+        newPassword: data.newPassword,
+      });
       Alert.alert('비밀번호 변경', '비밀번호가 성공적으로 변경되었습니다.');
       reset();
-    }, 1000);
+    } catch (e: any) {
+      let msg = '비밀번호 변경에 실패했습니다.';
+      const status = e?.response?.status;
+      if (status === 400) {
+        msg = '기존 비밀번호와 새 비밀번호가 같습니다.';
+      } else if (status === 401) {
+        msg = '현재 비밀번호가 일치하지 않습니다.';
+      } else if (e?.response?.data?.message) {
+        msg = e.response.data.message;
+      }
+      Alert.alert('비밀번호 변경 실패', msg);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
