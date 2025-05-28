@@ -117,7 +117,7 @@ def get_user_id_from_token(token: str) -> tuple[bool, str, str]:
         tuple[bool, str, str]: (성공 여부, 사용자 ID 또는 에러 메시지, 에러 타입)
     """
     try:
-        print(f"[서버] 토큰 검증 시작: {token}")
+        print(f"[서버] 토큰 검증 시작: {token[:6]}***{token[-6:] if len(token) > 12 else ''}")
         
         # 토큰 형식 검증
         if not token:
@@ -313,12 +313,9 @@ class AudioLoop:
                 await asyncio.sleep(0.1)
 
     async def receive_audio(self):
-        """Gemini Live API로부터 오디오 데이터를 수신합니다."""
         try:
             print("[시스템] AI와의 대화를 시작합니다...")
             print("[시스템] AI의 첫 응답을 기다리는 중...")
-            
-            # 첫 응답 대기
             async with client.aio.live.connect(
                 model=MODEL,
                 config=types.LiveConnectConfig(
@@ -343,25 +340,27 @@ class AudioLoop:
                 )
             ) as session:
                 self.session = session
-                
                 try:
-                    # 첫 메시지 전송
+                    # 첫 AI 응답 생성 및 전송
+                    print("[시스템] 첫 AI 응답 생성 시작")
                     await session.send_client_content(
                         turns={
                             "role": "user",
                             "parts": [
                                 {
-                                    "text": "오늘 하루 일기를 작성할 수 있도록 간단한 질문을 먼저 해줘. 첫 질문은 오늘 하루는 어떠셨나요? 같은 질문이면 좋겠어."
+                                    "text": "안녕하세요! 오늘 하루는 어떠셨나요?"
                                 }
                             ],
                         },
                         turn_complete=True,
                     )
+                    print(f"[시스템] ({time.time():.2f}) AI의 첫 응답을 기다리는 중...")
                     
-                    # 첫 응답 수신
+                    # 첫 응답 수신 및 전송
                     turn = session.receive()
                     async for response in turn:
-                        if self._stop_event.is_set():
+                        if self._stop_event.is_set() or not self.running or not self.session_active:
+                            print("[시스템] 세션 종료 플래그 감지, 첫 응답 루프 탈출")
                             return
                             
                         # AI 응답 텍스트 처리
@@ -372,87 +371,93 @@ class AudioLoop:
                             and response.server_content.output_transcription.text):
                             ai_text = response.server_content.output_transcription.text
                             self.conversation_history.append({"role": "assistant", "content": ai_text})
-                            print(f"[서버] AI 응답 텍스트 생성 시각: {time.time():.2f}, 내용: {ai_text}")
-                        
-                        # 오디오 데이터 처리
+                            print(f"[서버] ({time.time():.2f}) AI 응답 텍스트 생성: {ai_text}")
+                            
+                        # 오디오 데이터 처리 및 전송
                         if data := response.data:
-                            print(f"[서버] 오디오 데이터 전송 시각: {time.time():.2f}, 크기: {len(data)} bytes")
+                            print(f"[서버] ({time.time():.2f}) 오디오 데이터 전송: {len(data)} bytes")
                             try:
                                 if not self._closing and self.websocket:
                                     await self.websocket.send_bytes(data)
+                                    await asyncio.sleep(0.01)  # 작은 딜레이로 전송 안정성 확보
                             except Exception as e:
                                 print(f"[서버] 오디오 데이터 전송 중 오류: {str(e)}")
                                 continue
-                    
-                    print("[시스템] AI 첫 응답 완전히 완료됨")
+                                
+                    print(f"[시스템] ({time.time():.2f}) AI 첫 응답 완전히 완료됨")
+                    self._is_first_response_complete = True
                     
                     # 대화 루프
-                    while self.running and not self._closing:
+                    while self.running and not self._closing and self.session_active:
                         try:
-                            # 사용자 입력 대기
                             if not self.websocket:
                                 print("[시스템] WebSocket 연결이 없습니다.")
                                 break
-                            async with self._recv_lock:  # Lock을 사용하여 recv 호출 동기화
+                                
+                            async with self._recv_lock:
                                 user_input = await self.websocket.receive_bytes()
+                                
                             if not user_input:
                                 continue
-                            
-                            # 사용자 입력 처리
-                            if isinstance(user_input, bytes):
-                                self.last_user_input_time = time.time()  # 사용자 입력 타임스탬프 갱신
-                                print(f"[서버] 사용자 오디오 데이터 수신: {len(user_input)} bytes")  # 수신 로그 추가
-                                # 오디오 데이터를 텍스트로 변환
-                                blob = types.Blob(data=user_input, mime_type="audio/pcm;rate=16000")
-                                await session.send_realtime_input(audio=blob)
                                 
-                                # AI 응답 수신
-                                turn = session.receive()
-                                async for response in turn:
-                                    if self._stop_event.is_set():
-                                        return
-                                        
-                                    # AI 응답 텍스트 처리
-                                    if (hasattr(response, "server_content")
-                                        and hasattr(response.server_content, "output_transcription")
-                                        and response.server_content.output_transcription
-                                        and hasattr(response.server_content.output_transcription, "text")
-                                        and response.server_content.output_transcription.text):
-                                        ai_text = response.server_content.output_transcription.text
-                                        self.conversation_history.append({"role": "assistant", "content": ai_text})
-                                        print(f"[서버] AI 응답 텍스트 생성 시각: {time.time():.2f}, 내용: {ai_text}")
+                            self.last_user_input_time = time.time()
+                            print(f"[서버] ({self.last_user_input_time:.2f}) 사용자 오디오 데이터 수신: {len(user_input)} bytes")
+                            
+                            blob = types.Blob(data=user_input, mime_type=f"audio/pcm;rate={SEND_SAMPLE_RATE}")
+                            await session.send_realtime_input(audio=blob)
+                            
+                            # AI 응답 수신
+                            turn = session.receive()
+                            async for response in turn:
+                                if self._stop_event.is_set() or not self.running or not self.session_active:
+                                    print("[시스템] 세션 종료 플래그 감지, 대화 루프 탈출")
+                                    return
                                     
-                                    # 오디오 데이터 처리
-                                    if data := response.data:
-                                        print(f"[서버] 오디오 데이터 전송 시각: {time.time():.2f}, 크기: {len(data)} bytes")
-                                        try:
-                                            if not self._closing and self.websocket:
-                                                await self.websocket.send_bytes(data)
-                                        except Exception as e:
-                                            print(f"[서버] 오디오 데이터 전송 중 오류: {str(e)}")
-                                            continue
-                        
+                                if (hasattr(response, "server_content")
+                                    and hasattr(response.server_content, "output_transcription")
+                                    and response.server_content.output_transcription
+                                    and hasattr(response.server_content.output_transcription, "text")
+                                    and response.server_content.output_transcription.text):
+                                    ai_text = response.server_content.output_transcription.text
+                                    self.conversation_history.append({"role": "assistant", "content": ai_text})
+                                    print(f"[서버] ({time.time():.2f}) AI 응답 텍스트 생성: {ai_text}")
+                                    
+                                if data := response.data:
+                                    print(f"[서버] ({time.time():.2f}) 오디오 데이터 전송: {len(data)} bytes")
+                                    try:
+                                        if not self._closing and self.websocket:
+                                            await self.websocket.send_bytes(data)
+                                            await asyncio.sleep(0.01)  # 작은 딜레이로 전송 안정성 확보
+                                    except Exception as e:
+                                        print(f"[서버] 오디오 데이터 전송 중 오류: {str(e)}")
+                                        continue
+                                
                         except websockets.exceptions.ConnectionClosed:
-                            print("[시스템] WebSocket 연결이 종료되었습니다")
+                            print("[시스템] WebSocket 연결이 종료되었습니다 (대화 루프)")
+                            break
+                        except asyncio.CancelledError:
+                            print("[시스템] receive_audio 태스크 취소됨 (대화 루프)")
                             break
                         except Exception as e:
-                            print(f"[시스템] 오류 발생: {str(e)}")
-                            if "quota" in str(e).lower():
-                                print("[시스템] API 할당량이 초과되었습니다. 잠시 후 다시 시도해주세요.")
-                                break
-                            continue
-                
+                            print(f"[시스템] 오류 발생 (대화 루프): {str(e)}")
+                            break
+                            
+                except websockets.exceptions.ConnectionClosed:
+                    print("[시스템] WebSocket 연결이 종료되었습니다 (첫 응답)")
+                    return
+                except asyncio.CancelledError:
+                    print("[시스템] receive_audio 태스크 취소됨 (첫 응답)")
+                    return
                 except Exception as e:
                     print(f"[시스템] 세션 처리 중 오류: {str(e)}")
-                    if "quota" in str(e).lower():
-                        print("[시스템] API 할당량이 초과되었습니다. 잠시 후 다시 시도해주세요.")
-                    raise
-                        
+                    return
+                    
         except Exception as e:
-            print(f"[시스템] 오류 발생: {str(e)}")
+            print(f"[시스템] receive_audio 전체 오류: {str(e)}")
         finally:
-            print("[시스템] 대화 종료")
+            print("[시스템] 대화 종료 (receive_audio finally)")
             self.running = False
+            self.session_active = False
             await self.stop()
 
     async def start_session(self):
@@ -566,7 +571,7 @@ class AudioLoop:
                 if self._stop_event.is_set() or shutdown_event.is_set() or self._closing:
                     break
 
-                blob = types.Blob(data=msg["data"], mime_type="audio/pcm;rate=16000")
+                blob = types.Blob(data=msg["data"], mime_type=f"audio/pcm;rate={SEND_SAMPLE_RATE}")
                 await self.session.send_realtime_input(audio=blob)
 
             except asyncio.CancelledError:
@@ -595,7 +600,8 @@ class ConnectionManager:
             audio_loop = AudioLoop(video_mode="none", selected_voice=selected_voice)
             self.audio_loops[session_key] = audio_loop
             active_sessions[session_key] = audio_loop
-            await audio_loop.start_session()
+        # 락 해제 후 세션을 백그라운드에서 실행
+        asyncio.create_task(audio_loop.start_session())
 
     async def disconnect(self, session_key: str):
         async with self._lock:
