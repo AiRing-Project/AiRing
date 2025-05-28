@@ -5,16 +5,17 @@
  * @format
  */
 
-import React, {useEffect} from 'react';
 import {NavigationContainer} from '@react-navigation/native';
-import {SafeAreaProvider} from 'react-native-safe-area-context';
-import HomeTabs from './src/navigation/HomeTabs';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
+import React, {useEffect} from 'react';
+import {SafeAreaProvider} from 'react-native-safe-area-context';
 import {enableScreens} from 'react-native-screens';
+
 import AuthStack from './src/navigation/AuthStack';
-import type {RootStackParamList} from './src/types/navigation';
-import {useAuthStore} from './src/store/authStore';
+import HomeTabs from './src/navigation/HomeTabs';
 import SplashScreen from './src/screens/SplashScreen';
+import {useAuthStore} from './src/store/authStore';
+import type {RootStackParamList} from './src/types/navigation';
 
 enableScreens();
 
