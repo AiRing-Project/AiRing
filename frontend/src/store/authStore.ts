@@ -1,8 +1,7 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import {jwtDecode} from 'jwt-decode';
 import {create} from 'zustand';
 
-import {tryRefreshToken} from '../utils/tokenManager';
+import {getAccessToken, tryRefreshToken} from '../utils/tokenManager';
 
 interface AuthState {
   isLoading: boolean;
@@ -31,7 +30,7 @@ export const useAuthStore = create<AuthState>(set => ({
   setLoggedIn: (val: boolean) => set({isLoggedIn: val}),
   checkAuth: async () => {
     set({isLoading: true});
-    const token = await AsyncStorage.getItem('accessToken');
+    const token = await getAccessToken();
     if (isTokenValid(token)) {
       set({isLoggedIn: true, isLoading: false});
       return;
