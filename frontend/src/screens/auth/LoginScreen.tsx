@@ -1,9 +1,5 @@
 import {yupResolver} from '@hookform/resolvers/yup';
-import {
-  CompositeNavigationProp,
-  useFocusEffect,
-  useNavigation,
-} from '@react-navigation/native';
+import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import React, {useState} from 'react';
 import {Controller, useForm} from 'react-hook-form';
@@ -19,18 +15,9 @@ import {
 import * as yup from 'yup';
 
 import {loginApi} from '../../api/authApi';
+import type {AuthStackParamList} from '../../navigation/AuthStack';
 import {useAuthStore} from '../../store/authStore';
-import type {
-  AuthStackParamList,
-  RootStackParamList,
-} from '../../types/navigation';
 import {saveTokens} from '../../utils/tokenManager';
-
-// CompositeNavigationProp<현재Stack, 부모Stack>
-type LoginScreenNavigationProp = CompositeNavigationProp<
-  NativeStackNavigationProp<AuthStackParamList, 'Login'>,
-  NativeStackNavigationProp<RootStackParamList>
->;
 
 const schema = yup.object({
   email: yup
@@ -47,7 +34,8 @@ interface LoginFormData {
 }
 
 const LoginScreen = () => {
-  const navigation = useNavigation<LoginScreenNavigationProp>();
+  const navigation =
+    useNavigation<NativeStackNavigationProp<AuthStackParamList, 'Login'>>();
   const setLoggedIn = useAuthStore(s => s.setLoggedIn);
   const [loading, setLoading] = useState<boolean>(false);
 
