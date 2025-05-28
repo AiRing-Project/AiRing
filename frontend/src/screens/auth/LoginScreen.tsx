@@ -10,12 +10,12 @@ import {
 } from 'react-native';
 import {useNavigation, CompositeNavigationProp} from '@react-navigation/native';
 import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import type {RootStackParamList} from '../types/navigation';
-import type {AuthStackParamList} from '../types/navigation';
-import {loginApi} from '../api/authApi';
+import type {RootStackParamList} from '../../types/navigation';
+import type {AuthStackParamList} from '../../types/navigation';
+import {loginApi} from '../../api/authApi';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Keychain from 'react-native-keychain';
-import {useAuthStore} from '../store/authStore';
+import {useAuthStore} from '../../store/authStore';
 
 // CompositeNavigationProp<현재Stack, 부모Stack>
 type LoginScreenNavigationProp = CompositeNavigationProp<
