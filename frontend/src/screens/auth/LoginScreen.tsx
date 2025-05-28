@@ -38,6 +38,12 @@ const schema = yup.object({
   password: yup.string().required('비밀번호를 입력하세요.'),
 });
 
+// 폼 데이터 타입 분리
+interface LoginFormData {
+  email: string;
+  password: string;
+}
+
 const LoginScreen = () => {
   const navigation = useNavigation<LoginScreenNavigationProp>();
   const setLoggedIn = useAuthStore(s => s.setLoggedIn);
@@ -48,7 +54,7 @@ const LoginScreen = () => {
     handleSubmit,
     formState: {errors, isSubmitted},
     reset,
-  } = useForm({
+  } = useForm<LoginFormData>({
     resolver: yupResolver(schema),
     mode: 'onChange',
   });
@@ -59,7 +65,7 @@ const LoginScreen = () => {
     }, [reset]),
   );
 
-  const onSubmit = async (data: {email: string; password: string}) => {
+  const onSubmit = async (data: LoginFormData) => {
     setLoading(true);
     try {
       const {accessToken, refreshToken} = await loginApi({
@@ -70,14 +76,17 @@ const LoginScreen = () => {
       await Keychain.setGenericPassword('refreshToken', refreshToken);
       setLoggedIn(true);
     } catch (e: any) {
-      const status = e?.response?.status;
-      const url = e?.response?.config?.url;
-      const message =
-        e?.response?.data?.message || e.message || '알 수 없는 오류';
-      let alertMessage = `상태 코드: ${status ?? '-'}\n요청 URL: ${
-        url ?? '-'
-      }\n메시지: ${message}`;
-      if (status === 401) {
+      let alertMessage = '로그인에 실패했습니다. 잠시 후 다시 시도해 주세요.';
+      if (__DEV__) {
+        const status = e?.response?.status;
+        const url = e?.response?.config?.url;
+        const message =
+          e?.response?.data?.message || e.message || '알 수 없는 오류';
+        alertMessage = `상태 코드: ${status ?? '-'}\n요청 URL: ${
+          url ?? '-'
+        }\n메시지: ${message}`;
+      }
+      if (e?.response?.status === 401) {
         alertMessage = '가입되지 않은 계정이거나 비밀번호가 올바르지 않습니다.';
       }
       Alert.alert('로그인 실패', alertMessage);
