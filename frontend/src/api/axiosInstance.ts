@@ -1,10 +1,9 @@
 import {API_BASE_URL} from '@env';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import {Alert} from 'react-native';
 
 import {useAuthStore} from '../store/authStore';
-import {tryRefreshToken} from '../utils/tokenManager';
+import {getAccessToken, tryRefreshToken} from '../utils/tokenManager';
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -13,7 +12,7 @@ const api = axios.create({
 
 // 요청 시 access token 자동 삽입
 api.interceptors.request.use(async config => {
-  const accessToken = await AsyncStorage.getItem('accessToken');
+  const accessToken = await getAccessToken();
   if (accessToken) {
     config.headers.Authorization = `Bearer ${accessToken}`;
   }
@@ -33,7 +32,7 @@ api.interceptors.response.use(
         const ok = await tryRefreshToken();
         if (ok) {
           // 새 accessToken으로 원래 요청 재시도
-          const newAccessToken = await AsyncStorage.getItem('accessToken');
+          const newAccessToken = await getAccessToken();
           originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
           return api(originalRequest);
         } else {

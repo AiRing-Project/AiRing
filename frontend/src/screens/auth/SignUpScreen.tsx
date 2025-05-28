@@ -1,5 +1,5 @@
 import {yupResolver} from '@hookform/resolvers/yup';
-import {CompositeNavigationProp, useNavigation} from '@react-navigation/native';
+import {useNavigation} from '@react-navigation/native';
 import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import React, {useState} from 'react';
 import {Controller, useForm} from 'react-hook-form';
@@ -15,14 +15,7 @@ import {
 import * as yup from 'yup';
 
 import {signUpApi} from '../../api/authApi';
-import type {AuthStackParamList} from '../../types/navigation';
-import type {RootStackParamList} from '../../types/navigation';
-
-// CompositeNavigationProp<현재Stack, 부모Stack>
-type SignUpScreenNavigationProp = CompositeNavigationProp<
-  NativeStackNavigationProp<AuthStackParamList, 'SignUp'>,
-  NativeStackNavigationProp<RootStackParamList>
->;
+import type {AuthStackParamList} from '../../navigation/AuthStack';
 
 interface SignUpFormData {
   email: string;
@@ -32,7 +25,8 @@ interface SignUpFormData {
 }
 
 const SignUpScreen = () => {
-  const navigation = useNavigation<SignUpScreenNavigationProp>();
+  const navigation =
+    useNavigation<NativeStackNavigationProp<AuthStackParamList, 'SignUp'>>();
   const [loading, setLoading] = useState<boolean>(false);
 
   const schema = yup.object({
@@ -76,20 +70,14 @@ const SignUpScreen = () => {
         '회원가입 완료',
         `${data.username}님, 반가워요! 이제 로그인해 주세요.`,
       );
-      navigation.replace('Login');
+      navigation.popTo('Login');
     } catch (e: any) {
       let alertMessage = '회원가입에 실패했습니다. 잠시 후 다시 시도해 주세요.';
-      if (__DEV__) {
-        const status = e?.response?.status;
-        const url = e?.response?.config?.url;
-        const message =
-          e?.response?.data?.message || e.message || '알 수 없는 오류';
-        alertMessage = `상태 코드: ${status ?? '-'}\n요청 URL: ${
-          url ?? '-'
-        }\n메시지: ${message}`;
-      }
-      if (e?.response?.status === 409) {
+      const status = e?.response?.status;
+      if (status === 409) {
         alertMessage = '이미 가입된 계정입니다.';
+      } else if (e?.response?.data?.message) {
+        alertMessage = e.response.data.message;
       }
       Alert.alert('회원가입 실패', alertMessage);
     } finally {

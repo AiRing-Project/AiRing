@@ -6,34 +6,50 @@ interface LoginParams {
   password: string;
 }
 
-interface LoginResponse {
-  accessToken: string;
-  refreshToken: string;
-}
-
-interface SignUpParams {
-  email: string;
+interface SignUpParams extends LoginParams {
   username: string;
-  password: string;
 }
 
-interface ReissueResponse {
+export interface TokenResponse {
   accessToken: string;
   refreshToken: string;
 }
 
-export async function loginApi(data: LoginParams): Promise<LoginResponse> {
-  const res = await api.post('/auth/login', data);
+export interface ResetPasswordParams {
+  currentPassword: string;
+  newPassword: string;
+}
+
+export async function loginApi(data: LoginParams): Promise<TokenResponse> {
+  const res = await plainApi.post('/auth/login', data);
   return res.data;
 }
 
 export async function signUpApi(data: SignUpParams): Promise<void> {
-  await api.post('/auth/signup', data);
+  await plainApi.post('/auth/signup', data);
 }
 
 export async function reissueToken(
   refreshToken: string,
-): Promise<ReissueResponse> {
+): Promise<TokenResponse> {
   const res = await plainApi.post('/auth/reissue', {refreshToken});
   return res.data;
+}
+
+export async function logoutApi(refreshToken: string) {
+  return plainApi.post(
+    '/auth/logout',
+    {},
+    {
+      headers: {
+        Authorization: `Bearer ${refreshToken}`,
+      },
+    },
+  );
+}
+
+export async function resetPasswordApi(
+  data: ResetPasswordParams,
+): Promise<void> {
+  await api.put('/auth/reset-password', data);
 }

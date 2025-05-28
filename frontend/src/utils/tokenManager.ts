@@ -15,14 +15,25 @@ export async function removeTokens() {
   await Keychain.resetGenericPassword();
 }
 
+export async function getAccessToken(): Promise<string | null> {
+  return AsyncStorage.getItem('accessToken');
+}
+
+export async function getRefreshToken(): Promise<string | null> {
+  const creds = await Keychain.getGenericPassword();
+  if (creds && typeof creds === 'object' && 'password' in creds) {
+    return creds.password;
+  }
+  return null;
+}
+
 // refreshToken으로 토큰 재발급 및 저장, 실패 시 삭제
 export async function tryRefreshToken(): Promise<boolean> {
   try {
-    const creds = await Keychain.getGenericPassword();
-    if (!creds) {
+    const refreshToken = await getRefreshToken();
+    if (!refreshToken) {
       throw new Error('No refresh token');
     }
-    const refreshToken = creds.password;
     const {accessToken, refreshToken: newRefreshToken} = await reissueToken(
       refreshToken,
     );
