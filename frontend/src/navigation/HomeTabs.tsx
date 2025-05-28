@@ -1,29 +1,29 @@
-import React, {useCallback, useState} from 'react';
-import {
-  View,
-  TouchableOpacity,
-  StyleSheet,
-  Text,
-  Platform,
-  Modal,
-  Pressable,
-} from 'react-native';
-import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import type {BottomTabBarProps} from '@react-navigation/bottom-tabs';
+import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import type {
   NavigationHelpers,
   ParamListBase,
   TabNavigationState,
 } from '@react-navigation/native';
-import CalendarIcon from '../assets/icons/tab_calendar.svg';
-import ReportIcon from '../assets/icons/tab_report.svg';
-import LogIcon from '../assets/icons/tab_log.svg';
-import SettingsIcon from '../assets/icons/tab_settings.svg';
-import CenterIcon from '../assets/icons/tab_center.svg';
+import React, {useCallback, useState} from 'react';
+import {
+  Modal,
+  Platform,
+  Pressable,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 
+import CalendarIcon from '../assets/icons/tab_calendar.svg';
+import CenterIcon from '../assets/icons/tab_center.svg';
+import LogIcon from '../assets/icons/tab_log.svg';
+import ReportIcon from '../assets/icons/tab_report.svg';
+import SettingsIcon from '../assets/icons/tab_settings.svg';
 import CalendarScreen from '../screens/main/CalendarScreen';
-import ReportScreen from '../screens/main/ReportScreen';
 import LogScreen from '../screens/main/LogScreen';
+import ReportScreen from '../screens/main/ReportScreen';
 import SettingsScreen from '../screens/main/SettingsScreen';
 
 const Tab = createBottomTabNavigator();
