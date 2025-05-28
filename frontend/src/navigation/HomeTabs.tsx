@@ -24,7 +24,7 @@ import SettingsIcon from '../assets/icons/tab_settings.svg';
 import CalendarScreen from '../screens/main/CalendarScreen';
 import LogScreen from '../screens/main/LogScreen';
 import ReportScreen from '../screens/main/ReportScreen';
-import SettingsScreen from '../screens/main/SettingsScreen';
+import SettingsStack from './SettingsStack';
 
 const Tab = createBottomTabNavigator();
 
@@ -146,7 +146,7 @@ const HomeTabs = () => {
         />
         <Tab.Screen
           name="Settings"
-          component={SettingsScreen}
+          component={SettingsStack}
           options={{tabBarLabel: '설정'}}
         />
       </Tab.Navigator>
