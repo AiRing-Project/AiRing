@@ -61,13 +61,13 @@ class AudioClient:
                 frames_per_buffer=self.CHUNK
             )
             
-            # 출력 스트림 설정 - 기본 설정으로 단순화
+            # 출력 스트림 설정 - 버퍼 크기 증가
             self.output_stream = self.p.open(
                 format=self.FORMAT,
                 channels=self.CHANNELS,
                 rate=self.RATE,
                 output=True,
-                frames_per_buffer=512  # 버퍼 크기 줄임
+                frames_per_buffer=2048  # 버퍼 크기 증가
             )
             
             print("[클라이언트] 오디오 스트림 설정 완료")
@@ -175,21 +175,16 @@ class AudioClient:
                     break
 
                 try:
-                    print("[클라이언트] 오디오 데이터 수신 대기 중...")
                     response = await self.websocket.recv()
-                    print(f"[클라이언트] 데이터 수신됨: {type(response)}, 크기: {len(response) if isinstance(response, bytes) else 'N/A'}")
                     
                     if isinstance(response, bytes):
                         try:
-                            print(f"[클라이언트] 오디오 데이터 수신 시각: {time.time():.2f}, 크기: {len(response)} bytes")
-                            audio_data = np.frombuffer(response, dtype=np.int16)
-                            print(f"[클라이언트] 오디오 데이터 최대값: {np.abs(audio_data).max()}")
-                            print(f"[클라이언트] 오디오 데이터 재생 시각: {time.time():.2f}, 크기: {len(audio_data)} bytes")
+                            # 오디오 데이터 재생
                             self.output_stream.write(response)
+                            # flush() 대신 stop_stream()과 start_stream() 사용
                             self.output_stream.stop_stream()
                             self.output_stream.start_stream()
-                            print("[클라이언트] 오디오 데이터 재생 완료")
-                            self.last_user_input_time = time.time()  # 사용자 입력 타임스탬프 갱신
+                            
                         except Exception as e:
                             print(f"[클라이언트] 오디오 재생 중 오류: {str(e)}")
                             try:
@@ -201,6 +196,7 @@ class AudioClient:
                                 print(f"[클라이언트] 스트림 재시작 중 오류: {str(restart_error)}")
                                 await asyncio.sleep(0.1)
                                 continue
+                                
                 except websockets.exceptions.ConnectionClosed:
                     print("[클라이언트] WebSocket 연결이 종료되었습니다")
                     break
