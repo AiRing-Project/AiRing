@@ -8,7 +8,11 @@ import {
   Alert,
   ActivityIndicator,
 } from 'react-native';
-import {useNavigation, CompositeNavigationProp} from '@react-navigation/native';
+import {
+  useNavigation,
+  CompositeNavigationProp,
+  useFocusEffect,
+} from '@react-navigation/native';
 import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import type {RootStackParamList} from '../../types/navigation';
 import type {AuthStackParamList} from '../../types/navigation';
@@ -16,6 +20,9 @@ import {loginApi} from '../../api/authApi';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Keychain from 'react-native-keychain';
 import {useAuthStore} from '../../store/authStore';
+import {useForm, Controller} from 'react-hook-form';
+import {yupResolver} from '@hookform/resolvers/yup';
+import * as yup from 'yup';
 
 // CompositeNavigationProp<현재Stack, 부모Stack>
 type LoginScreenNavigationProp = CompositeNavigationProp<
@@ -23,21 +30,42 @@ type LoginScreenNavigationProp = CompositeNavigationProp<
   NativeStackNavigationProp<RootStackParamList>
 >;
 
+const schema = yup.object({
+  email: yup
+    .string()
+    .email('이메일 형식이 올바르지 않습니다.')
+    .required('이메일을 입력하세요.'),
+  password: yup.string().required('비밀번호를 입력하세요.'),
+});
+
 const LoginScreen = () => {
   const navigation = useNavigation<LoginScreenNavigationProp>();
   const setLoggedIn = useAuthStore(s => s.setLoggedIn);
-  const [email, setEmail] = useState<string>('');
-  const [password, setPassword] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
 
-  const handleLogin = async () => {
-    if (!email || !password) {
-      Alert.alert('입력 오류', '이메일과 비밀번호를 모두 입력해주세요.');
-      return;
-    }
+  const {
+    control,
+    handleSubmit,
+    formState: {errors, isSubmitted},
+    reset,
+  } = useForm({
+    resolver: yupResolver(schema),
+    mode: 'onChange',
+  });
+
+  useFocusEffect(
+    React.useCallback(() => {
+      reset();
+    }, [reset]),
+  );
+
+  const onSubmit = async (data: {email: string; password: string}) => {
     setLoading(true);
     try {
-      const {accessToken, refreshToken} = await loginApi({email, password});
+      const {accessToken, refreshToken} = await loginApi({
+        email: data.email,
+        password: data.password,
+      });
       await AsyncStorage.setItem('accessToken', accessToken);
       await Keychain.setGenericPassword('refreshToken', refreshToken);
       setLoggedIn(true);
@@ -61,29 +89,55 @@ const LoginScreen = () => {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>로그인</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="이메일"
-        value={email}
-        onChangeText={setEmail}
-        autoCapitalize="none"
-        keyboardType="email-address"
-        autoComplete="email"
-        textContentType="username"
+      <Controller
+        control={control}
+        name="email"
+        render={({field: {onChange, onBlur, value}}) => (
+          <View style={{width: '100%'}}>
+            <TextInput
+              style={styles.input}
+              placeholder="이메일"
+              autoCapitalize="none"
+              keyboardType="email-address"
+              autoComplete="email"
+              textContentType="username"
+              value={value}
+              onChangeText={onChange}
+              onBlur={onBlur}
+            />
+            {errors.email &&
+              (errors.email.type !== 'required' || isSubmitted) && (
+                <Text style={styles.errorText}>{errors.email.message}</Text>
+              )}
+          </View>
+        )}
       />
-      <TextInput
-        style={styles.input}
-        placeholder="비밀번호"
-        value={password}
-        onChangeText={setPassword}
-        secureTextEntry
-        autoComplete="password"
-        textContentType="password"
+      <Controller
+        control={control}
+        name="password"
+        render={({field: {onChange, onBlur, value}}) => (
+          <View style={{width: '100%'}}>
+            <TextInput
+              style={styles.input}
+              placeholder="비밀번호"
+              secureTextEntry
+              autoComplete="password"
+              textContentType="password"
+              value={value}
+              onChangeText={onChange}
+              onBlur={onBlur}
+            />
+            {errors.password &&
+              (errors.password.type !== 'required' || isSubmitted) && (
+                <Text style={styles.errorText}>{errors.password.message}</Text>
+              )}
+          </View>
+        )}
       />
       <TouchableOpacity
         style={[styles.loginButton, loading && {opacity: 0.6}]}
         activeOpacity={0.8}
-        onPress={handleLogin}
+        onPress={handleSubmit(onSubmit)}
         disabled={loading}>
         {loading ? (
           <ActivityIndicator color="#fff" />
@@ -121,7 +175,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 8,
     paddingHorizontal: 16,
-    marginBottom: 16,
+    marginBottom: 12,
     fontSize: 16,
     backgroundColor: '#f9f9f9',
   },
@@ -132,8 +186,8 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 4,
-    marginBottom: 8,
+    marginTop: 12,
+    marginBottom: 12,
   },
   loginButtonText: {
     color: '#fff',
@@ -154,6 +208,13 @@ const styles = StyleSheet.create({
     color: '#5d8fc5',
     textDecorationLine: 'underline',
     fontWeight: 'bold',
+  },
+  errorText: {
+    color: 'red',
+    alignSelf: 'flex-start',
+    marginBottom: 8,
+    fontSize: 14,
+    marginTop: -2,
   },
 });
 
