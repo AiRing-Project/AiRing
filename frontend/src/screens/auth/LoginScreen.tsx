@@ -93,45 +93,43 @@ const LoginScreen = () => {
         control={control}
         name="email"
         render={({field: {onChange, onBlur, value}}) => (
-          <View style={{width: '100%'}}>
-            <TextInput
-              style={styles.input}
-              placeholder="이메일"
-              autoCapitalize="none"
-              keyboardType="email-address"
-              autoComplete="email"
-              textContentType="username"
-              value={value}
-              onChangeText={onChange}
-              onBlur={onBlur}
-            />
-            {errors.email &&
-              (errors.email.type !== 'required' || isSubmitted) && (
-                <Text style={styles.errorText}>{errors.email.message}</Text>
-              )}
-          </View>
+          <TextInput
+            style={[
+              styles.input,
+              errors.email &&
+                (errors.email.type !== 'required' || isSubmitted) &&
+                styles.errorInput,
+            ]}
+            placeholder="이메일"
+            autoCapitalize="none"
+            keyboardType="email-address"
+            autoComplete="email"
+            textContentType="username"
+            value={value}
+            onChangeText={onChange}
+            onBlur={onBlur}
+          />
         )}
       />
       <Controller
         control={control}
         name="password"
         render={({field: {onChange, onBlur, value}}) => (
-          <View style={{width: '100%'}}>
-            <TextInput
-              style={styles.input}
-              placeholder="비밀번호"
-              secureTextEntry
-              autoComplete="password"
-              textContentType="password"
-              value={value}
-              onChangeText={onChange}
-              onBlur={onBlur}
-            />
-            {errors.password &&
-              (errors.password.type !== 'required' || isSubmitted) && (
-                <Text style={styles.errorText}>{errors.password.message}</Text>
-              )}
-          </View>
+          <TextInput
+            style={[
+              styles.input,
+              errors.password &&
+                (errors.password.type !== 'required' || isSubmitted) &&
+                styles.errorInput,
+            ]}
+            placeholder="비밀번호"
+            secureTextEntry
+            autoComplete="password"
+            textContentType="password"
+            value={value}
+            onChangeText={onChange}
+            onBlur={onBlur}
+          />
         )}
       />
       <TouchableOpacity
@@ -179,6 +177,9 @@ const styles = StyleSheet.create({
     fontSize: 16,
     backgroundColor: '#f9f9f9',
   },
+  errorInput: {
+    borderColor: '#ec7575',
+  },
   loginButton: {
     width: '100%',
     height: 48,
@@ -208,13 +209,6 @@ const styles = StyleSheet.create({
     color: '#5d8fc5',
     textDecorationLine: 'underline',
     fontWeight: 'bold',
-  },
-  errorText: {
-    color: 'red',
-    alignSelf: 'flex-start',
-    marginBottom: 8,
-    fontSize: 14,
-    marginTop: -2,
   },
 });
 

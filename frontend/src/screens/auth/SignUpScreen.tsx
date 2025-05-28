@@ -98,89 +98,83 @@ const SignUpScreen = () => {
         control={control}
         name="email"
         render={({field: {onChange, onBlur, value}}) => (
-          <View style={{width: '100%'}}>
-            <TextInput
-              style={styles.input}
-              placeholder="이메일"
-              autoCapitalize="none"
-              keyboardType="email-address"
-              autoComplete="email"
-              textContentType="emailAddress"
-              value={value}
-              onChangeText={onChange}
-              onBlur={onBlur}
-            />
-            {errors.email &&
-              (errors.email.type !== 'required' || isSubmitted) && (
-                <Text style={styles.errorText}>{errors.email.message}</Text>
-              )}
-          </View>
+          <TextInput
+            style={[
+              styles.input,
+              errors.email &&
+                (errors.email.type !== 'required' || isSubmitted) &&
+                styles.errorInput,
+            ]}
+            placeholder="이메일"
+            autoCapitalize="none"
+            keyboardType="email-address"
+            autoComplete="email"
+            textContentType="emailAddress"
+            value={value}
+            onChangeText={onChange}
+            onBlur={onBlur}
+          />
         )}
       />
       <Controller
         control={control}
         name="password"
         render={({field: {onChange, onBlur, value}}) => (
-          <View style={{width: '100%'}}>
-            <TextInput
-              style={styles.input}
-              placeholder="비밀번호"
-              secureTextEntry
-              autoComplete="new-password"
-              textContentType="newPassword"
-              value={value}
-              onChangeText={onChange}
-              onBlur={onBlur}
-            />
-            {errors.password &&
-              (errors.password.type !== 'required' || isSubmitted) && (
-                <Text style={styles.errorText}>{errors.password.message}</Text>
-              )}
-          </View>
+          <TextInput
+            style={[
+              styles.input,
+              errors.password &&
+                (errors.password.type !== 'required' || isSubmitted) &&
+                styles.errorInput,
+            ]}
+            placeholder="비밀번호"
+            secureTextEntry
+            autoComplete="new-password"
+            textContentType="newPassword"
+            value={value}
+            onChangeText={onChange}
+            onBlur={onBlur}
+          />
         )}
       />
       <Controller
         control={control}
         name="passwordConfirm"
         render={({field: {onChange, onBlur, value}}) => (
-          <View style={{width: '100%'}}>
-            <TextInput
-              style={styles.input}
-              placeholder="비밀번호 확인"
-              secureTextEntry
-              autoComplete="new-password"
-              textContentType="newPassword"
-              value={value}
-              onChangeText={onChange}
-              onBlur={onBlur}
-            />
-            {errors.passwordConfirm &&
-              (errors.passwordConfirm.type !== 'required' || isSubmitted) && (
-                <Text style={styles.errorText}>
-                  {errors.passwordConfirm.message}
-                </Text>
-              )}
-          </View>
+          <TextInput
+            style={[
+              styles.input,
+              errors.passwordConfirm &&
+                (errors.passwordConfirm.type !== 'required' || isSubmitted) &&
+                styles.errorInput,
+            ]}
+            placeholder="비밀번호 확인"
+            secureTextEntry
+            autoComplete="new-password"
+            textContentType="newPassword"
+            value={value}
+            onChangeText={onChange}
+            onBlur={onBlur}
+          />
         )}
       />
       <Controller
         control={control}
         name="username"
         render={({field: {onChange, onBlur, value}}) => (
-          <View style={{width: '100%'}}>
-            <TextInput
-              style={styles.input}
-              placeholder="사용자 이름"
-              autoCapitalize="none"
-              value={value}
-              onChangeText={onChange}
-              onBlur={onBlur}
-            />
-            {errors.username &&
-              (errors.username.type !== 'required' || isSubmitted) && (
-                <Text style={styles.errorText}>{errors.username.message}</Text>
-              )}
-          </View>
+          <TextInput
+            style={[
+              styles.input,
+              errors.username &&
+                (errors.username.type !== 'required' || isSubmitted) &&
+                styles.errorInput,
+            ]}
+            placeholder="사용자 이름"
+            autoCapitalize="none"
+            value={value}
+            onChangeText={onChange}
+            onBlur={onBlur}
+          />
         )}
       />
       <TouchableOpacity
@@ -222,6 +216,9 @@ const styles = StyleSheet.create({
     fontSize: 16,
     backgroundColor: '#f9f9f9',
   },
+  errorInput: {
+    borderColor: '#ec7575',
+  },
   signUpButton: {
     width: '100%',
     height: 48,
@@ -236,13 +233,6 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 18,
     fontWeight: 'bold',
-  },
-  errorText: {
-    color: 'red',
-    alignSelf: 'flex-start',
-    marginBottom: 8,
-    fontSize: 14,
-    marginTop: -2,
   },
 });
 
