@@ -1,5 +1,4 @@
 import {yupResolver} from '@hookform/resolvers/yup';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   CompositeNavigationProp,
   useFocusEffect,
@@ -17,13 +16,15 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import * as Keychain from 'react-native-keychain';
 import * as yup from 'yup';
 
 import {loginApi} from '../../api/authApi';
 import {useAuthStore} from '../../store/authStore';
-import type {RootStackParamList} from '../../types/navigation';
-import type {AuthStackParamList} from '../../types/navigation';
+import type {
+  AuthStackParamList,
+  RootStackParamList,
+} from '../../types/navigation';
+import {saveTokens} from '../../utils/tokenManager';
 
 // CompositeNavigationProp<현재Stack, 부모Stack>
 type LoginScreenNavigationProp = CompositeNavigationProp<
@@ -73,8 +74,7 @@ const LoginScreen = () => {
         email: data.email,
         password: data.password,
       });
-      await AsyncStorage.setItem('accessToken', accessToken);
-      await Keychain.setGenericPassword('refreshToken', refreshToken);
+      await saveTokens(accessToken, refreshToken);
       setLoggedIn(true);
     } catch (e: any) {
       let alertMessage = '로그인에 실패했습니다. 잠시 후 다시 시도해 주세요.';
