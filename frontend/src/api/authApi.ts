@@ -37,3 +37,15 @@ export async function reissueToken(
   const res = await plainApi.post('/auth/reissue', {refreshToken});
   return res.data;
 }
+
+export async function logoutApi(refreshToken: string) {
+  return plainApi.post(
+    '/auth/logout',
+    {},
+    {
+      headers: {
+        Authorization: `Bearer ${refreshToken}`,
+      },
+    },
+  );
+}
