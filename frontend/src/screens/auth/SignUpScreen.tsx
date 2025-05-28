@@ -1,5 +1,5 @@
 import {yupResolver} from '@hookform/resolvers/yup';
-import {CompositeNavigationProp, useNavigation} from '@react-navigation/native';
+import {useNavigation} from '@react-navigation/native';
 import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import React, {useState} from 'react';
 import {Controller, useForm} from 'react-hook-form';
@@ -15,14 +15,7 @@ import {
 import * as yup from 'yup';
 
 import {signUpApi} from '../../api/authApi';
-import type {AuthStackParamList} from '../../types/navigation';
-import type {RootStackParamList} from '../../types/navigation';
-
-// CompositeNavigationProp<현재Stack, 부모Stack>
-type SignUpScreenNavigationProp = CompositeNavigationProp<
-  NativeStackNavigationProp<AuthStackParamList, 'SignUp'>,
-  NativeStackNavigationProp<RootStackParamList>
->;
+import type {AuthStackParamList} from '../../navigation/AuthStack';
 
 interface SignUpFormData {
   email: string;
@@ -32,7 +25,8 @@ interface SignUpFormData {
 }
 
 const SignUpScreen = () => {
-  const navigation = useNavigation<SignUpScreenNavigationProp>();
+  const navigation =
+    useNavigation<NativeStackNavigationProp<AuthStackParamList, 'SignUp'>>();
   const [loading, setLoading] = useState<boolean>(false);
 
   const schema = yup.object({

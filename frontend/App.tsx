@@ -15,7 +15,11 @@ import AuthStack from './src/navigation/AuthStack';
 import HomeTabs from './src/navigation/HomeTabs';
 import SplashScreen from './src/screens/SplashScreen';
 import {useAuthStore} from './src/store/authStore';
-import type {RootStackParamList} from './src/types/navigation';
+
+export type RootStackParamList = {
+  Auth: undefined;
+  Home: undefined;
+};
 
 enableScreens();
 
