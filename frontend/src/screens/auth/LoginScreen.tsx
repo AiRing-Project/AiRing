@@ -1,10 +1,5 @@
 import {yupResolver} from '@hookform/resolvers/yup';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import {
-  CompositeNavigationProp,
-  useFocusEffect,
-  useNavigation,
-} from '@react-navigation/native';
+import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import React, {useState} from 'react';
 import {Controller, useForm} from 'react-hook-form';
@@ -17,19 +12,12 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import * as Keychain from 'react-native-keychain';
 import * as yup from 'yup';
 
 import {loginApi} from '../../api/authApi';
+import type {AuthStackParamList} from '../../navigation/AuthStack';
 import {useAuthStore} from '../../store/authStore';
-import type {RootStackParamList} from '../../types/navigation';
-import type {AuthStackParamList} from '../../types/navigation';
-
-// CompositeNavigationProp<현재Stack, 부모Stack>
-type LoginScreenNavigationProp = CompositeNavigationProp<
-  NativeStackNavigationProp<AuthStackParamList, 'Login'>,
-  NativeStackNavigationProp<RootStackParamList>
->;
+import {saveTokens} from '../../utils/tokenManager';
 
 const schema = yup.object({
   email: yup
@@ -46,7 +34,8 @@ interface LoginFormData {
 }
 
 const LoginScreen = () => {
-  const navigation = useNavigation<LoginScreenNavigationProp>();
+  const navigation =
+    useNavigation<NativeStackNavigationProp<AuthStackParamList, 'Login'>>();
   const setLoggedIn = useAuthStore(s => s.setLoggedIn);
   const [loading, setLoading] = useState<boolean>(false);
 
@@ -73,22 +62,15 @@ const LoginScreen = () => {
         email: data.email,
         password: data.password,
       });
-      await AsyncStorage.setItem('accessToken', accessToken);
-      await Keychain.setGenericPassword('refreshToken', refreshToken);
+      await saveTokens(accessToken, refreshToken);
       setLoggedIn(true);
     } catch (e: any) {
       let alertMessage = '로그인에 실패했습니다. 잠시 후 다시 시도해 주세요.';
-      if (__DEV__) {
-        const status = e?.response?.status;
-        const url = e?.response?.config?.url;
-        const message =
-          e?.response?.data?.message || e.message || '알 수 없는 오류';
-        alertMessage = `상태 코드: ${status ?? '-'}\n요청 URL: ${
-          url ?? '-'
-        }\n메시지: ${message}`;
-      }
-      if (e?.response?.status === 401) {
+      const status = e?.response?.status;
+      if (status === 401) {
         alertMessage = '가입되지 않은 계정이거나 비밀번호가 올바르지 않습니다.';
+      } else if (e?.response?.data?.message) {
+        alertMessage = e.response.data.message;
       }
       Alert.alert('로그인 실패', alertMessage);
     } finally {
