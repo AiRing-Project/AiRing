@@ -10,9 +10,12 @@ import {
 } from 'react-native';
 import {useNavigation, CompositeNavigationProp} from '@react-navigation/native';
 import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import type {AuthStackParamList} from '../types/navigation';
-import type {RootStackParamList} from '../types/navigation';
-import {signUpApi} from '../api/authApi';
+import type {AuthStackParamList} from '../../types/navigation';
+import type {RootStackParamList} from '../../types/navigation';
+import {signUpApi} from '../../api/authApi';
+import {useForm, Controller} from 'react-hook-form';
+import {yupResolver} from '@hookform/resolvers/yup';
+import * as yup from 'yup';
 
 // CompositeNavigationProp<현재Stack, 부모Stack>
 type SignUpScreenNavigationProp = CompositeNavigationProp<
@@ -22,23 +25,54 @@ type SignUpScreenNavigationProp = CompositeNavigationProp<
 
 const SignUpScreen = () => {
   const navigation = useNavigation<SignUpScreenNavigationProp>();
-  const [email, setEmail] = useState<string>('');
-  const [password, setPassword] = useState<string>('');
-  const [username, setUsername] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
 
-  const handleSignUp = async () => {
-    if (!email || !password || !username) {
-      Alert.alert(
-        '입력 오류',
-        '이메일, 비밀번호, 사용자 이름을 모두 입력해주세요.',
-      );
-      return;
-    }
+  const schema = yup.object({
+    email: yup
+      .string()
+      .email('이메일 형식이 올바르지 않습니다.')
+      .required('이메일을 입력하세요.'),
+    password: yup
+      .string()
+      .min(6, '비밀번호는 6자 이상이어야 합니다.')
+      .required('비밀번호를 입력하세요.'),
+    passwordConfirm: yup
+      .string()
+      .oneOf([yup.ref('password'), undefined], '비밀번호가 일치하지 않습니다.')
+      .required('비밀번호를 한 번 더 입력하세요.'),
+    username: yup
+      .string()
+      .min(2, '이름은 2자 이상이어야 합니다.')
+      .max(10, '이름은 10자 이하로 입력하세요.')
+      .required('이름을 입력하세요.'),
+  });
+
+  const {
+    control,
+    handleSubmit,
+    formState: {errors, isSubmitted},
+  } = useForm({
+    resolver: yupResolver(schema),
+    mode: 'onChange',
+  });
+
+  const onSubmit = async (data: {
+    email: string;
+    password: string;
+    passwordConfirm: string;
+    username: string;
+  }) => {
     setLoading(true);
     try {
-      await signUpApi({email, username, password});
-      Alert.alert('회원가입 완료', '이제 로그인해 주세요.');
+      await signUpApi({
+        email: data.email,
+        username: data.username,
+        password: data.password,
+      });
+      Alert.alert(
+        '회원가입 완료',
+        `${data.username}님, 반가워요! 이제 로그인해 주세요.`,
+      );
       navigation.replace('Login');
     } catch (e: any) {
       const status = e?.response?.status;
@@ -60,36 +94,99 @@ const SignUpScreen = () => {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>회원가입</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="이메일"
-        value={email}
-        onChangeText={setEmail}
-        autoCapitalize="none"
-        keyboardType="email-address"
-        autoComplete="email"
-        textContentType="emailAddress"
+      <Controller
+        control={control}
+        name="email"
+        render={({field: {onChange, onBlur, value}}) => (
+          <View style={{width: '100%'}}>
+            <TextInput
+              style={styles.input}
+              placeholder="이메일"
+              autoCapitalize="none"
+              keyboardType="email-address"
+              autoComplete="email"
+              textContentType="emailAddress"
+              value={value}
+              onChangeText={onChange}
+              onBlur={onBlur}
+            />
+            {errors.email &&
+              (errors.email.type !== 'required' || isSubmitted) && (
+                <Text style={styles.errorText}>{errors.email.message}</Text>
+              )}
+          </View>
+        )}
       />
-      <TextInput
-        style={styles.input}
-        placeholder="비밀번호"
-        value={password}
-        onChangeText={setPassword}
-        secureTextEntry
-        autoComplete="new-password"
-        textContentType="newPassword"
+      <Controller
+        control={control}
+        name="password"
+        render={({field: {onChange, onBlur, value}}) => (
+          <View style={{width: '100%'}}>
+            <TextInput
+              style={styles.input}
+              placeholder="비밀번호"
+              secureTextEntry
+              autoComplete="new-password"
+              textContentType="newPassword"
+              value={value}
+              onChangeText={onChange}
+              onBlur={onBlur}
+            />
+            {errors.password &&
+              (errors.password.type !== 'required' || isSubmitted) && (
+                <Text style={styles.errorText}>{errors.password.message}</Text>
+              )}
+          </View>
+        )}
       />
-      <TextInput
-        style={styles.input}
-        placeholder="사용자 이름"
-        value={username}
-        onChangeText={setUsername}
-        autoCapitalize="none"
+      <Controller
+        control={control}
+        name="passwordConfirm"
+        render={({field: {onChange, onBlur, value}}) => (
+          <View style={{width: '100%'}}>
+            <TextInput
+              style={styles.input}
+              placeholder="비밀번호 확인"
+              secureTextEntry
+              autoComplete="new-password"
+              textContentType="newPassword"
+              value={value}
+              onChangeText={onChange}
+              onBlur={onBlur}
+            />
+            {errors.passwordConfirm &&
+              (errors.passwordConfirm.type !== 'required' || isSubmitted) && (
+                <Text style={styles.errorText}>
+                  {errors.passwordConfirm.message}
+                </Text>
+              )}
+          </View>
+        )}
+      />
+      <Controller
+        control={control}
+        name="username"
+        render={({field: {onChange, onBlur, value}}) => (
+          <View style={{width: '100%'}}>
+            <TextInput
+              style={styles.input}
+              placeholder="사용자 이름"
+              autoCapitalize="none"
+              value={value}
+              onChangeText={onChange}
+              onBlur={onBlur}
+            />
+            {errors.username &&
+              (errors.username.type !== 'required' || isSubmitted) && (
+                <Text style={styles.errorText}>{errors.username.message}</Text>
+              )}
+          </View>
+        )}
       />
       <TouchableOpacity
         style={[styles.signUpButton, loading && {opacity: 0.6}]}
         activeOpacity={0.8}
-        onPress={handleSignUp}
+        onPress={handleSubmit(onSubmit)}
         disabled={loading}>
         {loading ? (
           <ActivityIndicator color="#fff" />
@@ -121,7 +218,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 8,
     paddingHorizontal: 16,
-    marginBottom: 16,
+    marginBottom: 12,
     fontSize: 16,
     backgroundColor: '#f9f9f9',
   },
@@ -132,13 +229,20 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 4,
-    marginBottom: 8,
+    marginTop: 12,
+    marginBottom: 12,
   },
   signUpButtonText: {
     color: '#fff',
     fontSize: 18,
     fontWeight: 'bold',
+  },
+  errorText: {
+    color: 'red',
+    alignSelf: 'flex-start',
+    marginBottom: 8,
+    fontSize: 14,
+    marginTop: -2,
   },
 });
 
