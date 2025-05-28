@@ -21,12 +21,12 @@ export interface ResetPasswordParams {
 }
 
 export async function loginApi(data: LoginParams): Promise<TokenResponse> {
-  const res = await api.post('/auth/login', data);
+  const res = await plainApi.post('/auth/login', data);
   return res.data;
 }
 
 export async function signUpApi(data: SignUpParams): Promise<void> {
-  await api.post('/auth/signup', data);
+  await plainApi.post('/auth/signup', data);
 }
 
 export async function reissueToken(
