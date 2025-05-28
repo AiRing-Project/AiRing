@@ -21,10 +21,10 @@ import LogIcon from '../assets/icons/tab_log.svg';
 import SettingsIcon from '../assets/icons/tab_settings.svg';
 import CenterIcon from '../assets/icons/tab_center.svg';
 
-import CalendarScreen from '../screens/CalendarScreen';
-import ReportScreen from '../screens/ReportScreen';
-import LogScreen from '../screens/LogScreen';
-import SettingsScreen from '../screens/SettingsScreen';
+import CalendarScreen from '../screens/main/CalendarScreen';
+import ReportScreen from '../screens/main/ReportScreen';
+import LogScreen from '../screens/main/LogScreen';
+import SettingsScreen from '../screens/main/SettingsScreen';
 
 const Tab = createBottomTabNavigator();
 
