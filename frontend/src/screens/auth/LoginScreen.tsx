@@ -1,28 +1,29 @@
-import React, {useState} from 'react';
+import {yupResolver} from '@hookform/resolvers/yup';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
-  View,
-  Text,
-  TextInput,
-  StyleSheet,
-  TouchableOpacity,
-  Alert,
-  ActivityIndicator,
-} from 'react-native';
-import {
-  useNavigation,
   CompositeNavigationProp,
   useFocusEffect,
+  useNavigation,
 } from '@react-navigation/native';
 import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
+import React, {useState} from 'react';
+import {Controller, useForm} from 'react-hook-form';
+import {
+  ActivityIndicator,
+  Alert,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+import * as Keychain from 'react-native-keychain';
+import * as yup from 'yup';
+
+import {loginApi} from '../../api/authApi';
+import {useAuthStore} from '../../store/authStore';
 import type {RootStackParamList} from '../../types/navigation';
 import type {AuthStackParamList} from '../../types/navigation';
-import {loginApi} from '../../api/authApi';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import * as Keychain from 'react-native-keychain';
-import {useAuthStore} from '../../store/authStore';
-import {useForm, Controller} from 'react-hook-form';
-import {yupResolver} from '@hookform/resolvers/yup';
-import * as yup from 'yup';
 
 // CompositeNavigationProp<현재Stack, 부모Stack>
 type LoginScreenNavigationProp = CompositeNavigationProp<
@@ -142,7 +143,7 @@ const LoginScreen = () => {
         )}
       />
       <TouchableOpacity
-        style={[styles.loginButton, loading && {opacity: 0.6}]}
+        style={[styles.loginButton, loading && styles.disabledButton]}
         activeOpacity={0.8}
         onPress={handleSubmit(onSubmit)}
         disabled={loading}>
@@ -203,6 +204,9 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 18,
     fontWeight: 'bold',
+  },
+  disabledButton: {
+    opacity: 0.6,
   },
   signupContainer: {
     flexDirection: 'row',

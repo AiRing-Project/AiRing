@@ -1,21 +1,22 @@
+import {yupResolver} from '@hookform/resolvers/yup';
+import {CompositeNavigationProp, useNavigation} from '@react-navigation/native';
+import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import React, {useState} from 'react';
+import {Controller, useForm} from 'react-hook-form';
 import {
-  View,
+  ActivityIndicator,
+  Alert,
+  StyleSheet,
   Text,
   TextInput,
-  StyleSheet,
   TouchableOpacity,
-  Alert,
-  ActivityIndicator,
+  View,
 } from 'react-native';
-import {useNavigation, CompositeNavigationProp} from '@react-navigation/native';
-import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
+import * as yup from 'yup';
+
+import {signUpApi} from '../../api/authApi';
 import type {AuthStackParamList} from '../../types/navigation';
 import type {RootStackParamList} from '../../types/navigation';
-import {signUpApi} from '../../api/authApi';
-import {useForm, Controller} from 'react-hook-form';
-import {yupResolver} from '@hookform/resolvers/yup';
-import * as yup from 'yup';
 
 // CompositeNavigationProp<현재Stack, 부모Stack>
 type SignUpScreenNavigationProp = CompositeNavigationProp<
@@ -183,7 +184,7 @@ const SignUpScreen = () => {
         )}
       />
       <TouchableOpacity
-        style={[styles.signUpButton, loading && {opacity: 0.6}]}
+        style={[styles.signUpButton, loading && styles.disabledButton]}
         activeOpacity={0.8}
         onPress={handleSubmit(onSubmit)}
         disabled={loading}>
@@ -238,6 +239,9 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 18,
     fontWeight: 'bold',
+  },
+  disabledButton: {
+    opacity: 0.6,
   },
 });
 

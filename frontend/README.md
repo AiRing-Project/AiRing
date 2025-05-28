@@ -1,6 +1,6 @@
 > [!NOTE]
 > AI 전화 알람 기능을 구현하기 위해서는 native module을 직접 개발해야 하므로 Expo CLI가 아닌 React Native CLI로 앱을 bootstrap했다.
-> 
+>
 > Windows에서는 아예 iOS 개발이 불가능하고 Apple Developer Program 멤버십에 가입 연 회비 99$라서 Android App만 개발하는 것이 좋을 것 같다.
 
 This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
