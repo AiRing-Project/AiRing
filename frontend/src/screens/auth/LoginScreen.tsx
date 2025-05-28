@@ -66,17 +66,11 @@ const LoginScreen = () => {
       setLoggedIn(true);
     } catch (e: any) {
       let alertMessage = '로그인에 실패했습니다. 잠시 후 다시 시도해 주세요.';
-      if (__DEV__) {
-        const status = e?.response?.status;
-        const url = e?.response?.config?.url;
-        const message =
-          e?.response?.data?.message || e.message || '알 수 없는 오류';
-        alertMessage = `상태 코드: ${status ?? '-'}\n요청 URL: ${
-          url ?? '-'
-        }\n메시지: ${message}`;
-      }
-      if (e?.response?.status === 401) {
+      const status = e?.response?.status;
+      if (status === 401) {
         alertMessage = '가입되지 않은 계정이거나 비밀번호가 올바르지 않습니다.';
+      } else if (e?.response?.data?.message) {
+        alertMessage = e.response.data.message;
       }
       Alert.alert('로그인 실패', alertMessage);
     } finally {

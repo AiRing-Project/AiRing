@@ -73,17 +73,11 @@ const SignUpScreen = () => {
       navigation.replace('Login');
     } catch (e: any) {
       let alertMessage = '회원가입에 실패했습니다. 잠시 후 다시 시도해 주세요.';
-      if (__DEV__) {
-        const status = e?.response?.status;
-        const url = e?.response?.config?.url;
-        const message =
-          e?.response?.data?.message || e.message || '알 수 없는 오류';
-        alertMessage = `상태 코드: ${status ?? '-'}\n요청 URL: ${
-          url ?? '-'
-        }\n메시지: ${message}`;
-      }
-      if (e?.response?.status === 409) {
+      const status = e?.response?.status;
+      if (status === 409) {
         alertMessage = '이미 가입된 계정입니다.';
+      } else if (e?.response?.data?.message) {
+        alertMessage = e.response.data.message;
       }
       Alert.alert('회원가입 실패', alertMessage);
     } finally {
