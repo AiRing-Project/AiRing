@@ -1,4 +1,6 @@
 import {yupResolver} from '@hookform/resolvers/yup';
+import {useNavigation} from '@react-navigation/native';
+import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import React, {useState} from 'react';
 import {Controller, useForm} from 'react-hook-form';
 import {
@@ -13,6 +15,7 @@ import {
 import * as yup from 'yup';
 
 import {resetPasswordApi} from '../../api/authApi';
+import type {SettingsStackParamList} from '../../navigation/SettingsStack';
 
 const schema = yup.object({
   currentPassword: yup.string().required('현재 비밀번호를 입력하세요.'),
@@ -34,6 +37,10 @@ interface ResetPasswordFormData {
 
 const ResetPasswordScreen = () => {
   const [loading, setLoading] = useState(false);
+  const navigation =
+    useNavigation<
+      NativeStackNavigationProp<SettingsStackParamList, 'ResetPassword'>
+    >();
   const {
     control,
     handleSubmit,
@@ -53,6 +60,7 @@ const ResetPasswordScreen = () => {
       });
       Alert.alert('비밀번호 변경', '비밀번호가 성공적으로 변경되었습니다.');
       reset();
+      navigation.popTo('SettingsMain');
     } catch (e: any) {
       let msg = '비밀번호 변경에 실패했습니다.';
       const status = e?.response?.status;
