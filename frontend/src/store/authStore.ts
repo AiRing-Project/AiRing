@@ -1,6 +1,7 @@
-import { create } from 'zustand';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { jwtDecode } from 'jwt-decode';
+import { create } from 'zustand';
+
 import { tryRefreshToken } from '../utils/tokenManager';
 
 interface AuthState {
