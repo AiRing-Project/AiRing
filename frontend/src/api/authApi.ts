@@ -32,12 +32,20 @@ export async function signUpApi(data: SignUpParams): Promise<void> {
 export async function reissueToken(
   refreshToken: string,
 ): Promise<TokenResponse> {
-  const res = await plainApi.post('/auth/reissue', {refreshToken});
+  const res = await plainApi.post('/auth/reissue', undefined, {
+    headers: {
+      Authorization: `Bearer ${refreshToken}`,
+    },
+  });
   return res.data;
 }
 
 export async function logoutApi(refreshToken: string) {
-  return plainApi.post('/auth/logout', {refreshToken});
+  return plainApi.post('/auth/logout', undefined, {
+    headers: {
+      Authorization: `Bearer ${refreshToken}`,
+    },
+  });
 }
 
 export async function resetPasswordApi(
