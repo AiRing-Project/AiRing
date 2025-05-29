@@ -29,6 +29,14 @@ import lombok.extern.slf4j.Slf4j;
 public class LoggingAspect implements Filter {
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
+    // ANSI 색상 상수
+    private static final String RESET = "\u001B[0m";
+    private static final String RED = "\u001B[31m";
+    private static final String GREEN = "\u001B[32m";
+    private static final String YELLOW = "\u001B[33m";
+    private static final String CYAN = "\u001B[36m";
+    private static final String MAGENTA = "\u001B[35m";
+
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
             throws IOException, ServletException {
@@ -71,7 +79,7 @@ public class LoggingAspect implements Filter {
             String requestBody = getContentString(req.getContentAsByteArray(), req.getCharacterEncoding());
             logMap.put("requestBody", requestBody);
             String json = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(logMap);
-            log.info("\u001B[36m[REQUEST]\u001B[0m {}", json);
+            log.info(CYAN + "[REQUEST]" + RESET + " {}", json);
         } catch (Exception e) {
             log.error("[LOGGING ERROR - REQUEST] {}", e.getMessage());
         }
@@ -94,13 +102,13 @@ public class LoggingAspect implements Filter {
             if (ex != null) {
                 logMap.put("exception", ex.getMessage());
                 String json = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(logMap);
-                log.error("\u001B[31m[EXCEPTION]\u001B[0m {}", json);
+                log.error(RED + "[EXCEPTION]" + RESET + " {}", json);
             } else if (res.getStatus() >= 400) {
                 String json = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(logMap);
-                log.error("\u001B[31m[RESPONSE]\u001B[0m {}", json);
+                log.error(RED + "[RESPONSE]" + RESET + " {}", json);
             } else {
                 String json = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(logMap);
-                log.info("\u001B[32m[RESPONSE]\u001B[0m {}", json);
+                log.info(GREEN + "[RESPONSE]" + RESET + " {}", json);
             }
         } catch (Exception e) {
             log.error("[LOGGING ERROR - RESPONSE] {}", e.getMessage());
