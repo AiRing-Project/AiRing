@@ -1,20 +1,25 @@
 package com.airing.backend.auth.controller;
 
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.airing.backend.auth.Service.AuthService;
+import com.airing.backend.auth.dto.LogoutRequest;
 import com.airing.backend.auth.dto.ResetPasswordRequest;
 import com.airing.backend.auth.dto.TokenReissueRequest;
-import com.airing.backend.auth.jwt.JwtProvider;
 import com.airing.backend.user.dto.UserLoginRequest;
 import com.airing.backend.user.dto.UserLoginResponse;
 import com.airing.backend.user.dto.UserSignupRequest;
-import com.airing.backend.user.repository.UserRepository;
+
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -42,8 +47,8 @@ public class AuthController {
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<?> logout(@RequestHeader("Authorization") String refreshTokenHeader) {
-        authService.logout(refreshTokenHeader);
+    public ResponseEntity<?> logout(@RequestBody LogoutRequest request) {
+        authService.logout(request);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
