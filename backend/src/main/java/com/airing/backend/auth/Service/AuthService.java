@@ -5,9 +5,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import com.airing.backend.auth.dto.LogoutRequest;
 import com.airing.backend.auth.dto.ResetPasswordRequest;
-import com.airing.backend.auth.dto.TokenReissueRequest;
 import com.airing.backend.auth.jwt.JwtProvider;
 import com.airing.backend.auth.refreshToken.RefreshToken;
 import com.airing.backend.auth.refreshToken.RefreshTokenRepository;
@@ -41,7 +39,7 @@ public class AuthService {
 
         refreshTokenRepository.save(new RefreshToken(user.getEmail(), refreshToken));
 
-        return new UserLoginResponse(accessToken, refreshToken, user.getUsername(), user.getEmail());
+        return new UserLoginResponse(accessToken, refreshToken);
     }
 
     public void signup(UserSignupRequest request) {
@@ -58,8 +56,7 @@ public class AuthService {
         userRepository.save(user);
     }
 
-    public UserLoginResponse reissue(TokenReissueRequest request) {
-        String refreshToken = request.getRefreshToken();
+    public UserLoginResponse reissue(String refreshToken) {
 
         try {
             jwtProvider.validateRefreshTokenOrThrow(refreshToken);
@@ -80,11 +77,10 @@ public class AuthService {
 
         refreshTokenRepository.save(new RefreshToken(user.getEmail(), newRefreshToken));
 
-        return new UserLoginResponse(newAccessToken, newRefreshToken, user.getUsername(), user.getEmail());
+        return new UserLoginResponse(newAccessToken, newRefreshToken);
     }
 
-    public void logout(LogoutRequest request) {
-        String refreshToken = request.getRefreshToken();
+    public void logout(String refreshToken) {
 
         try {
             jwtProvider.validateRefreshTokenOrThrow(refreshToken);
