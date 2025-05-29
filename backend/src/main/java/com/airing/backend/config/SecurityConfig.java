@@ -1,7 +1,5 @@
 package com.airing.backend.config;
 
-import com.airing.backend.auth.jwt.JwtRequestFilter;
-import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -15,9 +13,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework
         .security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.CorsConfigurationSource;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import com.airing.backend.auth.jwt.JwtRequestFilter;
+
+import jakarta.servlet.DispatcherType;
 
 @Configuration
 @EnableWebSecurity // 스프링 시큐리티 필터가 스프링 필터체인에 등록이 된다.
@@ -25,6 +24,23 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 public class SecurityConfig {
 
     private final JwtRequestFilter jwtRequestFilter;
+
+    public static final String[] AUTH_WHITELIST = {
+        "/api/auth/login",
+        "/api/auth/signup",
+        "/api/auth/logout",
+        "/api/auth/reissue",
+        "/swagger-ui/**",
+        "/v3/api-docs/**",
+        "/health-check",
+        "/",
+        "/index.html",
+        "/favicon.ico",
+        "/css/**",
+        "/js/**",
+        "/images/**",
+        "/static/**"
+    };
 
     public SecurityConfig(JwtRequestFilter jwtRequestFilter) {
         this.jwtRequestFilter = jwtRequestFilter;
@@ -47,22 +63,8 @@ public class SecurityConfig {
                 .cors(cors -> cors.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(
-                                "/api/auth/login",
-                                "/api/auth/signup",
-                                "/api/auth/reissue",
-                                "/api/auth/logout",
-                                "/swagger-ui/**",
-                                "/v3/api-docs/**",
-                                "/health-check",
-                                "/",
-                                "/index.html",
-                                "/favicon.ico",
-                                "/css/**",
-                                "/js/**",
-                                "/images/**",
-                                "/static/**"
-                        ).permitAll()
+                .dispatcherTypeMatchers(DispatcherType.FORWARD, DispatcherType.ERROR).permitAll()
+                        .requestMatchers(AUTH_WHITELIST).permitAll()
                         .anyRequest().authenticated())
                 .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
 
