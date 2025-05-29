@@ -18,10 +18,14 @@ public class JwtProvider {
     @Value("${jwt.secretKey}")
     private String secretKey;
 
+    @Value("${jwt.access-token.expiration}")
+    private long accessTokenExpiration;
+
+    @Value("${jwt.refresh-token.expiration}")
+    private long refreshTokenExpiration;
+
     private SecretKey signingKey;
 
-    private static final long EXPIRATION_TIME = 1000 * 60 * 15; // Access Token: 15분
-    private static final long REFRESH_EXPIRATION_TIME = 1000 * 60 * 60 * 7 * 24; // Refresh Token: 7일
 
     @PostConstruct
     protected void init() {
@@ -34,7 +38,7 @@ public class JwtProvider {
         claims.put("role", role);
 
         Date now = new Date();
-        Date expiry = new Date(now.getTime() + EXPIRATION_TIME);
+        Date expiry = new Date(now.getTime() + accessTokenExpiration);
 
         return Jwts.builder()
                 .setClaims(claims)
@@ -46,7 +50,7 @@ public class JwtProvider {
 
     public String createRefreshToken(String email) {
         Date now = new Date();
-        Date expiry = new Date(now.getTime() + REFRESH_EXPIRATION_TIME);
+        Date expiry = new Date(now.getTime() + refreshTokenExpiration);
 
         return Jwts.builder()
                 .setSubject(email)
