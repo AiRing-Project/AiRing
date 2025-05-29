@@ -3,6 +3,7 @@ package com.airing.backend.diary.entity;
 import com.airing.backend.user.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
+import lombok.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -12,6 +13,8 @@ import java.util.List;
 @Entity
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
 @NoArgsConstructor
 @AllArgsConstructor
 public class Diary {
@@ -32,10 +35,14 @@ public class Diary {
     private List<String> image;
 
     @ElementCollection(fetch = FetchType.EAGER)
+    @ElementCollection(fetch = FetchType.EAGER)
     private List<String> emotion;
 
     @ElementCollection(fetch = FetchType.EAGER)
+    @ElementCollection(fetch = FetchType.EAGER)
     private List<String> tag;
+
+    private Boolean hasReply = false;
 
     private Boolean hasReply = false;
 }

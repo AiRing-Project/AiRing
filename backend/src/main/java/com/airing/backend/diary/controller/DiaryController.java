@@ -63,4 +63,21 @@ public class DiaryController {
         String token = authHeader.replace("Bearer ", "");
         return ResponseEntity.ok(diaryService.getMonthlySummary(yearMonth, token));
     }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<DiaryDetailResponse> getDiaryDetail(
+            @PathVariable Long id,
+            @RequestHeader("Authorization") String authHeader) {
+
+        String token = authHeader.replace("Bearer ", "");
+        return ResponseEntity.ok(diaryService.getDiaryDetail(id, token));
+    }
+
+    @GetMapping
+    public ResponseEntity<List<DiarySummaryResponse>> getMonthlySummary(
+            @RequestParam String yearMonth,
+            @RequestHeader("Authorization") String authHeader) {
+        String token = authHeader.replace("Bearer ", "");
+        return ResponseEntity.ok(diaryService.getMonthlySummary(yearMonth, token));
+    }
 }
