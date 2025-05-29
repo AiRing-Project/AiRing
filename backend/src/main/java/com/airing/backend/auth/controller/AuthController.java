@@ -11,9 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.airing.backend.auth.Service.AuthService;
-import com.airing.backend.auth.dto.LogoutRequest;
 import com.airing.backend.auth.dto.ResetPasswordRequest;
-import com.airing.backend.auth.dto.TokenReissueRequest;
 import com.airing.backend.user.dto.UserLoginRequest;
 import com.airing.backend.user.dto.UserLoginResponse;
 import com.airing.backend.user.dto.UserSignupRequest;
@@ -41,14 +39,16 @@ public class AuthController {
     }
 
     @PostMapping("/reissue")
-    public ResponseEntity<UserLoginResponse> reissue(@RequestBody TokenReissueRequest request) {
-        UserLoginResponse response = authService.reissue(request);
-        return ResponseEntity.ok(response);
+    public ResponseEntity<UserLoginResponse> reissue(@RequestHeader("Authorization") String refreshTokenHeader) {
+        String refreshToken = refreshTokenHeader.replace("Bearer ", "");
+        return ResponseEntity.ok(authService.reissue(refreshToken));
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<?> logout(@RequestBody LogoutRequest request) {
-        authService.logout(request);
+    public ResponseEntity<?> logout(
+            @RequestHeader("Authorization") String refreshTokenHeader) {
+        String refreshToken = refreshTokenHeader.replace("Bearer ", "");
+        authService.logout(refreshToken);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
