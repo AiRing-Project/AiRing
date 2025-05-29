@@ -70,8 +70,26 @@ jobs:
                   title_regex="^\[RING-[1-9][0-9]*\] .+$"
                   pr_title="${{ github.event.pull_request.title }}"
                   echo "pr_title=$pr_title" >> "$GITHUB_ENV"
+
+                  # Extract RING number from PR title
+                  if [[ $pr_title =~ \[RING-([0-9]+)\] ]]; then
+                    pr_ring_number="${BASH_REMATCH[1]}"
+                    echo "pr_ring_number=$pr_ring_number" >> "$GITHUB_ENV"
+                  fi
+
+                  # Extract RING number from branch name
+                  if [[ $branch_name =~ RING-([0-9]+) ]]; then
+                    branch_ring_number="${BASH_REMATCH[1]}"
+                    echo "branch_ring_number=$branch_ring_number" >> "$GITHUB_ENV"
+                  fi
+
                   if [[ ! $pr_title =~ $title_regex ]]; then
                     echo "is_invalid_title=true" >> "$GITHUB_ENV"
+                  fi
+
+                  # Check if RING numbers match
+                  if [[ "$pr_ring_number" != "$branch_ring_number" ]]; then
+                    echo "is_mismatched_ring_number=true" >> "$GITHUB_ENV"
                   fi
 
             - name: Add comment for invalid PR title
@@ -102,3 +120,33 @@ jobs:
                       }
 
                       core.setFailed("PR Title Convention 위반");
+
+            - name: Add comment for mismatched RING number
+              if: env.is_mismatched_ring_number == 'true'
+              uses: actions/github-script@v7
+              env:
+                  PR_TITLE: ${{ env.pr_title }}
+                  BRANCH_NAME: ${{ env.branch_name }}
+                  PR_RING_NUMBER: ${{ env.pr_ring_number }}
+                  BRANCH_RING_NUMBER: ${{ env.branch_ring_number }}
+              with:
+                  github-token: ${{ secrets.GITHUB_TOKEN }}
+                  script: |
+                      const prTitle = process.env.PR_TITLE;
+                      const branchName = process.env.BRANCH_NAME;
+                      const prRingNumber = process.env.PR_RING_NUMBER;
+                      const branchRingNumber = process.env.BRANCH_RING_NUMBER;
+                      const message = "## :warning: RING 번호 불일치\n" +
+                                      "PR 제목의 RING 번호(" + prRingNumber + ")와 브랜치 이름의 RING 번호(" + branchRingNumber + ")가 일치하지 않습니다.\n" +
+                                      "PR 제목과 브랜치 이름의 RING 번호를 동일하게 맞춰주세요.";
+                      const isValidTrigger = process.env.IS_VALID_TRIGGER;
+                      if (isValidTrigger) {
+                        await github.rest.issues.createComment({
+                          owner: context.repo.owner,
+                          repo: context.repo.repo,
+                          issue_number: context.payload.pull_request.number,
+                          body: message
+                        });
+                      }
+
+                      core.setFailed("RING 번호 불일치");
