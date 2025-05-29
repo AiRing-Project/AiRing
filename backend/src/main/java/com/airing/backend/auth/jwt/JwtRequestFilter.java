@@ -8,6 +8,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
+import org.springframework.util.AntPathMatcher;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -27,11 +28,12 @@ public class JwtRequestFilter extends OncePerRequestFilter {
     private final UserDetailsService userDetailsService;
 
     private static final List<String> JWT_WHITELIST = List.of(SecurityConfig.AUTH_WHITELIST);
+    private static final AntPathMatcher pathMatcher = new AntPathMatcher();
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
         String path = request.getRequestURI();
-        return JWT_WHITELIST.stream().anyMatch(path::startsWith);
+        return JWT_WHITELIST.stream().anyMatch(pattern -> pathMatcher.match(pattern, path));
     }
 
     @Override
