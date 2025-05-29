@@ -2,8 +2,7 @@ package com.airing.backend.diary.entity;
 
 import com.airing.backend.user.entity.User;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -13,6 +12,8 @@ import java.util.List;
 @Entity
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class Diary {
 
     @Id
@@ -26,12 +27,14 @@ public class Diary {
     private LocalDate date;
     private String content;
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER) // 나중에 N+1 문제?
     private List<String> image;
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     private List<String> emotion;
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     private List<String> tag;
+
+    private Boolean hasReply = false;
 }
