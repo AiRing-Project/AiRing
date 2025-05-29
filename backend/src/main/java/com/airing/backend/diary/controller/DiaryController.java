@@ -2,13 +2,17 @@ package com.airing.backend.diary.controller;
 
 import com.airing.backend.diary.Service.DiaryService;
 import com.airing.backend.diary.dto.DiaryCreateRequest;
+import com.airing.backend.diary.dto.DiaryDetailResponse;
+import com.airing.backend.diary.dto.DiarySummaryResponse;
 import com.airing.backend.diary.dto.DiaryUpdateRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-@Controller
+import java.util.List;
+
+@RestController
 @RequestMapping("/api/diaries")
 @RequiredArgsConstructor
 public class DiaryController {
@@ -41,5 +45,22 @@ public class DiaryController {
         diaryService.deleteService(diaryId, token);
         return ResponseEntity.ok("일기 삭제 완료");
         // return ResponseEntity.noContent().build(); 나중에
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<DiaryDetailResponse> getDiaryDetail(
+            @PathVariable Long id,
+            @RequestHeader("Authorization") String authHeader) {
+
+        String token = authHeader.replace("Bearer ", "");
+        return ResponseEntity.ok(diaryService.getDiaryDetail(id, token));
+    }
+
+    @GetMapping
+    public ResponseEntity<List<DiarySummaryResponse>> getMonthlySummary(
+            @RequestParam String yearMonth,
+            @RequestHeader("Authorization") String authHeader) {
+        String token = authHeader.replace("Bearer ", "");
+        return ResponseEntity.ok(diaryService.getMonthlySummary(yearMonth, token));
     }
 }
