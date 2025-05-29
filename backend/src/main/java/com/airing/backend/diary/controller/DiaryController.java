@@ -24,7 +24,7 @@ public class DiaryController {
             @RequestBody DiaryCreateRequest request,
             @RequestHeader("Authorization") String token) {
         diaryService.createService(request, token);
-        return ResponseEntity.ok("ì¼ê¸° ì‘ì„± ì™„ë£Œ");
+        return ResponseEntity.ok("?¼ê¸? ?‘?„± ?™„ë£?");
     }
 
     @PutMapping("/{id}")
@@ -34,7 +34,7 @@ public class DiaryController {
             @RequestHeader("Authorization") String token
     ) {
         diaryService.updateService(diaryId, request, token);
-        return ResponseEntity.ok("ì¼ê¸° ìˆ˜ì • ì™„ë£Œ");
+        return ResponseEntity.ok("?¼ê¸? ?ˆ˜? • ?™„ë£?");
     }
 
     @DeleteMapping("/{id}")
@@ -43,8 +43,8 @@ public class DiaryController {
             @RequestHeader("Authorization") String token) {
 
         diaryService.deleteService(diaryId, token);
-        return ResponseEntity.ok("ì¼ê¸° ì‚­ì œ ì™„ë£Œ");
-        // return ResponseEntity.noContent().build(); ë‚˜ì¤‘ì—
+        return ResponseEntity.ok("?¼ê¸? ?‚­? œ ?™„ë£?");
+        // return ResponseEntity.noContent().build(); ?‚˜ì¤‘ì—
     }
 
     @GetMapping("/{id}")

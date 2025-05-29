@@ -1,12 +1,16 @@
 package com.airing.backend.diary.Service;
 
 import com.airing.backend.auth.jwt.JwtProvider;
+import com.airing.backend.auth.jwt.JwtProvider;
 import com.airing.backend.diary.dto.DiaryCreateRequest;
 import com.airing.backend.diary.dto.DiaryDetailResponse;
 import com.airing.backend.diary.dto.DiarySummaryResponse;
 import com.airing.backend.diary.dto.DiaryUpdateRequest;
 import com.airing.backend.diary.entity.Diary;
 import com.airing.backend.diary.repository.DiaryRepository;
+import com.airing.backend.user.entity.User;
+import com.airing.backend.user.repository.UserRepository;
+import jakarta.transaction.Transactional;
 import com.airing.backend.user.entity.User;
 import com.airing.backend.user.repository.UserRepository;
 import jakarta.transaction.Transactional;
@@ -28,8 +32,11 @@ public class DiaryService {
     private final DiaryRepository diaryRepository;
     private final UserRepository userRepository;
     private final JwtProvider jwtProvider;
+    private final UserRepository userRepository;
+    private final JwtProvider jwtProvider;
 
     public void createService(DiaryCreateRequest request, String token) {
+        User user = getAuthenticatedUser(token);
         User user = getAuthenticatedUser(token);
 
         Diary diary = new Diary();
@@ -45,15 +52,15 @@ public class DiaryService {
 
     @Transactional
     public void updateService(Long diaryId, DiaryUpdateRequest request, String token) {
-        System.out.println(">>> diaryId ìš”ì²­ê°’: " + diaryId);
+        System.out.println(">>> diaryId ?š”ì²?ê°?: " + diaryId);
 
         User user = getAuthenticatedUser(token);
 
         Diary diary = diaryRepository.findById(diaryId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "ì¼ê¸°ë¥¼ ì°¾ì„ ìˆ˜ ì—†ìŠµë‹ˆë‹¤."));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "?¼ê¸°ë?? ì°¾ì„ ?ˆ˜ ?—†?Šµ?‹ˆ?‹¤."));
 
         if (!diary.getUser().getEmail().equals(user.getEmail())) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "í•´ë‹¹ ì¼ê¸°ì— ëŒ€í•œ ê¶Œí•œì´ ì—†ìŠµë‹ˆë‹¤.");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "?•´?‹¹ ?¼ê¸°ì— ????•œ ê¶Œí•œ?´ ?—†?Šµ?‹ˆ?‹¤.");
         }
 
         diary.setContent(request.getContent());
@@ -69,10 +76,10 @@ public class DiaryService {
         User user = getAuthenticatedUser(token);
 
         Diary diary = diaryRepository.findById(diaryId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "ì¼ê¸°ë¥¼ ì°¾ì„ ìˆ˜ ì—†ìŠµë‹ˆë‹¤."));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "?¼ê¸°ë?? ì°¾ì„ ?ˆ˜ ?—†?Šµ?‹ˆ?‹¤."));
 
         if (!diary.getUser().getId().equals(user.getId())) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "í•´ë‹¹ ì¼ê¸°ì— ëŒ€í•œ ê¶Œí•œì´ ì—†ìŠµë‹ˆë‹¤.");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "?•´?‹¹ ?¼ê¸°ì— ????•œ ê¶Œí•œ?´ ?—†?Šµ?‹ˆ?‹¤.");
         }
 
         diaryRepository.delete(diary);
@@ -82,10 +89,10 @@ public class DiaryService {
         User user = getAuthenticatedUser(token);
 
         Diary diary = diaryRepository.findById(diaryId)
-                .orElseThrow(() -> new RuntimeException("ì¼ê¸° ì—†ìŒ"));
+                .orElseThrow(() -> new RuntimeException("?¼ê¸? ?—†?Œ"));
 
         if (!diary.getUser().getId().equals(user.getId())) {
-            throw new AccessDeniedException("ë‹¤ë¥¸ ì‚¬ìš©ìì˜ ì¼ê¸°ì…ë‹ˆë‹¤");
+            throw new AccessDeniedException("?‹¤ë¥? ?‚¬?š©??˜ ?¼ê¸°ì…?‹ˆ?‹¤");
         }
 
         return new DiaryDetailResponse(
