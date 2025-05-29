@@ -26,7 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Component
 @Order(Ordered.HIGHEST_PRECEDENCE)
-public class LoggingAspect implements Filter {
+public class LoggingFilter implements Filter {
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
     // ANSI 색상 상수
