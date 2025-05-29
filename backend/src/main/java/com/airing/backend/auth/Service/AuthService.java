@@ -1,5 +1,11 @@
 package com.airing.backend.auth.Service;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
+
+import com.airing.backend.auth.dto.LogoutRequest;
 import com.airing.backend.auth.dto.ResetPasswordRequest;
 import com.airing.backend.auth.dto.TokenReissueRequest;
 import com.airing.backend.auth.jwt.JwtProvider;
@@ -10,15 +16,8 @@ import com.airing.backend.user.dto.UserLoginResponse;
 import com.airing.backend.user.dto.UserSignupRequest;
 import com.airing.backend.user.entity.User;
 import com.airing.backend.user.repository.UserRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
-import java.security.SecureRandom;
-import java.util.Base64;
-import java.util.Optional;
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
@@ -84,14 +83,14 @@ public class AuthService {
         return new UserLoginResponse(newAccessToken, newRefreshToken, user.getUsername(), user.getEmail());
     }
 
-    public void logout(String authorizationHeader) {
-        if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Refresh Token이 필요합니다.");
+    public void logout(LogoutRequest request) {
+        String refreshToken = request.getRefreshToken();
+
+        try {
+            jwtProvider.validateRefreshTokenOrThrow(refreshToken);
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Refresh Token이 만료되었거나 유효하지 않습니다.");
         }
-
-        String refreshToken = authorizationHeader.substring(7);
-
-        jwtProvider.validateRefreshTokenOrThrow(refreshToken);
 
         refreshTokenRepository.findByToken(refreshToken)
                 .ifPresent(refreshTokenRepository::delete);
