@@ -49,8 +49,8 @@ public class LoggingFilter implements Filter {
         long start = System.currentTimeMillis();
         Exception ex = null;
         try {
-            logRequest(req);
             chain.doFilter(req, res);
+            logRequest(req);
         } catch (Exception e) {
             ex = e;
             throw e;
@@ -77,7 +77,7 @@ public class LoggingFilter implements Filter {
             logMap.put("requestHeaders", reqHeaders);
             // 요청 본문
             String requestBody = getContentString(req.getContentAsByteArray(), req.getCharacterEncoding());
-            logMap.put("requestBody", requestBody);
+            logMap.put("requestBody", parseJsonOrRaw(requestBody));
             String json = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(logMap);
             log.info(CYAN + "[REQUEST]" + RESET + " {}", json);
         } catch (Exception e) {
@@ -98,7 +98,7 @@ public class LoggingFilter implements Filter {
             logMap.put("responseHeaders", resHeaders);
             // 응답 본문
             String responseBody = getContentString(res.getContentAsByteArray(), res.getCharacterEncoding());
-            logMap.put("responseBody", responseBody);
+            logMap.put("responseBody", parseJsonOrRaw(responseBody));
             if (ex != null) {
                 logMap.put("exception", ex.getMessage());
                 String json = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(logMap);
@@ -117,10 +117,24 @@ public class LoggingFilter implements Filter {
 
     private String getContentString(byte[] buf, String encoding) {
         if (buf == null || buf.length == 0) return "";
+        int maxLength = 4096; // 최대 4KB만 로깅
+        int length = Math.min(buf.length, maxLength);
         try {
-            return new String(buf, encoding != null ? encoding : StandardCharsets.UTF_8.name());
+            String content = new String(buf, 0, length, encoding != null ? encoding : StandardCharsets.UTF_8.name());
+            if (buf.length > maxLength) {
+                content += "\n[Truncated: body too large]";
+            }
+            return content;
         } catch (Exception e) {
             return "[unreadable]";
         }
     }
-} 
+
+    private Object parseJsonOrRaw(String content) {
+        try {
+            return objectMapper.readValue(content, Object.class);
+        } catch (Exception e) {
+            return content;
+        }
+    }
+}
