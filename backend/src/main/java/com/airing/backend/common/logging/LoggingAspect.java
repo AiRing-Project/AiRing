@@ -1,0 +1,118 @@
+package com.airing.backend.common.logging;
+
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
+import org.springframework.stereotype.Component;
+import org.springframework.web.util.ContentCachingRequestWrapper;
+import org.springframework.web.util.ContentCachingResponseWrapper;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import jakarta.servlet.Filter;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
+@Component
+@Order(Ordered.HIGHEST_PRECEDENCE)
+public class LoggingAspect implements Filter {
+    private static final ObjectMapper objectMapper = new ObjectMapper();
+
+    @Override
+    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
+            throws IOException, ServletException {
+        if (!(request instanceof HttpServletRequest) || !(response instanceof HttpServletResponse)) {
+            chain.doFilter(request, response);
+            return;
+        }
+        ContentCachingRequestWrapper req = new ContentCachingRequestWrapper((HttpServletRequest) request);
+        ContentCachingResponseWrapper res = new ContentCachingResponseWrapper((HttpServletResponse) response);
+        long start = System.currentTimeMillis();
+        Exception ex = null;
+        try {
+            logRequest(req);
+            chain.doFilter(req, res);
+        } catch (Exception e) {
+            ex = e;
+            throw e;
+        } finally {
+            logResponse(res, System.currentTimeMillis() - start, ex);
+            res.copyBodyToResponse();
+        }
+    }
+
+    private void logRequest(ContentCachingRequestWrapper req) {
+        try {
+            Map<String, Object> logMap = new HashMap<>();
+            logMap.put("method", req.getMethod());
+            logMap.put("uri", req.getRequestURI());
+            logMap.put("queryString", req.getQueryString());
+            logMap.put("remoteAddr", req.getRemoteAddr());
+            // 요청 헤더
+            Map<String, String> reqHeaders = new HashMap<>();
+            Enumeration<String> reqHeaderNames = req.getHeaderNames();
+            while (reqHeaderNames.hasMoreElements()) {
+                String name = reqHeaderNames.nextElement();
+                reqHeaders.put(name, req.getHeader(name));
+            }
+            logMap.put("requestHeaders", reqHeaders);
+            // 요청 본문
+            String requestBody = getContentString(req.getContentAsByteArray(), req.getCharacterEncoding());
+            logMap.put("requestBody", requestBody);
+            String json = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(logMap);
+            log.info("\u001B[36m[REQUEST]\u001B[0m {}", json);
+        } catch (Exception e) {
+            log.error("[LOGGING ERROR - REQUEST] {}", e.getMessage());
+        }
+    }
+
+    private void logResponse(ContentCachingResponseWrapper res, long duration, Exception ex) {
+        try {
+            Map<String, Object> logMap = new HashMap<>();
+            logMap.put("status", res.getStatus());
+            logMap.put("durationMs", duration);
+            // 응답 헤더
+            Map<String, String> resHeaders = new HashMap<>();
+            for (String name : res.getHeaderNames()) {
+                resHeaders.put(name, res.getHeader(name));
+            }
+            logMap.put("responseHeaders", resHeaders);
+            // 응답 본문
+            String responseBody = getContentString(res.getContentAsByteArray(), res.getCharacterEncoding());
+            logMap.put("responseBody", responseBody);
+            if (ex != null) {
+                logMap.put("exception", ex.getMessage());
+                String json = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(logMap);
+                log.error("\u001B[31m[EXCEPTION]\u001B[0m {}", json);
+            } else if (res.getStatus() >= 400) {
+                String json = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(logMap);
+                log.error("\u001B[31m[RESPONSE]\u001B[0m {}", json);
+            } else {
+                String json = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(logMap);
+                log.info("\u001B[32m[RESPONSE]\u001B[0m {}", json);
+            }
+        } catch (Exception e) {
+            log.error("[LOGGING ERROR - RESPONSE] {}", e.getMessage());
+        }
+    }
+
+    private String getContentString(byte[] buf, String encoding) {
+        if (buf == null || buf.length == 0) return "";
+        try {
+            return new String(buf, encoding != null ? encoding : StandardCharsets.UTF_8.name());
+        } catch (Exception e) {
+            return "[unreadable]";
+        }
+    }
+} 
