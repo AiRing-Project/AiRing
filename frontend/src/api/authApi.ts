@@ -37,15 +37,7 @@ export async function reissueToken(
 }
 
 export async function logoutApi(refreshToken: string) {
-  return plainApi.post(
-    '/auth/logout',
-    {},
-    {
-      headers: {
-        Authorization: `Bearer ${refreshToken}`,
-      },
-    },
-  );
+  return plainApi.post('/auth/logout', {refreshToken});
 }
 
 export async function resetPasswordApi(
