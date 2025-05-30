@@ -1,3 +1,4 @@
+import {useFocusEffect} from '@react-navigation/native';
 import React, {useState} from 'react';
 import {
   ScrollView,
@@ -111,6 +112,12 @@ const SectionDate: React.FC<{date: string}> = ({date}) => (
 const CallLogScreen = () => {
   const [showMonthPicker, setShowMonthPicker] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date());
+
+  useFocusEffect(
+    React.useCallback(() => {
+      setSelectedDate(new Date());
+    }, []),
+  );
 
   const handleMonthChange = (_event: any, newDate?: Date) => {
     setShowMonthPicker(false);
