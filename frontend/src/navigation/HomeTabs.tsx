@@ -22,7 +22,7 @@ import LogIcon from '../assets/icons/tab-log.svg';
 import ReportIcon from '../assets/icons/tab-report.svg';
 import SettingsIcon from '../assets/icons/tab-settings.svg';
 import CalendarScreen from '../screens/main/CalendarScreen';
-import LogScreen from '../screens/main/call-log/LogScreen';
+import CallLogScreen from '../screens/main/call-log/CallLogScreen';
 import ReportScreen from '../screens/main/ReportScreen';
 import SettingsStack from './SettingsStack';
 
@@ -141,7 +141,7 @@ const HomeTabs = () => {
         />
         <Tab.Screen
           name="Log"
-          component={LogScreen}
+          component={CallLogScreen}
           options={{tabBarLabel: '기록'}}
         />
         <Tab.Screen
