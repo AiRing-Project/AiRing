@@ -33,19 +33,19 @@ public class ImageService {
     public List<PresignedUrlResponse> generatePresignedUrls(List<String> filenames, String email) {
         return filenames.stream()
                 .map(filename -> {
-                    // S3 key ÏÉùÏÑ±
+                    // S3 key ?Éù?Ñ±
                     String key = email + "/" + Instant.now().toEpochMilli() + "_" + filename;
 
-                    // URL ÎßåÎ£å ÏãúÍ∞Ñ ÏÑ§Ï†ï -> AWSÏùò presigned URLÏù¥ ÏùºÌöåÏö©/Îã®Í∏∞Ï†Å
+                    // URL ÎßåÎ£å ?ãúÍ∞? ?Ñ§?†ï -> AWS?ùò presigned URL?ù¥ ?ùº?öå?ö©/?ã®Í∏∞Ï†Å
                     Date expiration = Date.from(Instant.now().plusSeconds(300));
 
-                    // url ÏÉùÏÑ±
+                    // url ?Éù?Ñ±
                     GeneratePresignedUrlRequest request = new GeneratePresignedUrlRequest(bucket, key)
                             .withMethod(HttpMethod.PUT)
                             .withExpiration(expiration);
                     URL url = amazonS3Client.generatePresignedUrl(request);
 
-                    // DB Ï†ÄÏû•
+                    // DB ????û•
                     Image image = Image.builder()
                             .key(key)
                             .uploaderEmail(email)
