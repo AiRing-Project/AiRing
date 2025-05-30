@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {
   ScrollView,
   StyleSheet,
@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import MonthPicker from 'react-native-month-year-picker';
 import {SvgProps} from 'react-native-svg';
 
 import IcChevronDown from '../../../assets/icons/ic-chevron-down.svg';
@@ -16,6 +17,7 @@ import PhoneIncoming from '../../../assets/icons/ic-phone-incoming.svg';
 import PhoneOutgoing from '../../../assets/icons/ic-phone-outgoing.svg';
 import IcSearch from '../../../assets/icons/ic-search.svg';
 
+// TODO: 통화 거절도 기록을 할 필요가 있을지 추가 논의 필요
 type CallType = 'incoming' | 'outgoing' | 'declined';
 
 interface CallLog {
@@ -30,6 +32,7 @@ interface CallLogItem {
   summary: string;
 }
 
+// TODO: 추후 데이터 연동 후 삭제
 const callLogs: CallLog[] = [
   {
     date: '2025-05-11',
@@ -106,15 +109,42 @@ const SectionDate: React.FC<{date: string}> = ({date}) => (
 );
 
 const CallLogScreen = () => {
+  const [showMonthPicker, setShowMonthPicker] = useState(false);
+  const [selectedDate, setSelectedDate] = useState(new Date());
+
+  const handleMonthChange = (_event: any, newDate?: Date) => {
+    setShowMonthPicker(false);
+    if (newDate) {
+      setSelectedDate(newDate);
+    }
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.topRow}>
-        <TouchableOpacity style={styles.dropdown} activeOpacity={0.7}>
+        <TouchableOpacity
+          style={styles.dropdown}
+          activeOpacity={0.7}
+          onPress={() => setShowMonthPicker(true)}>
           <View style={styles.dropdownRow}>
-            <Text style={styles.dropdownText}>2025년 5월</Text>
+            <Text style={styles.dropdownText}>
+              {selectedDate.getFullYear()}년 {selectedDate.getMonth() + 1}월
+            </Text>
             <IcChevronDown width={9} height={5} style={styles.dropdownIcon} />
           </View>
         </TouchableOpacity>
+        {showMonthPicker && (
+          <MonthPicker
+            onChange={handleMonthChange}
+            value={selectedDate}
+            minimumDate={new Date(2020, 0)} // TODO: 추후 가입일 또는 서비스 오픈일로 설정
+            maximumDate={new Date()}
+            locale="ko"
+            mode="short"
+            okButton="확인"
+            cancelButton="취소"
+          />
+        )}
         <TouchableOpacity style={styles.searchBtn} activeOpacity={0.7}>
           <IcSearch width={19} height={19} />
         </TouchableOpacity>
