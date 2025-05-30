@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.airing.backend.auth.Service.AuthService;
+import com.airing.backend.auth.service.AuthService;
 import com.airing.backend.auth.dto.ResetPasswordRequest;
 import com.airing.backend.user.dto.UserLoginRequest;
 import com.airing.backend.user.dto.UserLoginResponse;

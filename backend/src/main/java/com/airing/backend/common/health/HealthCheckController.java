@@ -1,4 +1,4 @@
-package com.airing.backend.controller;
+package com.airing.backend.common.health;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
