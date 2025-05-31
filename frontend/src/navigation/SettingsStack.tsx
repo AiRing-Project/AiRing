@@ -1,8 +1,8 @@
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import React from 'react';
 
-import ResetPasswordScreen from '../screens/auth/ResetPasswordScreen';
-import SettingsScreen from '../screens/main/SettingsScreen';
+import ResetPasswordScreen from '../screens/main/settings/ResetPasswordScreen';
+import SettingsScreen from '../screens/main/settings/SettingsScreen';
 
 export type SettingsStackParamList = {
   SettingsMain: undefined;

@@ -3,10 +3,10 @@ import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import React from 'react';
 import {Alert, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 
-import {logoutApi} from '../../api/authApi';
-import type {SettingsStackParamList} from '../../navigation/SettingsStack';
-import {useAuthStore} from '../../store/authStore';
-import {getRefreshToken, removeTokens} from '../../utils/tokenManager';
+import {logoutApi} from '../../../api/authApi';
+import type {SettingsStackParamList} from '../../../navigation/SettingsStack';
+import {useAuthStore} from '../../../store/authStore';
+import {getRefreshToken, removeTokens} from '../../../utils/tokenManager';
 
 const SettingsScreen = () => {
   const navigation =
