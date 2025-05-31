@@ -22,8 +22,8 @@ import LogIcon from '../assets/icons/tab-log.svg';
 import ReportIcon from '../assets/icons/tab-report.svg';
 import SettingsIcon from '../assets/icons/tab-settings.svg';
 import CalendarScreen from '../screens/main/CalendarScreen';
-import CallLogScreen from '../screens/main/call-log/CallLogScreen';
 import ReportScreen from '../screens/main/ReportScreen';
+import CallLogStack from './CallLogStack';
 import SettingsStack from './SettingsStack';
 
 const Tab = createBottomTabNavigator();
@@ -141,7 +141,7 @@ const HomeTabs = () => {
         />
         <Tab.Screen
           name="Log"
-          component={CallLogScreen}
+          component={CallLogStack}
           options={{tabBarLabel: '기록'}}
         />
         <Tab.Screen
