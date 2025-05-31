@@ -10,19 +10,41 @@ import com.amazonaws.services.s3.model.DeleteObjectsRequest;
 import com.amazonaws.services.s3.model.GeneratePresignedUrlRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import com.airing.backend.image.entity.Image;
+import com.airing.backend.image.repository.ImageRepository;
+import com.amazonaws.HttpMethod;
+import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.model.DeleteObjectRequest;
+import com.amazonaws.services.s3.model.DeleteObjectsRequest;
+import com.amazonaws.services.s3.model.GeneratePresignedUrlRequest;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.net.URL;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.Date;
+import java.net.URL;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@RequiredArgsConstructor
 public class ImageService {
 
+    private final AmazonS3Client amazonS3Client;
+    private final ImageRepository imageRepository;
+
+    @Value("${cloud.aws.s3.bucket}")
+    private String bucket;
+
+    // Presigned URL 발급
     private final AmazonS3Client amazonS3Client;
     private final ImageRepository imageRepository;
 
@@ -62,7 +84,16 @@ public class ImageService {
         try {
             DeleteObjectsRequest request= new DeleteObjectsRequest(bucket)
                     .withKeys(keys.toArray(new String[0]));
+        try {
+            DeleteObjectsRequest request= new DeleteObjectsRequest(bucket)
+                    .withKeys(keys.toArray(new String[0]));
 
+            amazonS3Client.deleteObjects(request);
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
             amazonS3Client.deleteObjects(request);
             return true;
         } catch (Exception e) {

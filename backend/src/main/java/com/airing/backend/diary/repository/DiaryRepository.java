@@ -1,7 +1,6 @@
 package com.airing.backend.diary.repository;
 
 import com.airing.backend.diary.entity.Diary;
-<<<<<<< HEAD
 import com.airing.backend.user.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
