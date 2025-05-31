@@ -1,0 +1,58 @@
+/**
+ * 시간 포맷팅
+ * @param isoString - ISO 8601 형식의 시간 문자열
+ * @returns 오전/오후 HH시 MM분 형식의 시간 문자열
+ */
+export const formatTime = (isoString: string) => {
+  const date = new Date(isoString);
+  let hours = date.getHours();
+  const minutes = date.getMinutes();
+  const isAM = hours < 12;
+  let displayHour = hours % 12;
+  if (displayHour === 0) {
+    displayHour = 12;
+  }
+  const displayMinute = minutes.toString().padStart(2, '0');
+  return `${isAM ? '오전' : '오후'} ${displayHour}시 ${displayMinute}분`;
+};
+
+/**
+ * 요일 포맷팅
+ * @param dateString - ISO 8601 형식의 시간 문자열
+ * @returns 한글 요일 문자열
+ */
+export const getKoreanDay = (dateString: string) => {
+  const days = [
+    '일요일',
+    '월요일',
+    '화요일',
+    '수요일',
+    '목요일',
+    '금요일',
+    '토요일',
+  ];
+  const date = new Date(dateString);
+  return days[date.getDay()];
+};
+
+/**
+ * 섹션 날짜 포맷팅
+ * @param dateString - ISO 8601 형식의 시간 문자열
+ * @returns 일요일, 월요일, 화요일, 수요일, 목요일, 금요일, 토요일 형식의 시간 문자열
+ */
+export const formatSectionDate = (dateString: string) => {
+  const date = new Date(dateString);
+  const day = date.getDate();
+  const dayOfWeek = getKoreanDay(dateString);
+  return `${day}일 ${dayOfWeek}`;
+};
+
+/**
+ * YYYY년 M월 D일 포맷팅
+ * @param dateString - ISO 8601 형식의 시간 문자열
+ * @returns 2025년 5월 7일
+ */
+export const formatKoreanDate = (dateString: string) => {
+  const date = new Date(dateString);
+  return `${date.getFullYear()}년 ${date.getMonth() + 1}월 ${date.getDate()}일`;
+};
