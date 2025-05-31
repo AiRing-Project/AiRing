@@ -10,6 +10,10 @@ import {
 
 import {logoutApi} from '../../../api/authApi';
 import IcChevronRight from '../../../assets/icons/ic-chevron-right.svg';
+import IcLock from '../../../assets/icons/ic-lock.svg';
+import IcPhone from '../../../assets/icons/ic-phone.svg';
+import IcPieChart from '../../../assets/icons/ic-pie-chart.svg';
+import IcSetting from '../../../assets/icons/ic-setting.svg';
 import {getRefreshToken, removeTokens} from '../../../utils/tokenManager';
 
 const handleLogout = async () => {
@@ -59,14 +63,11 @@ const MyPageScreen = () => {
 
       {/* 설정 메뉴 */}
       <View style={styles.menuBox}>
-        <MenuItem icon={<Text style={styles.emoji}>⚙️</Text>} label="앱 설정" />
+        <MenuItem icon={<IcSetting width={22} height={22} />} label="앱 설정" />
+        <MenuItem icon={<IcLock width={22} height={22} />} label="보안 설정" />
+        <MenuItem icon={<IcPhone width={22} height={22} />} label="AI 설정" />
         <MenuItem
-          icon={<Text style={styles.emoji}>🔒</Text>}
-          label="보안 설정"
-        />
-        <MenuItem icon={<Text style={styles.emoji}>🤖</Text>} label="AI 설정" />
-        <MenuItem
-          icon={<Text style={styles.emoji}>💾</Text>}
+          icon={<IcPieChart width={22} height={22} />}
           label="데이터 관리"
         />
       </View>
