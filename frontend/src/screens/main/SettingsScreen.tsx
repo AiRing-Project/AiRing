@@ -33,11 +33,16 @@ const SettingsScreen = () => {
       <Text style={styles.text}>설정 탭</Text>
       <TouchableOpacity
         style={styles.menuButton}
+        onPress={() => navigation.navigate('mypage')}>
+        <Text style={styles.menuButtonText}>마이페이지</Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={styles.menuButton}
         onPress={() => navigation.navigate('ResetPassword')}>
         <Text style={styles.menuButtonText}>비밀번호 재설정</Text>
       </TouchableOpacity>
-      <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-        <Text style={styles.logoutButtonText}>로그아웃</Text>
+      <TouchableOpacity style={styles.menuButton} onPress={handleLogout}>
+        <Text style={styles.menuButtonText}>로그아웃</Text>
       </TouchableOpacity>
     </View>
   );
@@ -48,37 +53,27 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: '#fff',
+    paddingHorizontal: 24,
   },
   text: {
     fontSize: 20,
-    marginBottom: 24,
-  },
-  logoutButton: {
-    width: '100%',
-    height: 48,
-    backgroundColor: '#f5f5f5',
-    borderRadius: 8,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: 8,
-    borderWidth: 1,
-    borderColor: '#ddd',
-  },
-  logoutButtonText: {
-    color: '#222',
-    fontSize: 16,
+    marginBottom: 32,
     fontWeight: 'bold',
+    color: '#222',
   },
   menuButton: {
     width: '100%',
-    height: 48,
+    height: 56,
     backgroundColor: '#f5f5f5',
-    borderRadius: 8,
+    borderRadius: 10,
     alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 8,
+    justifyContent: 'flex-start',
+    flexDirection: 'row',
+    marginBottom: 16,
     borderWidth: 1,
-    borderColor: '#ddd',
+    borderColor: '#eee',
+    paddingHorizontal: 20,
   },
   menuButtonText: {
     color: '#222',

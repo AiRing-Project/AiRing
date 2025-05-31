@@ -6,8 +6,11 @@ import {getAccessToken, tryRefreshToken} from '../utils/tokenManager';
 interface AuthState {
   isLoading: boolean;
   isLoggedIn: boolean;
+  username: string | null;
+  email: string | null;
   setLoading: (val: boolean) => void;
   setLoggedIn: (val: boolean) => void;
+  setUser: (username: string | null, email: string | null) => void;
   checkAuth: () => Promise<void>;
 }
 
@@ -26,8 +29,11 @@ function isTokenValid(token: string | null): boolean {
 export const useAuthStore = create<AuthState>(set => ({
   isLoading: true,
   isLoggedIn: false,
+  username: null,
+  email: null,
   setLoading: (val: boolean) => set({isLoading: val}),
   setLoggedIn: (val: boolean) => set({isLoggedIn: val}),
+  setUser: (username, email) => set({username, email}),
   checkAuth: async () => {
     set({isLoading: true});
     const token = await getAccessToken();
