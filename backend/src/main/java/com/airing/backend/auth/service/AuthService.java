@@ -1,4 +1,4 @@
-package com.airing.backend.auth.Service;
+package com.airing.backend.auth.service;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
