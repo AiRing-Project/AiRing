@@ -1,4 +1,5 @@
-import {useFocusEffect} from '@react-navigation/native';
+import {useFocusEffect, useNavigation} from '@react-navigation/native';
+import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import React, {useState} from 'react';
 import {
   ScrollView,
@@ -17,21 +18,22 @@ import PhoneDeclined from '../../../assets/icons/ic-phone-declined.svg';
 import PhoneIncoming from '../../../assets/icons/ic-phone-incoming.svg';
 import PhoneOutgoing from '../../../assets/icons/ic-phone-outgoing.svg';
 import IcSearch from '../../../assets/icons/ic-search.svg';
+import type {CallLogStackParamList} from '../../../navigation/CallLogStack';
 import {formatSectionDate, formatTime} from '../../../utils/date';
 
 // TODO: 통화 거절도 기록을 할 필요가 있을지 추가 논의 필요
 type CallType = 'incoming' | 'outgoing' | 'declined';
-
-interface CallLog {
-  date: string;
-  logs: CallLogItem[];
-}
 
 interface CallLogItem {
   id: number;
   startedAt: string;
   callType: CallType;
   summary: string;
+}
+
+interface CallLog {
+  date: string;
+  logs: CallLogItem[];
 }
 
 // TODO: 추후 데이터 연동 후 삭제
@@ -79,6 +81,10 @@ const SectionDate: React.FC<{date: string}> = ({date}) => (
 const CallLogScreen = () => {
   const [showMonthPicker, setShowMonthPicker] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date());
+  const navigation =
+    useNavigation<
+      NativeStackNavigationProp<CallLogStackParamList, 'CallLogScreen'>
+    >();
 
   useFocusEffect(
     React.useCallback(() => {
@@ -140,7 +146,13 @@ const CallLogScreen = () => {
               {section.logs.map(log => {
                 const IconComponent = iconMap[log.callType];
                 return (
-                  <View key={log.id} style={styles.logRow}>
+                  <TouchableOpacity
+                    key={log.id}
+                    style={styles.logRow}
+                    onPress={() =>
+                      navigation.navigate('CallLogDetailScreen', {id: log.id})
+                    }
+                    activeOpacity={0.7}>
                     <IconComponent width={24} height={24} />
                     <View style={styles.logInfo}>
                       <Text
@@ -158,7 +170,7 @@ const CallLogScreen = () => {
                       height={15}
                       style={styles.arrow}
                     />
-                  </View>
+                  </TouchableOpacity>
                 );
               })}
             </View>
