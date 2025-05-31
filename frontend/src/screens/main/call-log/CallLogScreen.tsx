@@ -39,19 +39,70 @@ interface CallLog {
 // TODO: 추후 데이터 연동 후 삭제
 const callLogs: CallLog[] = [
   {
+    date: '2025-05-14',
+    logs: [
+      {
+        id: 7,
+        startedAt: '2025-05-14T21:10:00Z',
+        callType: 'incoming',
+        summary: '퇴근 후 오늘 하루 돌아보기',
+      },
+      {
+        id: 6,
+        startedAt: '2025-05-14T08:30:00Z',
+        callType: 'outgoing',
+        summary: '아침 인사와 일정 공유',
+      },
+    ],
+  },
+  {
+    date: '2025-05-13',
+    logs: [
+      {
+        id: 5,
+        startedAt: '2025-05-13T20:00:00Z',
+        callType: 'incoming',
+        summary: '스트레스 해소 대화',
+      },
+      {
+        id: 4,
+        startedAt: '2025-05-13T07:45:00Z',
+        callType: 'outgoing',
+        summary: '오늘 목표 세우기',
+      },
+    ],
+  },
+  {
+    date: '2025-05-12',
+    logs: [
+      {
+        id: 3,
+        startedAt: '2025-05-12T19:30:00Z',
+        callType: 'incoming',
+        summary: '감정 일기 나누기',
+      },
+      {
+        id: 2,
+        startedAt: '2025-05-12T08:00:00Z',
+        callType: 'outgoing',
+        summary: '기상 및 컨디션 체크',
+      },
+    ],
+  },
+  {
     date: '2025-05-11',
     logs: [
       {
         id: 1,
+        startedAt: '2025-05-11T21:48:00Z',
+        callType: 'outgoing',
+        summary: '오늘 하루 대화',
+      },
+      {
+        id: 0,
         startedAt: '2025-05-11T20:30:00Z',
         callType: 'incoming',
         summary: '퇴근길 대화',
-      },
-      {
-        id: 2,
-        startedAt: '2024-06-01T21:48:00Z',
-        callType: 'outgoing',
-        summary: '오늘 하루 대화',
       },
     ],
   },
@@ -59,7 +110,7 @@ const callLogs: CallLog[] = [
     date: '2025-05-10',
     logs: [
       {
-        id: 3,
+        id: -1,
         startedAt: '2025-05-10T20:00:00Z',
         callType: 'declined',
         summary: '통화 거절',
