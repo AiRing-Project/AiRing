@@ -17,6 +17,7 @@ import PhoneDeclined from '../../../assets/icons/ic-phone-declined.svg';
 import PhoneIncoming from '../../../assets/icons/ic-phone-incoming.svg';
 import PhoneOutgoing from '../../../assets/icons/ic-phone-outgoing.svg';
 import IcSearch from '../../../assets/icons/ic-search.svg';
+import {formatSectionDate, formatTime} from '../../../utils/date';
 
 // TODO: 통화 거절도 기록을 할 필요가 있을지 추가 논의 필요
 type CallType = 'incoming' | 'outgoing' | 'declined';
@@ -69,40 +70,6 @@ const iconMap: Record<CallType, React.FC<SvgProps>> = {
   incoming: PhoneIncoming,
   outgoing: PhoneOutgoing,
   declined: PhoneDeclined,
-};
-
-const formatTime = (isoString: string) => {
-  const date = new Date(isoString);
-  let hours = date.getHours();
-  const minutes = date.getMinutes();
-  const isAM = hours < 12;
-  let displayHour = hours % 12;
-  if (displayHour === 0) {
-    displayHour = 12;
-  }
-  const displayMinute = minutes.toString().padStart(2, '0');
-  return `${isAM ? '오전' : '오후'} ${displayHour}시 ${displayMinute}분`;
-};
-
-const getKoreanDay = (dateString: string) => {
-  const days = [
-    '일요일',
-    '월요일',
-    '화요일',
-    '수요일',
-    '목요일',
-    '금요일',
-    '토요일',
-  ];
-  const date = new Date(dateString);
-  return days[date.getDay()];
-};
-
-const formatSectionDate = (dateString: string) => {
-  const date = new Date(dateString);
-  const day = date.getDate();
-  const dayOfWeek = getKoreanDay(dateString);
-  return `${day}일 ${dayOfWeek}`;
 };
 
 const SectionDate: React.FC<{date: string}> = ({date}) => (
