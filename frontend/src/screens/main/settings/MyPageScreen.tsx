@@ -8,13 +8,13 @@ import {
   View,
 } from 'react-native';
 
-import {logoutApi} from '../../../api/authApi';
+import { logoutApi } from '../../../api/authApi';
 import IcChevronRight from '../../../assets/icons/ic-chevron-right.svg';
 import IcLock from '../../../assets/icons/ic-lock.svg';
 import IcPhone from '../../../assets/icons/ic-phone.svg';
 import IcPieChart from '../../../assets/icons/ic-pie-chart.svg';
 import IcSetting from '../../../assets/icons/ic-setting.svg';
-import {getRefreshToken, removeTokens} from '../../../utils/tokenManager';
+import { getRefreshToken, removeTokens } from '../../../utils/tokenManager';
 
 const handleLogout = async () => {
   try {

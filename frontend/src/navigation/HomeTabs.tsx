@@ -1,11 +1,13 @@
-import type {BottomTabBarProps} from '@react-navigation/bottom-tabs';
-import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
+import type { BottomTabBarProps } from '@react-navigation/bottom-tabs';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import type {
   NavigationHelpers,
   ParamListBase,
   TabNavigationState,
 } from '@react-navigation/native';
-import React, {useCallback, useState} from 'react';
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import React, { useCallback, useState } from 'react';
 import {
   Modal,
   Platform,
@@ -16,6 +18,7 @@ import {
   View,
 } from 'react-native';
 
+import type { RootStackParamList } from '../../App';
 import CalendarIcon from '../assets/icons/tab-calendar.svg';
 import CenterIcon from '../assets/icons/tab-center.svg';
 import LogIcon from '../assets/icons/tab-log.svg';
@@ -113,6 +116,7 @@ function renderTab(
 
 const HomeTabs = () => {
   const [modalVisible, setModalVisible] = useState<boolean>(false);
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
   const renderTabBar = useCallback(
     (props: BottomTabBarProps) => (
@@ -162,7 +166,10 @@ const HomeTabs = () => {
           <View style={styles.modalContent}>
             <TouchableOpacity
               style={styles.modalButton}
-              onPress={() => setModalVisible(false)}>
+              onPress={() => {
+                setModalVisible(false);
+                navigation.navigate('ReserveAiCall');
+              }}>
               <Text style={styles.modalButtonText}>AI 전화 예약</Text>
             </TouchableOpacity>
             <TouchableOpacity
