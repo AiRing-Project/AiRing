@@ -16,13 +16,13 @@ import {
   View,
 } from 'react-native';
 
-import CalendarIcon from '../assets/icons/tab_calendar.svg';
-import CenterIcon from '../assets/icons/tab_center.svg';
-import LogIcon from '../assets/icons/tab_log.svg';
-import ReportIcon from '../assets/icons/tab_report.svg';
-import SettingsIcon from '../assets/icons/tab_settings.svg';
+import CalendarIcon from '../assets/icons/tab-calendar.svg';
+import CenterIcon from '../assets/icons/tab-center.svg';
+import LogIcon from '../assets/icons/tab-log.svg';
+import ReportIcon from '../assets/icons/tab-report.svg';
+import SettingsIcon from '../assets/icons/tab-settings.svg';
 import CalendarScreen from '../screens/main/CalendarScreen';
-import LogScreen from '../screens/main/LogScreen';
+import CallLogScreen from '../screens/main/call-log/CallLogScreen';
 import ReportScreen from '../screens/main/ReportScreen';
 import SettingsStack from './SettingsStack';
 
@@ -141,7 +141,7 @@ const HomeTabs = () => {
         />
         <Tab.Screen
           name="Log"
-          component={LogScreen}
+          component={CallLogScreen}
           options={{tabBarLabel: '기록'}}
         />
         <Tab.Screen
