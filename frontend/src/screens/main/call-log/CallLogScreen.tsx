@@ -1,4 +1,5 @@
-import {useFocusEffect} from '@react-navigation/native';
+import {useFocusEffect, useNavigation} from '@react-navigation/native';
+import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import React, {useState} from 'react';
 import {
   ScrollView,
@@ -17,14 +18,11 @@ import PhoneDeclined from '../../../assets/icons/ic-phone-declined.svg';
 import PhoneIncoming from '../../../assets/icons/ic-phone-incoming.svg';
 import PhoneOutgoing from '../../../assets/icons/ic-phone-outgoing.svg';
 import IcSearch from '../../../assets/icons/ic-search.svg';
+import type {CallLogStackParamList} from '../../../navigation/CallLogStack';
+import {formatSectionDate, formatTime} from '../../../utils/date';
 
 // TODO: 통화 거절도 기록을 할 필요가 있을지 추가 논의 필요
 type CallType = 'incoming' | 'outgoing' | 'declined';
-
-interface CallLog {
-  date: string;
-  logs: CallLogItem[];
-}
 
 interface CallLogItem {
   id: number;
@@ -33,22 +31,78 @@ interface CallLogItem {
   summary: string;
 }
 
+interface CallLog {
+  date: string;
+  logs: CallLogItem[];
+}
+
 // TODO: 추후 데이터 연동 후 삭제
 const callLogs: CallLog[] = [
+  {
+    date: '2025-05-14',
+    logs: [
+      {
+        id: 7,
+        startedAt: '2025-05-14T21:10:00Z',
+        callType: 'incoming',
+        summary: '퇴근 후 오늘 하루 돌아보기',
+      },
+      {
+        id: 6,
+        startedAt: '2025-05-14T08:30:00Z',
+        callType: 'outgoing',
+        summary: '아침 인사와 일정 공유',
+      },
+    ],
+  },
+  {
+    date: '2025-05-13',
+    logs: [
+      {
+        id: 5,
+        startedAt: '2025-05-13T20:00:00Z',
+        callType: 'incoming',
+        summary: '스트레스 해소 대화',
+      },
+      {
+        id: 4,
+        startedAt: '2025-05-13T07:45:00Z',
+        callType: 'outgoing',
+        summary: '오늘 목표 세우기',
+      },
+    ],
+  },
+  {
+    date: '2025-05-12',
+    logs: [
+      {
+        id: 3,
+        startedAt: '2025-05-12T19:30:00Z',
+        callType: 'incoming',
+        summary: '감정 일기 나누기',
+      },
+      {
+        id: 2,
+        startedAt: '2025-05-12T08:00:00Z',
+        callType: 'outgoing',
+        summary: '기상 및 컨디션 체크',
+      },
+    ],
+  },
   {
     date: '2025-05-11',
     logs: [
       {
         id: 1,
+        startedAt: '2025-05-11T21:48:00Z',
+        callType: 'outgoing',
+        summary: '오늘 하루 대화',
+      },
+      {
+        id: 0,
         startedAt: '2025-05-11T20:30:00Z',
         callType: 'incoming',
         summary: '퇴근길 대화',
-      },
-      {
-        id: 2,
-        startedAt: '2024-06-01T21:48:00Z',
-        callType: 'outgoing',
-        summary: '오늘 하루 대화',
       },
     ],
   },
@@ -56,7 +110,7 @@ const callLogs: CallLog[] = [
     date: '2025-05-10',
     logs: [
       {
-        id: 3,
+        id: -1,
         startedAt: '2025-05-10T20:00:00Z',
         callType: 'declined',
         summary: '통화 거절',
@@ -71,40 +125,6 @@ const iconMap: Record<CallType, React.FC<SvgProps>> = {
   declined: PhoneDeclined,
 };
 
-const formatTime = (isoString: string) => {
-  const date = new Date(isoString);
-  let hours = date.getHours();
-  const minutes = date.getMinutes();
-  const isAM = hours < 12;
-  let displayHour = hours % 12;
-  if (displayHour === 0) {
-    displayHour = 12;
-  }
-  const displayMinute = minutes.toString().padStart(2, '0');
-  return `${isAM ? '오전' : '오후'} ${displayHour}시 ${displayMinute}분`;
-};
-
-const getKoreanDay = (dateString: string) => {
-  const days = [
-    '일요일',
-    '월요일',
-    '화요일',
-    '수요일',
-    '목요일',
-    '금요일',
-    '토요일',
-  ];
-  const date = new Date(dateString);
-  return days[date.getDay()];
-};
-
-const formatSectionDate = (dateString: string) => {
-  const date = new Date(dateString);
-  const day = date.getDate();
-  const dayOfWeek = getKoreanDay(dateString);
-  return `${day}일 ${dayOfWeek}`;
-};
-
 const SectionDate: React.FC<{date: string}> = ({date}) => (
   <Text style={styles.sectionDate}>{date}</Text>
 );
@@ -112,6 +132,10 @@ const SectionDate: React.FC<{date: string}> = ({date}) => (
 const CallLogScreen = () => {
   const [showMonthPicker, setShowMonthPicker] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date());
+  const navigation =
+    useNavigation<
+      NativeStackNavigationProp<CallLogStackParamList, 'CallLogScreen'>
+    >();
 
   useFocusEffect(
     React.useCallback(() => {
@@ -173,7 +197,13 @@ const CallLogScreen = () => {
               {section.logs.map(log => {
                 const IconComponent = iconMap[log.callType];
                 return (
-                  <View key={log.id} style={styles.logRow}>
+                  <TouchableOpacity
+                    key={log.id}
+                    style={styles.logRow}
+                    onPress={() =>
+                      navigation.navigate('CallLogDetailScreen', {id: log.id})
+                    }
+                    activeOpacity={0.7}>
                     <IconComponent width={24} height={24} />
                     <View style={styles.logInfo}>
                       <Text
@@ -191,7 +221,7 @@ const CallLogScreen = () => {
                       height={15}
                       style={styles.arrow}
                     />
-                  </View>
+                  </TouchableOpacity>
                 );
               })}
             </View>
