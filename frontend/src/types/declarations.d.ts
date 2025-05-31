@@ -1,5 +1,6 @@
 declare module '@env' {
   export const API_BASE_URL: string;
+  export const SKIP_AUTH: string;
 }
 
 declare module '*.svg' {

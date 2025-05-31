@@ -1,3 +1,4 @@
+import {SKIP_AUTH} from '@env';
 import {jwtDecode} from 'jwt-decode';
 import {create} from 'zustand';
 
@@ -30,6 +31,10 @@ export const useAuthStore = create<AuthState>(set => ({
   setLoggedIn: (val: boolean) => set({isLoggedIn: val}),
   checkAuth: async () => {
     set({isLoading: true});
+    if (SKIP_AUTH === 'true') {
+      set({isLoggedIn: true, isLoading: false});
+      return;
+    }
     const token = await getAccessToken();
     if (isTokenValid(token)) {
       set({isLoggedIn: true, isLoading: false});
