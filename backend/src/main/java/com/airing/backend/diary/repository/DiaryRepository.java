@@ -11,9 +11,4 @@ public interface DiaryRepository extends JpaRepository<Diary, Long> {
 
     List<Diary> findAllByUserAndDateBetween(User user, LocalDate startDate, LocalDate endDate);
 
-import org.springframework.data.jpa.repository.JpaRepository;
-
-public interface DiaryRepository extends JpaRepository<Diary, Long> {
-    
-    }
 }

@@ -29,11 +29,10 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-@RequiredArgsConstructor
 public class ImageService {
 
     private final S3Client s3Client;
-    private final S3Presigner s3Presigner; // presigned URL ë°œê¸‰?š© ê°ì²´
+    private final S3Presigner s3Presigner; // presigned URL ë°œê¸‰?ï¿½ï¿½ ê°ì²´
     private final ImageRepository imageRepository;
 
     @Value("${cloud.aws.s3.bucket}")
@@ -43,10 +42,10 @@ public class ImageService {
     public List<PresignedUrlResponse> generatePresignedUrls(List<String> fileTypes, String email) {
         return fileTypes.stream()
                 .map(fileType -> {
-                    // S3 key ?ƒ?„±
+                    // S3 key ?ï¿½ï¿½?ï¿½ï¿½
                     String key = email + "/" + Instant.now().toEpochMilli() + "_" + fileType;
 
-                    // URL ë§Œë£Œ ?‹œê°? ?„¤? • -> AWS?˜ presigned URL?´ ?¼?šŒ?š©/?‹¨ê¸°ì 
+                    // URL ë§Œë£Œ ?ï¿½ï¿½ï¿½? ?ï¿½ï¿½?ï¿½ï¿½ -> AWS?ï¿½ï¿½ presigned URL?ï¿½ï¿½ ?ï¿½ï¿½?ï¿½ï¿½?ï¿½ï¿½/?ï¿½ï¿½ê¸°ì 
                     PutObjectRequest putRequest = PutObjectRequest.builder()
                             .bucket(bucket)
                             .key(key)
@@ -57,11 +56,11 @@ public class ImageService {
                             .signatureDuration(Duration.ofMinutes(5))
                             .build();
 
-                    // URL ?ƒ?„±
+                    // URL ?ï¿½ï¿½?ï¿½ï¿½
                     PresignedPutObjectRequest presignedRequest = s3Presigner.presignPutObject(presignRequest);
                     String url = presignedRequest.url().toString();
 
-                    // DB ????¥
+                    // DB ????ï¿½ï¿½
                     Image image = Image.builder()
                             .key(key)
                             .uploaderEmail(email)
@@ -94,8 +93,8 @@ public class ImageService {
     }
 
     /**
-     * presigned-urlë¡? ?—…ë¡œë“œ?œ ?´ë¯¸ì?? ?‚¤?“¤?„ ë°›ì•„
-     * ?•´?‹¹ ?´ë¯¸ì???“¤?„ ?Š¹? • diaryId?— ?—°ê²°í•©?‹ˆ?‹¤.
+     * presigned-urlï¿½? ?ï¿½ï¿½ë¡œë“œ?ï¿½ï¿½ ?ï¿½ï¿½ë¯¸ï¿½?? ?ï¿½ï¿½?ï¿½ï¿½?ï¿½ï¿½ ë°›ì•„
+     * ?ï¿½ï¿½?ï¿½ï¿½ ?ï¿½ï¿½ë¯¸ï¿½???ï¿½ï¿½?ï¿½ï¿½ ?ï¿½ï¿½?ï¿½ï¿½ diaryId?ï¿½ï¿½ ?ï¿½ï¿½ê²°í•©?ï¿½ï¿½?ï¿½ï¿½.
      */
     @Transactional
     public void linkImagesToDiary(List<String> imageKeys, Long diaryId) {
