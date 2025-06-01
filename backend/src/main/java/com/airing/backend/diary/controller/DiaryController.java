@@ -1,6 +1,6 @@
 package com.airing.backend.diary.controller;
 
-import com.airing.backend.diary.Service.DiaryService;
+import com.airing.backend.diary.service.DiaryService;
 import com.airing.backend.diary.dto.DiaryCreateRequest;
 import com.airing.backend.diary.dto.DiaryDetailResponse;
 import com.airing.backend.diary.dto.DiarySummaryResponse;
@@ -8,7 +8,6 @@ import com.airing.backend.diary.dto.DiaryUpdateRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;

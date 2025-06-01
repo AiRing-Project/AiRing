@@ -38,8 +38,10 @@ dependencies {
 	runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
 	runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
 	implementation 'org.hibernate.validator:hibernate-validator:8.0.1.Final'
-	implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
-
+	implementation platform('io.awspring.cloud:spring-cloud-aws-dependencies:3.3.0')
+	implementation 'io.awspring.cloud:spring-cloud-aws-starter-s3'
+	implementation 'software.amazon.awssdk:s3:2.25.10'
+	implementation 'software.amazon.awssdk:auth:2.25.10'
 
 	//Webflux
 	implementation 'org.springframework.boot:spring-boot-starter-webflux'
