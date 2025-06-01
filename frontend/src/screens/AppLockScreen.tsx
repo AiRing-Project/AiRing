@@ -1,6 +1,6 @@
 import {useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import React, {useRef, useState} from 'react';
+import React, {useCallback, useMemo, useRef, useState} from 'react';
 import {
   Dimensions,
   Keyboard,
@@ -47,23 +47,9 @@ const PasswordBox = ({status}: PasswordBoxProps) => {
   );
 };
 
-const getBoxStatus = (
-  idx: number,
-  password: string,
-  error: boolean,
-): PasswordBoxStatus => {
-  if (password.length === PASSWORD_LENGTH) {
-    return error ? 'error' : 'success';
-  }
-  if (password.length > idx) {
-    return 'inputting';
-  }
-  return 'inactive';
-};
-
 const AppLockScreen = () => {
   const [password, setPassword] = useState<string>('');
-  const [error, setError] = useState<boolean>(false);
+  const [isError, setIsError] = useState<boolean>(false);
   const inputRef = useRef<TextInput | null>(null);
   const navigation =
     useNavigation<NativeStackNavigationProp<RootStackParamList, 'AppLock'>>();
@@ -71,20 +57,41 @@ const AppLockScreen = () => {
   const correctPassword = '1234'; // 테스트용 비밀번호
   const username = '아이링'; // 테스트용 사용자명
 
+  const getBoxStatus = useCallback(
+    (idx: number, pw: string, error: boolean): PasswordBoxStatus => {
+      if (pw.length === PASSWORD_LENGTH) {
+        return error ? 'error' : 'success';
+      }
+      if (pw.length > idx) {
+        return 'inputting';
+      }
+      return 'inactive';
+    },
+    [],
+  );
+
+  const inputBoxStatusList = useMemo(
+    () =>
+      Array.from({length: PASSWORD_LENGTH}).map((_, idx) =>
+        getBoxStatus(idx, password, isError),
+      ),
+    [password, isError, getBoxStatus],
+  );
+
   const handlePasswordChange = (text: string) => {
     setPassword(text);
-    setError(false);
+    setIsError(false);
     if (text.length === PASSWORD_LENGTH) {
       if (text === correctPassword) {
         setTimeout(() => {
           setPassword('');
-          setError(false);
+          setIsError(false);
           navigation.replace('Home');
         }, 500);
       } else {
-        setError(true);
+        setIsError(true);
         setTimeout(() => {
-          setError(false);
+          setIsError(false);
           setPassword('');
         }, 500);
       }
@@ -107,11 +114,8 @@ const AppLockScreen = () => {
           activeOpacity={1}
           onPress={() => inputRef.current?.focus()}
           style={styles.inputBoxWrap}>
-          {Array.from({length: PASSWORD_LENGTH}).map((_, idx) => (
-            <PasswordBox
-              key={idx}
-              status={getBoxStatus(idx, password, error)}
-            />
+          {inputBoxStatusList.map((status, idx) => (
+            <PasswordBox key={idx} status={status} />
           ))}
           {/* 실제 입력은 숨김 TextInput으로 처리 */}
           <TextInput
