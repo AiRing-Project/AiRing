@@ -22,11 +22,11 @@ public class ImageController {
 
     @PostMapping("/presigned-url")
     public ResponseEntity<List<PresignedUrlResponse>> getPresignedUrls(
-            @RequestBody List<String> filenames,
+            @RequestBody List<String> fileTypes,
             @RequestHeader("Authorization") String token) {
 
         String email = jwtProvider.getEmailFromToken(token.replace("Bearer ", ""));
-        return ResponseEntity.ok(imageService.generatePresignedUrls(filenames, email));
+        return ResponseEntity.ok(imageService.generatePresignedUrls(fileTypes, email));
     }
 
     @DeleteMapping
