@@ -13,11 +13,13 @@ import {enableScreens} from 'react-native-screens';
 
 import AuthStack from './src/navigation/AuthStack';
 import HomeTabs from './src/navigation/HomeTabs';
+import AppLockScreen from './src/screens/AppLockScreen';
 import SplashScreen from './src/screens/SplashScreen';
 import {useAuthStore} from './src/store/authStore';
 
 export type RootStackParamList = {
   Auth: undefined;
+  AppLock: undefined;
   Home: undefined;
 };
 
@@ -41,7 +43,10 @@ const App = () => {
       <NavigationContainer>
         <Stack.Navigator screenOptions={{headerShown: false}}>
           {isLoggedIn ? (
-            <Stack.Screen name="Home" component={HomeTabs} />
+            <>
+              <Stack.Screen name="AppLock" component={AppLockScreen} />
+              <Stack.Screen name="Home" component={HomeTabs} />
+            </>
           ) : (
             <Stack.Screen name="Auth" component={AuthStack} />
           )}
