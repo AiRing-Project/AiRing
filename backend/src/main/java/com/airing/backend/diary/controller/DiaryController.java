@@ -5,6 +5,7 @@ import com.airing.backend.diary.dto.DiaryCreateRequest;
 import com.airing.backend.diary.dto.DiaryDetailResponse;
 import com.airing.backend.diary.dto.DiarySummaryResponse;
 import com.airing.backend.diary.dto.DiaryUpdateRequest;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -21,8 +22,9 @@ public class DiaryController {
 
     @PostMapping
     public ResponseEntity<?> createDiary(
-            @RequestBody DiaryCreateRequest request,
+            @RequestBody @Valid DiaryCreateRequest request,
             @RequestHeader("Authorization") String token) {
+
         diaryService.createService(request, token);
         return ResponseEntity.ok("일기 작성 완료");
     }
@@ -30,7 +32,7 @@ public class DiaryController {
     @PutMapping("/{id}")
     public ResponseEntity<?> updateDiary(
             @PathVariable("id") Long diaryId,
-            @RequestBody DiaryUpdateRequest request,
+            @RequestBody @Valid DiaryUpdateRequest request,
             @RequestHeader("Authorization") String token
     ) {
         diaryService.updateService(diaryId, request, token);
@@ -47,20 +49,21 @@ public class DiaryController {
         // return ResponseEntity.noContent().build(); 나중에
     }
 
+    // 다이어리 상세(단일) 조회
     @GetMapping("/{id}")
     public ResponseEntity<DiaryDetailResponse> getDiaryDetail(
             @PathVariable Long id,
             @RequestHeader("Authorization") String authHeader) {
 
-        String token = authHeader.replace("Bearer ", "");
-        return ResponseEntity.ok(diaryService.getDiaryDetail(id, token));
+        return ResponseEntity.ok(diaryService.getDiaryDetail(id, authHeader));
     }
 
+    // 월별 다이어리 조회
     @GetMapping
     public ResponseEntity<List<DiarySummaryResponse>> getMonthlySummary(
             @RequestParam String yearMonth,
             @RequestHeader("Authorization") String authHeader) {
-        String token = authHeader.replace("Bearer ", "");
-        return ResponseEntity.ok(diaryService.getMonthlySummary(yearMonth, token));
+
+        return ResponseEntity.ok(diaryService.getMonthlySummary(yearMonth, authHeader));
     }
 }

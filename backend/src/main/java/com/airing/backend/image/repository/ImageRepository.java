@@ -10,4 +10,7 @@ public interface ImageRepository extends JpaRepository<Image, Long> {
     List<Image> findByDiaryId(Long diaryId);
 
     List<Image> findByUploaderEmail(String email);
+
+    List<Image> findAllByKeyIn(List<String> keys);
+
 }

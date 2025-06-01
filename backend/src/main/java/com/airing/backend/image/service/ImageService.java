@@ -8,6 +8,7 @@ import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.DeleteObjectsRequest;
 import com.amazonaws.services.s3.model.GeneratePresignedUrlRequest;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -68,6 +69,19 @@ public class ImageService {
         } catch (Exception e) {
             e.printStackTrace();
             return false;
+        }
+    }
+
+    /**
+     * presigned-url로 업로드된 이미지 키들을 받아
+     * 해당 이미지들을 특정 diaryId에 연결합니다.
+     */
+    @Transactional
+    public void linkImagesToDiary(List<String> imageKeys, Long diaryId) {
+        List<Image> images = imageRepository.findAllByKeyIn(imageKeys);
+
+        for (Image image : images) {
+            image.setDiaryId(diaryId);
         }
     }
 }

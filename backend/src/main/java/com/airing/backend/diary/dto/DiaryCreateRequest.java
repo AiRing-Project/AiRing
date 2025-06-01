@@ -15,4 +15,6 @@ public class DiaryCreateRequest {
     private List<String> image;
     private List<String> emotion;
     private List<String> tag;
+
+    private List<String> imageKeys; // Presigned-url로 업로드된 이미지 키들
 }
