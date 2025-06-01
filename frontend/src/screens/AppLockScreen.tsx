@@ -47,20 +47,23 @@ const PasswordBox = ({status}: PasswordBoxProps) => {
   );
 };
 
-const AppLockScreen = () => {
-  const [password, setPassword] = useState<string>('');
-  const [isError, setIsError] = useState<boolean>(false);
-  const inputRef = useRef<TextInput | null>(null);
-  const navigation =
-    useNavigation<NativeStackNavigationProp<RootStackParamList, 'AppLock'>>();
+interface PasswordInputAreaProps {
+  password: string;
+  error: boolean;
+  onChange: (text: string) => void;
+  inputRef: React.RefObject<TextInput | null>;
+}
 
-  const correctPassword = '1234'; // 테스트용 비밀번호
-  const username = '아이링'; // 테스트용 사용자명
-
+const PasswordInputArea = ({
+  password,
+  error,
+  onChange,
+  inputRef,
+}: PasswordInputAreaProps) => {
   const getBoxStatus = useCallback(
-    (idx: number, pw: string, error: boolean): PasswordBoxStatus => {
+    (idx: number, pw: string, isError: boolean): PasswordBoxStatus => {
       if (pw.length === PASSWORD_LENGTH) {
-        return error ? 'error' : 'success';
+        return isError ? 'error' : 'success';
       }
       if (pw.length > idx) {
         return 'inputting';
@@ -73,10 +76,44 @@ const AppLockScreen = () => {
   const inputBoxStatusList = useMemo(
     () =>
       Array.from({length: PASSWORD_LENGTH}).map((_, idx) =>
-        getBoxStatus(idx, password, isError),
+        getBoxStatus(idx, password, error),
       ),
-    [password, isError, getBoxStatus],
+    [password, error, getBoxStatus],
   );
+
+  return (
+    <TouchableOpacity
+      activeOpacity={1}
+      onPress={() => inputRef.current?.focus()}
+      style={styles.inputBoxWrap}>
+      {inputBoxStatusList.map((status, idx) => (
+        <PasswordBox key={idx} status={status} />
+      ))}
+      {/* 실제 입력은 숨김 TextInput으로 처리 */}
+      <TextInput
+        ref={inputRef}
+        value={password}
+        onChangeText={onChange}
+        keyboardType="number-pad"
+        maxLength={PASSWORD_LENGTH}
+        style={styles.hiddenInput}
+        autoFocus
+        secureTextEntry
+        caretHidden
+      />
+    </TouchableOpacity>
+  );
+};
+
+const AppLockScreen = () => {
+  const [password, setPassword] = useState<string>('');
+  const [isError, setIsError] = useState<boolean>(false);
+  const inputRef = useRef<TextInput | null>(null);
+  const navigation =
+    useNavigation<NativeStackNavigationProp<RootStackParamList, 'AppLock'>>();
+
+  const correctPassword = '1234'; // 테스트용 비밀번호
+  const username = '아이링'; // 테스트용 사용자명
 
   const handlePasswordChange = (text: string) => {
     setPassword(text);
@@ -110,26 +147,12 @@ const AppLockScreen = () => {
         </View>
 
         {/* 비밀번호 네모 입력칸 */}
-        <TouchableOpacity
-          activeOpacity={1}
-          onPress={() => inputRef.current?.focus()}
-          style={styles.inputBoxWrap}>
-          {inputBoxStatusList.map((status, idx) => (
-            <PasswordBox key={idx} status={status} />
-          ))}
-          {/* 실제 입력은 숨김 TextInput으로 처리 */}
-          <TextInput
-            ref={inputRef}
-            value={password}
-            onChangeText={handlePasswordChange}
-            keyboardType="number-pad"
-            maxLength={PASSWORD_LENGTH}
-            style={styles.hiddenInput}
-            autoFocus
-            secureTextEntry
-            caretHidden
-          />
-        </TouchableOpacity>
+        <PasswordInputArea
+          password={password}
+          error={isError}
+          onChange={handlePasswordChange}
+          inputRef={inputRef}
+        />
       </View>
     </TouchableWithoutFeedback>
   );
