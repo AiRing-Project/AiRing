@@ -47,11 +47,11 @@ const PasswordBox = ({status}: PasswordBoxProps) => {
   );
 };
 
-function getBoxStatus(
+const getBoxStatus = (
   idx: number,
   password: string,
   error: boolean,
-): PasswordBoxStatus {
+): PasswordBoxStatus => {
   if (password.length === PASSWORD_LENGTH) {
     return error ? 'error' : 'success';
   }
@@ -59,7 +59,7 @@ function getBoxStatus(
     return 'inputting';
   }
   return 'inactive';
-}
+};
 
 const AppLockScreen = () => {
   const [password, setPassword] = useState<string>('');
