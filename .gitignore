@@ -35,3 +35,4 @@ Desktop.ini
 .idea/
 *.sublime-project
 *.sublime-workspace
+backend/src/main/resources/properties/env.properties
