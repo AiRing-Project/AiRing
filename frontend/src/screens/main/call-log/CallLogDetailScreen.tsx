@@ -1,15 +1,9 @@
 import {RouteProp, useNavigation, useRoute} from '@react-navigation/native';
 import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import React from 'react';
-import {
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import {ScrollView, StyleSheet, Text, View} from 'react-native';
 
-import IcChevronLeft from '../../../assets/icons/ic-chevron-left.svg';
+import Header from '../../../components/Header';
 import type {CallLogStackParamList} from '../../../navigation/CallLogStack';
 import {formatKoreanDate, formatTime} from '../../../utils/date';
 
@@ -99,7 +93,11 @@ const CallLogDetailScreen = () => {
   return (
     <View style={styles.container}>
       {/* 상단 헤더 */}
-      <View style={styles.header}>
+      <Header
+        title={formatKoreanDate(detail.startedAt)}
+        onBackPress={() => navigation.goBack()}
+      />
+      {/* <View style={styles.header}>
         <TouchableOpacity
           style={styles.backBtn}
           onPress={() => navigation.goBack()}>
@@ -108,7 +106,7 @@ const CallLogDetailScreen = () => {
         <Text style={[styles.headerDate, styles.textFlexBox]}>
           {formatKoreanDate(detail.startedAt)}
         </Text>
-      </View>
+      </View> */}
       <Text style={styles.headerTime}>{formatTime(detail.startedAt)}</Text>
       {/* 대화 내용 */}
       <ScrollView
@@ -134,7 +132,6 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff',
     paddingHorizontal: 20,
-    paddingTop: 48,
   },
   header: {
     position: 'relative',
