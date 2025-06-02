@@ -11,6 +11,6 @@ import lombok.Setter;
 @NoArgsConstructor
 public class PresignedUrlResponse {
 
-    private String filename;
+    private String fileName;
     private String url;
 }
