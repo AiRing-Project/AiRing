@@ -1,11 +1,11 @@
 import React, {useState} from 'react';
 import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 
-import CallIcon from '../../assets/icons/call.svg';
-import ToggleOffIcon from '../../assets/icons/toggle-off.svg';
-import ToggleOnIcon from '../../assets/icons/toggle-on.svg';
-import VibrateIcon from '../../assets/icons/vibrate.svg';
-import VoiceIcon from '../../assets/icons/voice.svg';
+import CallIcon from '../../assets/icons/ic-call.svg';
+import ToggleOffIcon from '../../assets/icons/ic-toggle-off.svg';
+import ToggleOnIcon from '../../assets/icons/ic-toggle-on.svg';
+import VibrateIcon from '../../assets/icons/ic-vibrate.svg';
+import VoiceIcon from '../../assets/icons/ic-voice.svg';
 
 const DAYS = ['월', '화', '수', '목', '금', '토', '일'];
 
