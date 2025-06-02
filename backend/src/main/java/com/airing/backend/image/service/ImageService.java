@@ -53,17 +53,8 @@ public class ImageService {
                     // presigned URL 생성
                     PresignedPutObjectRequest presignedRequest = s3Presigner.presignPutObject(presignRequest);
                     log.info("Generated presigned URL: {}", presignedRequest.url());
-                    String url = presignedRequest.url().toString();
 
-                    // DB 저장
-                    Image image = Image.builder()
-                            .key(key)
-                            .uploaderEmail(email)
-                            .createdAt(LocalDateTime.now())
-                            .build();
-                    imageRepository.save(image);
-
-                    return new PresignedUrlResponse(key, url);
+                    return new PresignedUrlResponse(key, presignedRequest.url().toString());
                 })
                 .collect(Collectors.toList());
     }
@@ -86,6 +77,21 @@ public class ImageService {
             log.error("Failed to delete images from S3: {}", keys, e);
             throw new RuntimeException("Presigned URL 생성 실패");
         }
+    }
+
+    @Transactional
+    public void notifyUploadComplete(List<String> keys, String email) {
+        LocalDateTime now = LocalDateTime.now();
+
+        List<Image> images = keys.stream()
+                .map(key -> Image.builder()
+                        .key(key)
+                        .uploaderEmail(email)
+                        .createdAt(now)
+                        .build())
+                .collect(Collectors.toList());
+
+        imageRepository.saveAll(images);
     }
 
     /**
