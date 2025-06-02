@@ -26,5 +26,7 @@ public class CallLog {
 
     private String callType;
 
+    private int duration;
+
     private String rawTranscript;
 }
