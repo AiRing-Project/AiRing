@@ -10,6 +10,7 @@
     "lint:fix": "npm run lint -- --fix && npm run prettier",
     "android:reinstall": "adb uninstall com.airing.frontend.debug && npm run android",
     "android:clean-build": "cd android && ./gradlew clean build && cd ..",
+    "android:apply-env-change": "npx react-native start --reset-cache",
     "android:assemble-apk": "cd android && ./gradlew assembleRelease && cd ..",
     "android:assemble-aab": "cd android && ./gradlew bundleRelease && cd ..",
     "start": "react-native start",
