@@ -18,7 +18,6 @@ public class ImageController {
 
     private final ImageService imageService;
     private final JwtProvider jwtProvider;
-    private final UserRepository userRepository;
 
     @PostMapping("/presigned-url")
     public ResponseEntity<List<PresignedUrlResponse>> getPresignedUrls(

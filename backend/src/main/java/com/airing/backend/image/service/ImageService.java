@@ -5,11 +5,6 @@ import com.airing.backend.image.entity.Image;
 import com.airing.backend.image.repository.ImageRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
-import com.airing.backend.image.entity.Image;
-import com.airing.backend.image.repository.ImageRepository;
-import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -18,12 +13,10 @@ import software.amazon.awssdk.services.s3.model.*;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.*;
 
-import java.net.URI;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -32,35 +25,37 @@ import java.util.stream.Collectors;
 public class ImageService {
 
     private final S3Client s3Client;
-    private final S3Presigner s3Presigner; // presigned URL 발급?�� 객체
+    private final S3Presigner s3Presigner; // presigned URL 발급용 객체
     private final ImageRepository imageRepository;
 
-    @Value("${cloud.aws.s3.bucket}")
+    @Value("${spring.cloud.aws.s3.bucket}")
     private String bucket;
 
-    // Presigned URL 발급
+    // presigned URL 발급
     public List<PresignedUrlResponse> generatePresignedUrls(List<String> fileTypes, String email) {
         return fileTypes.stream()
                 .map(fileType -> {
-                    // S3 key ?��?��
+                    // S3 key 생성 (사용자 이메일 + 타임스탬프 + 파일 확장자)
                     String key = email + "/" + Instant.now().toEpochMilli() + "_" + fileType;
 
-                    // URL 만료 ?���? ?��?�� -> AWS?�� presigned URL?�� ?��?��?��/?��기적
+                    // presigned URL에 사용할 PutObject 요청 구성
                     PutObjectRequest putRequest = PutObjectRequest.builder()
                             .bucket(bucket)
                             .key(key)
                             .build();
 
+                    // presigned URL 요청 객체 (유효 기간: 5분)
                     PutObjectPresignRequest presignRequest = PutObjectPresignRequest.builder()
                             .putObjectRequest(putRequest)
                             .signatureDuration(Duration.ofMinutes(5))
                             .build();
 
-                    // URL ?��?��
+                    // presigned URL 생성
                     PresignedPutObjectRequest presignedRequest = s3Presigner.presignPutObject(presignRequest);
+                    log.info("Generated presigned URL: {}", presignedRequest.url());
                     String url = presignedRequest.url().toString();
 
-                    // DB ????��
+                    // DB 저장
                     Image image = Image.builder()
                             .key(key)
                             .uploaderEmail(email)
@@ -73,6 +68,7 @@ public class ImageService {
                 .collect(Collectors.toList());
     }
 
+    // 이미지 삭제
     public boolean deleteImage(List<String> keys) {
         try {
             DeleteObjectsRequest request = DeleteObjectsRequest.builder()
@@ -88,13 +84,13 @@ public class ImageService {
             return true;
         } catch (Exception e) {
             log.error("Failed to delete images from S3: {}", keys, e);
-            return false;
+            throw new RuntimeException("Presigned URL 생성 실패");
         }
     }
 
     /**
-     * presigned-url�? ?��로드?�� ?��미�?? ?��?��?�� 받아
-     * ?��?�� ?��미�???��?�� ?��?�� diaryId?�� ?��결합?��?��.
+     * presigned URL을 통해 업로드된 이미지들의 key 목록을 받아
+     * 해당 이미지들을 특정 diaryId에 연결한다.
      */
     @Transactional
     public void linkImagesToDiary(List<String> imageKeys, Long diaryId) {

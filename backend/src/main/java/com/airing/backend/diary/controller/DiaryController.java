@@ -25,7 +25,7 @@ public class DiaryController {
             @RequestHeader("Authorization") String token) {
 
         diaryService.createService(request, token);
-        return ResponseEntity.ok("?¼ê¸? ?‘?„± ?™„ë£?");
+        return ResponseEntity.ok("ì¼ê¸° ìƒì„± ì„±ê³µ");
     }
 
     @PutMapping("/{id}")
@@ -35,7 +35,7 @@ public class DiaryController {
             @RequestHeader("Authorization") String token
     ) {
         diaryService.updateService(diaryId, request, token);
-        return ResponseEntity.ok("?¼ê¸? ?ˆ˜? • ?™„ë£?");
+        return ResponseEntity.ok("ì¼ê¸° ìˆ˜ì • ì„±ê³µ");
     }
 
     @DeleteMapping("/{id}")
@@ -44,10 +44,11 @@ public class DiaryController {
             @RequestHeader("Authorization") String token) {
 
         diaryService.deleteService(diaryId, token);
-        return ResponseEntity.ok("?¼ê¸? ?‚­? œ ?™„ë£?");
-        // return ResponseEntity.noContent().build(); ?‚˜ì¤‘ì—
+        return ResponseEntity.ok("ì¼ê¸° ì‚­ì œ ì„±ê³µ");
+        // ë˜ëŠ”: return ResponseEntity.noContent().build();
     }
 
+    // ë‹¤ì´ì–´ë¦¬ ìƒì„¸ ì¡°íšŒ
     @GetMapping("/{id}")
     public ResponseEntity<DiaryDetailResponse> getDiaryDetail(
             @PathVariable Long id,
@@ -57,29 +58,13 @@ public class DiaryController {
         return ResponseEntity.ok(diaryService.getDiaryDetail(id, token));
     }
 
+    // ì›”ë³„ ë‹¤ì´ì–´ë¦¬ ìš”ì•½ ì¡°íšŒ
     @GetMapping
     public ResponseEntity<List<DiarySummaryResponse>> getMonthlySummary(
             @RequestParam String yearMonth,
             @RequestHeader("Authorization") String authHeader) {
+
         String token = authHeader.replace("Bearer ", "");
         return ResponseEntity.ok(diaryService.getMonthlySummary(yearMonth, token));
-    }
-
-    // ë‹¤ì´ì–´ë¦¬ ìƒì„¸(ë‹¨ì¼) ì¡°íšŒ
-    @GetMapping("/{id}")
-    public ResponseEntity<DiaryDetailResponse> getDiaryDetail(
-            @PathVariable Long id,
-            @RequestHeader("Authorization") String authHeader) {
-
-        return ResponseEntity.ok(diaryService.getDiaryDetail(id, authHeader));
-    }
-
-    // ì›”ë³„ ë‹¤ì´ì–´ë¦¬ ì¡°íšŒ
-    @GetMapping
-    public ResponseEntity<List<DiarySummaryResponse>> getMonthlySummary(
-            @RequestParam String yearMonth,
-            @RequestHeader("Authorization") String authHeader) {
-
-        return ResponseEntity.ok(diaryService.getMonthlySummary(yearMonth, authHeader));
     }
 }

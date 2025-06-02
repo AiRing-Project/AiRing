@@ -1,5 +1,6 @@
 package com.airing.backend.config;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -8,37 +9,41 @@ import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 
 import java.net.URI;
 
+@Slf4j
 @Configuration
 @PropertySource("classpath:properties/env.properties")
 public class AwsS3Config {
 
-    @Value("${cloud.aws.credentials.accessKey}")
+    @Value("${AWS_ACCESS_KEY}")
     private String accessKey;
 
-    @Value("${cloud.aws.credentials.secretKey}")
+    @Value("${AWS_SECRET_KEY}")
     private String secretKey;
 
-    @Value("${cloud.aws.region.static}")
+    @Value("${spring.cloud.aws.region.static}")
     private String region;
-
-    @Value("${cloud.aws.s3.endpoint:}")
-    private String endpoint;
 
     @Bean
     public S3Client s3Client() {
         AwsBasicCredentials credentials = AwsBasicCredentials.create(accessKey, secretKey);
-
-        var builder = S3Client.builder()
+        log.info("AWS REGION: {}, ACCESS_KEY: {}", region, accessKey);
+        return S3Client.builder()
                 .region(Region.of(region))
-                .credentialsProvider(StaticCredentialsProvider.create(credentials));
+                .credentialsProvider(StaticCredentialsProvider.create(credentials))
+                .build();
+    }
 
-        if (!endpoint.isBlank()) {
-            builder.endpointOverride(URI.create(endpoint));
-        }
-
-        return builder.build();
+    @Bean
+    public S3Presigner s3Presigner() {
+        AwsBasicCredentials credentials = AwsBasicCredentials.create(accessKey, secretKey);
+        return S3Presigner.builder()
+                .region(Region.of(region))
+                .credentialsProvider(StaticCredentialsProvider.create(credentials))
+                .endpointOverride(URI.create("https://s3." + region + ".amazonaws.com")) // 이 줄 추가
+                .build();
     }
 }

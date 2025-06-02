@@ -6,7 +6,7 @@ build/
 !**/src/test/**/build/
 
 # 환경 변수 파일 무조건 제외
-backend/src/main/resources/properties/env.properties
+**/env.properties
 
 ### STS ###
 .apt_generated
