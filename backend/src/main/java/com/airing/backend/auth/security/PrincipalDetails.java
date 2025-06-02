@@ -26,6 +26,10 @@ public class PrincipalDetails implements UserDetails {
         this.user = user;
     }
 
+    public Long getId() {
+        return user.getId();
+    }
+
     // 해당 User의 권한을 리턴함
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
