@@ -1,5 +1,6 @@
 import React from 'react';
 import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
 
 import IcChevronLeft from '../assets/icons/ic-chevron-left.svg';
 
@@ -9,8 +10,9 @@ interface HeaderProps {
 }
 
 const Header = ({title, onBackPress}: HeaderProps) => {
+  const insets = useSafeAreaInsets();
   return (
-    <View style={styles.header}>
+    <View style={[styles.header, {marginTop: insets.top}]}>
       <TouchableOpacity style={styles.backBtn} onPress={onBackPress}>
         <IcChevronLeft width={24} height={24} />
       </TouchableOpacity>
@@ -25,7 +27,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     width: '100%',
-    marginTop: 48,
   },
   backBtn: {
     position: 'absolute',
