@@ -13,4 +13,5 @@ public interface ImageRepository extends JpaRepository<Image, Long> {
 
     List<Image> findAllByKeyIn(List<String> keys);
 
+    void deleteByKeyIn(List<String> keys);
 }
