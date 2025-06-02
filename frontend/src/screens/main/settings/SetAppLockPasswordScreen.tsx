@@ -2,16 +2,20 @@ import {useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import React, {useCallback, useMemo, useState} from 'react';
 import {
+  Alert,
   Dimensions,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from 'react-native';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
 
-import {RootStackParamList} from '../../App';
-import BackspaceIcon from '../assets/icons/ic-backspace.svg';
-import EyesIcon from '../assets/icons/ic-emotion-eyes.svg';
+import {RootStackParamList} from '../../../../App';
+import BackspaceIcon from '../../../assets/icons/ic-backspace.svg';
+import EyesIcon from '../../../assets/icons/ic-emotion-eyes.svg';
+import Header, {HEADER_HEIGHT} from '../../../components/Header';
+import {setAppLockPassword} from '../../../utils/appLockPasswordManager';
 
 const SCREEN_HEIGHT = Dimensions.get('window').height;
 const PASSWORD_LENGTH = 4;
@@ -31,7 +35,6 @@ interface PasswordBoxProps {
 
 const PasswordBox = ({status}: PasswordBoxProps) => {
   const {color, showEyes} = PASSWORD_BOX_STYLE[status];
-
   return (
     <View
       style={[
@@ -44,16 +47,28 @@ const PasswordBox = ({status}: PasswordBoxProps) => {
   );
 };
 
+type PasswordStep = 'new' | 'confirm';
+
 interface PasswordInputAreaProps {
   password: string;
   error: boolean;
+  step: PasswordStep;
 }
 
-const PasswordInputArea = ({password, error}: PasswordInputAreaProps) => {
+const PasswordInputArea = ({password, error, step}: PasswordInputAreaProps) => {
   const getBoxStatus = useCallback(
-    (idx: number, pw: string, isError: boolean): PasswordBoxStatus => {
+    (
+      idx: number,
+      pw: string,
+      isError: boolean,
+      currentStep: PasswordStep,
+    ): PasswordBoxStatus => {
       if (pw.length === PASSWORD_LENGTH) {
-        return isError ? 'error' : 'success';
+        if (currentStep === 'confirm') {
+          return isError ? 'error' : 'success';
+        }
+        // 'new' 단계에서는 4자리 입력해도 inputting 유지
+        return 'inputting';
       }
       if (pw.length > idx) {
         return 'inputting';
@@ -62,15 +77,13 @@ const PasswordInputArea = ({password, error}: PasswordInputAreaProps) => {
     },
     [],
   );
-
   const inputBoxStatusList = useMemo(
     () =>
       Array.from({length: PASSWORD_LENGTH}).map((_, idx) =>
-        getBoxStatus(idx, password, error),
+        getBoxStatus(idx, password, error, step),
       ),
-    [password, error, getBoxStatus],
+    [password, error, step, getBoxStatus],
   );
-
   return (
     <View style={styles.inputBoxWrap}>
       {inputBoxStatusList.map((status, idx) => (
@@ -128,64 +141,121 @@ const NumPad = ({onPress, onBackspace, disabled}: NumPadProps) => {
   );
 };
 
-const AppLockScreen = () => {
-  const [password, setPassword] = useState<string>('');
-  const [isError, setIsError] = useState<boolean>(false);
+const SetAppLockPasswordScreen = () => {
   const navigation =
-    useNavigation<NativeStackNavigationProp<RootStackParamList, 'AppLock'>>();
-
-  const correctPassword = '1234'; // 테스트용 비밀번호
-  const username = '아이링'; // 테스트용 사용자명
+    useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const insets = useSafeAreaInsets();
+  const headerOffset = HEADER_HEIGHT + insets.top;
+  const [step, setStep] = useState<PasswordStep>('new');
+  const [newPassword, setNewPassword] = useState<string>('');
+  const [confirmPassword, setConfirmPassword] = useState<string>('');
+  const [isError, setIsError] = useState<boolean>(false);
+  const [errorMsg, setErrorMsg] = useState<string>('');
 
   const handleNumPress = (num: string) => {
-    if (password.length >= PASSWORD_LENGTH) {
-      return;
-    }
-    const newPassword = password + num;
-    setPassword(newPassword);
-    setIsError(false);
-    if (newPassword.length === PASSWORD_LENGTH) {
-      if (newPassword === correctPassword) {
-        setTimeout(() => {
-          setPassword('');
-          setIsError(false);
-          navigation.replace('Home');
-        }, 500);
-      } else {
-        setIsError(true);
-        setTimeout(() => {
-          setIsError(false);
-          setPassword('');
-        }, 500);
+    if (step === 'new') {
+      if (newPassword.length >= PASSWORD_LENGTH) {
+        return;
+      }
+      const next = newPassword + num;
+      setNewPassword(next);
+      setIsError(false);
+      setErrorMsg('');
+      if (next.length === PASSWORD_LENGTH) {
+        setTimeout(() => setStep('confirm'), 500);
+      }
+    } else {
+      if (confirmPassword.length >= PASSWORD_LENGTH) {
+        return;
+      }
+      const next = confirmPassword + num;
+      setConfirmPassword(next);
+      setIsError(false);
+      setErrorMsg('');
+      if (next.length === PASSWORD_LENGTH) {
+        if (next === newPassword) {
+          setAppLockPassword(next)
+            .then(() => {
+              Alert.alert(
+                '비밀번호 설정 완료',
+                '앱 잠금 비밀번호가 저장되었습니다.',
+                [{text: '확인', onPress: () => navigation.goBack()}],
+              );
+            })
+            .catch(() => {
+              setIsError(true);
+              setErrorMsg('비밀번호 저장에 실패했습니다. 다시 시도해 주세요.');
+              setNewPassword('');
+              setConfirmPassword('');
+              setStep('new');
+            });
+        } else {
+          setIsError(true);
+          setErrorMsg('비밀번호가 일치하지 않습니다. 다시 시도해 주세요.');
+          setTimeout(() => {
+            setNewPassword('');
+            setConfirmPassword('');
+            setStep('new');
+            setIsError(false);
+            setErrorMsg('');
+          }, 1000);
+        }
       }
     }
   };
 
   const handleBackspace = () => {
-    if (password.length === 0) {
-      return;
+    if (step === 'new') {
+      if (newPassword.length === 0) {
+        return;
+      }
+      setNewPassword(newPassword.slice(0, -1));
+      setIsError(false);
+      setErrorMsg('');
+    } else {
+      if (confirmPassword.length === 0) {
+        return;
+      }
+      setConfirmPassword(confirmPassword.slice(0, -1));
+      setIsError(false);
+      setErrorMsg('');
     }
-    setPassword(password.slice(0, -1));
-    setIsError(false);
   };
 
   return (
     <View style={styles.container}>
-      <View style={styles.titleWrap}>
-        {/* 상단 안내문구 */}
-        <Text style={styles.title}>비밀번호를 입력해주세요</Text>
+      <Header
+        title="앱 잠금 비밀번호 설정"
+        onBackPress={() => navigation.goBack()}
+      />
+      <View
+        style={[
+          styles.titleWrap,
+          {marginTop: SCREEN_HEIGHT * 0.188 - headerOffset},
+        ]}>
+        <Text style={styles.title}>
+          {step === 'new'
+            ? '새 비밀번호를 입력해주세요'
+            : '비밀번호를 한 번 더 입력해주세요'}
+        </Text>
         <Text style={styles.subtitle}>
-          이 일기는 {username}님만 볼 수 있어요!
+          앱 잠금에 사용할 4자리 숫자를 입력하세요.
         </Text>
       </View>
-
-      {/* 비밀번호 네모 입력칸 */}
-      <PasswordInputArea password={password} error={isError} />
-      {/* 커스텀 숫자 패드 */}
+      <PasswordInputArea
+        password={step === 'new' ? newPassword : confirmPassword}
+        error={isError}
+        step={step}
+      />
+      {errorMsg ? <Text style={styles.errorMsg}>{errorMsg}</Text> : null}
       <NumPad
         onPress={handleNumPress}
         onBackspace={handleBackspace}
-        disabled={password.length === PASSWORD_LENGTH}
+        disabled={
+          step === 'new'
+            ? newPassword.length === PASSWORD_LENGTH
+            : confirmPassword.length === PASSWORD_LENGTH
+        }
       />
     </View>
   );
@@ -200,7 +270,6 @@ const styles = StyleSheet.create({
   titleWrap: {
     width: '100%',
     gap: 20,
-    marginTop: SCREEN_HEIGHT * 0.188,
     marginBottom: 43,
   },
   title: {
@@ -264,6 +333,15 @@ const styles = StyleSheet.create({
     fontFamily: 'Pretendard',
     textAlign: 'center',
   },
+  errorMsg: {
+    color: '#F36A89',
+    fontSize: 15,
+    textAlign: 'center',
+    marginTop: 16,
+    marginBottom: 0,
+    fontFamily: 'Pretendard',
+    fontWeight: '500',
+  },
 });
 
-export default AppLockScreen;
+export default SetAppLockPasswordScreen;

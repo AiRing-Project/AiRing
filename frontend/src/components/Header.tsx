@@ -10,6 +10,8 @@ interface HeaderProps {
   marginBottom?: number;
 }
 
+export const HEADER_HEIGHT = 24;
+
 const Header = ({title, onBackPress, marginBottom = 0}: HeaderProps) => {
   const insets = useSafeAreaInsets();
   return (

@@ -5,23 +5,27 @@
  * @format
  */
 
-import { NavigationContainer } from '@react-navigation/native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import React, { useEffect } from 'react';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { enableScreens } from 'react-native-screens';
+import {NavigationContainer} from '@react-navigation/native';
+import {createNativeStackNavigator} from '@react-navigation/native-stack';
+import React, {useEffect} from 'react';
+import {SafeAreaProvider} from 'react-native-safe-area-context';
+import {enableScreens} from 'react-native-screens';
 
 import AuthStack from './src/navigation/AuthStack';
 import HomeTabs from './src/navigation/HomeTabs';
 import AppLockScreen from './src/screens/AppLockScreen';
+import CallLogDetailScreen from './src/screens/main/call-log/CallLogDetailScreen';
 import ReserveAiCallScreen from './src/screens/main/ReserveAiCallScreen';
 import SplashScreen from './src/screens/SplashScreen';
-import { useAuthStore } from './src/store/authStore';
+import {useAuthStore} from './src/store/authStore';
 
 export type RootStackParamList = {
   Auth: undefined;
   AppLock: undefined;
   Home: undefined;
+  CallLogDetailScreen: {
+    id: number;
+  };
   ReserveAiCall: undefined;
 };
 
@@ -48,6 +52,10 @@ const App = () => {
             <>
               <Stack.Screen name="AppLock" component={AppLockScreen} />
               <Stack.Screen name="Home" component={HomeTabs} />
+              <Stack.Screen
+                name="CallLogDetailScreen"
+                component={CallLogDetailScreen}
+              />
               <Stack.Screen
                 name="ReserveAiCall"
                 component={ReserveAiCallScreen}

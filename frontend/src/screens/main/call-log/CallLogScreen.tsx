@@ -11,6 +11,7 @@ import {
 import MonthPicker from 'react-native-month-year-picker';
 import {SvgProps} from 'react-native-svg';
 
+import {RootStackParamList} from '../../../../App';
 import IcChevronDown from '../../../assets/icons/ic-chevron-down.svg';
 import IcChevronRight from '../../../assets/icons/ic-chevron-right.svg';
 import InfoCircle from '../../../assets/icons/ic-info-circle.svg';
@@ -18,7 +19,6 @@ import PhoneDeclined from '../../../assets/icons/ic-phone-declined.svg';
 import PhoneIncoming from '../../../assets/icons/ic-phone-incoming.svg';
 import PhoneOutgoing from '../../../assets/icons/ic-phone-outgoing.svg';
 import IcSearch from '../../../assets/icons/ic-search.svg';
-import type {CallLogStackParamList} from '../../../navigation/CallLogStack';
 import {formatSectionDate, formatTime} from '../../../utils/date';
 
 // TODO: 통화 거절도 기록을 할 필요가 있을지 추가 논의 필요
@@ -133,9 +133,7 @@ const CallLogScreen = () => {
   const [showMonthPicker, setShowMonthPicker] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date());
   const navigation =
-    useNavigation<
-      NativeStackNavigationProp<CallLogStackParamList, 'CallLogScreen'>
-    >();
+    useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
   useFocusEffect(
     React.useCallback(() => {

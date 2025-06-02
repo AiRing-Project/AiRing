@@ -1,3 +1,5 @@
+import {useNavigation} from '@react-navigation/native';
+import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import React from 'react';
 import {
   Alert,
@@ -14,8 +16,8 @@ import IcLock from '../../../assets/icons/ic-lock.svg';
 import IcPhone from '../../../assets/icons/ic-phone.svg';
 import IcPieChart from '../../../assets/icons/ic-pie-chart.svg';
 import IcSetting from '../../../assets/icons/ic-setting.svg';
+import {SettingsStackParamList} from '../../../navigation/SettingsStack';
 import {getRefreshToken, removeTokens} from '../../../utils/tokenManager';
-
 const handleLogout = async () => {
   try {
     const refreshToken = await getRefreshToken();
@@ -30,6 +32,10 @@ const handleLogout = async () => {
 };
 
 const MyPageScreen = () => {
+  const navigation =
+    useNavigation<
+      NativeStackNavigationProp<SettingsStackParamList, 'MyPage'>
+    >();
   // const username = useAuthStore(s => s.username);
   // const email = useAuthStore(s => s.email);
 
@@ -64,7 +70,11 @@ const MyPageScreen = () => {
       {/* 설정 메뉴 */}
       <View style={styles.menuBox}>
         <MenuItem icon={<IcSetting width={22} height={22} />} label="앱 설정" />
-        <MenuItem icon={<IcLock width={22} height={22} />} label="보안 설정" />
+        <MenuItem
+          icon={<IcLock width={22} height={22} />}
+          label="보안 설정"
+          onPress={() => navigation.navigate('SecuritySettings')}
+        />
         <MenuItem icon={<IcPhone width={22} height={22} />} label="AI 설정" />
         <MenuItem
           icon={<IcPieChart width={22} height={22} />}
@@ -75,8 +85,16 @@ const MyPageScreen = () => {
   );
 };
 
-const MenuItem = ({icon, label}: {icon: React.ReactNode; label: string}) => (
-  <TouchableOpacity style={styles.menuItem}>
+const MenuItem = ({
+  icon,
+  label,
+  onPress,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  onPress?: () => void;
+}) => (
+  <TouchableOpacity style={styles.menuItem} onPress={onPress}>
     <View style={styles.menuIcon}>{icon}</View>
     <Text style={styles.menuLabel}>{label}</Text>
     <IcChevronRight width={22} height={22} style={styles.chevron} />
