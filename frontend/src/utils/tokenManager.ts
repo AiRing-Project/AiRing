@@ -3,16 +3,20 @@ import * as Keychain from 'react-native-keychain';
 
 import {reissueToken} from '../api/authApi';
 
+const REFRESH_TOKEN_SERVICE = 'AiRingRefreshToken';
+
 export async function saveTokens(accessToken: string, refreshToken?: string) {
   await AsyncStorage.setItem('accessToken', accessToken);
   if (refreshToken) {
-    await Keychain.setGenericPassword('refreshToken', refreshToken);
+    await Keychain.setGenericPassword('refreshToken', refreshToken, {
+      service: REFRESH_TOKEN_SERVICE,
+    });
   }
 }
 
 export async function removeTokens() {
   await AsyncStorage.removeItem('accessToken');
-  await Keychain.resetGenericPassword();
+  await Keychain.resetGenericPassword({service: REFRESH_TOKEN_SERVICE});
 }
 
 export async function getAccessToken(): Promise<string | null> {
@@ -20,7 +24,9 @@ export async function getAccessToken(): Promise<string | null> {
 }
 
 export async function getRefreshToken(): Promise<string | null> {
-  const creds = await Keychain.getGenericPassword();
+  const creds = await Keychain.getGenericPassword({
+    service: REFRESH_TOKEN_SERVICE,
+  });
   if (creds && typeof creds === 'object' && 'password' in creds) {
     return creds.password;
   }
