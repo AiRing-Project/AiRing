@@ -15,7 +15,6 @@ import java.net.URI;
 
 @Slf4j
 @Configuration
-@PropertySource("classpath:properties/env.properties")
 public class AwsS3Config {
 
     @Value("${AWS_ACCESS_KEY}")
@@ -43,7 +42,6 @@ public class AwsS3Config {
         return S3Presigner.builder()
                 .region(Region.of(region))
                 .credentialsProvider(StaticCredentialsProvider.create(credentials))
-                .endpointOverride(URI.create("https://s3." + region + ".amazonaws.com")) // 이 줄 추가
                 .build();
     }
 }
