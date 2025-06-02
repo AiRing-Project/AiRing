@@ -5,8 +5,8 @@ build/
 !**/src/main/**/build/
 !**/src/test/**/build/
 
-# 환경 변수 파일 무조건 제외
-**/env.properties
+# env 무시
+src/main/resources/properties/env.properties
 
 ### STS ###
 .apt_generated
