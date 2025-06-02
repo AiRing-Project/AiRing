@@ -50,6 +50,14 @@ public class ImageService {
                             .signatureDuration(Duration.ofMinutes(5))
                             .build();
 
+                    // DB 생성
+                    Image image = Image.builder()
+                            .key(key)
+                            .uploaderEmail(email)
+                            .createdAt(LocalDateTime.now())
+                            .build();
+                    imageRepository.save(image);
+
                     // presigned URL 생성
                     PresignedPutObjectRequest presignedRequest = s3Presigner.presignPutObject(presignRequest);
                     log.info("Generated presigned URL: {}", presignedRequest.url());
@@ -60,6 +68,7 @@ public class ImageService {
     }
 
     // 이미지 삭제
+    @Transactional
     public boolean deleteImage(List<String> keys) {
         try {
             DeleteObjectsRequest request = DeleteObjectsRequest.builder()
@@ -72,10 +81,14 @@ public class ImageService {
                     .build();
 
             s3Client.deleteObjects(request);
+
+            // 삭제 DB 반영
+            imageRepository.deleteByKeyIn(keys);
+
             return true;
         } catch (Exception e) {
-            log.error("Failed to delete images from S3: {}", keys, e);
-            throw new RuntimeException("Presigned URL 생성 실패");
+            log.error("S3 삭제 실패: {}", e.getMessage(), e);
+            throw new RuntimeException("S3 이미지 삭제 실패: " + e.getMessage());
         }
     }
 
