@@ -3,11 +3,9 @@ import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import React, {useCallback, useMemo, useState} from 'react';
 import {
   Dimensions,
-  Keyboard,
   StyleSheet,
   Text,
   TouchableOpacity,
-  TouchableWithoutFeedback,
   View,
 } from 'react-native';
 
@@ -83,7 +81,6 @@ const PasswordInputArea = ({password, error}: PasswordInputAreaProps) => {
   );
 };
 
-// 커스텀 NumPad 컴포넌트 추가
 interface NumPadProps {
   onPress: (num: string) => void;
   onBackspace: () => void;
@@ -141,7 +138,6 @@ const AppLockScreen = () => {
   const correctPassword = '1234'; // 테스트용 비밀번호
   const username = '아이링'; // 테스트용 사용자명
 
-  // 숫자 버튼 클릭 시
   const handleNumPress = (num: string) => {
     if (password.length >= PASSWORD_LENGTH) {
       return;
@@ -166,7 +162,6 @@ const AppLockScreen = () => {
     }
   };
 
-  // 지우기 버튼 클릭 시
   const handleBackspace = () => {
     if (password.length === 0) {
       return;
@@ -176,26 +171,24 @@ const AppLockScreen = () => {
   };
 
   return (
-    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-      <View style={styles.container}>
-        <View style={styles.titleWrap}>
-          {/* 상단 안내문구 */}
-          <Text style={styles.title}>비밀번호를 입력해주세요</Text>
-          <Text style={styles.subtitle}>
-            이 일기는 {username}님만 볼 수 있어요!
-          </Text>
-        </View>
-
-        {/* 비밀번호 네모 입력칸 */}
-        <PasswordInputArea password={password} error={isError} />
-        {/* 커스텀 숫자 패드 */}
-        <NumPad
-          onPress={handleNumPress}
-          onBackspace={handleBackspace}
-          disabled={password.length === PASSWORD_LENGTH}
-        />
+    <View style={styles.container}>
+      <View style={styles.titleWrap}>
+        {/* 상단 안내문구 */}
+        <Text style={styles.title}>비밀번호를 입력해주세요</Text>
+        <Text style={styles.subtitle}>
+          이 일기는 {username}님만 볼 수 있어요!
+        </Text>
       </View>
-    </TouchableWithoutFeedback>
+
+      {/* 비밀번호 네모 입력칸 */}
+      <PasswordInputArea password={password} error={isError} />
+      {/* 커스텀 숫자 패드 */}
+      <NumPad
+        onPress={handleNumPress}
+        onBackspace={handleBackspace}
+        disabled={password.length === PASSWORD_LENGTH}
+      />
+    </View>
   );
 };
 
