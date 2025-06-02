@@ -1,18 +1,16 @@
 import {useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import React, {useCallback, useMemo, useRef, useState} from 'react';
+import React, {useCallback, useMemo, useState} from 'react';
 import {
   Dimensions,
-  Keyboard,
   StyleSheet,
   Text,
-  TextInput,
   TouchableOpacity,
-  TouchableWithoutFeedback,
   View,
 } from 'react-native';
 
 import {RootStackParamList} from '../../App';
+import BackspaceIcon from '../assets/icons/ic-backspace.svg';
 import EyesIcon from '../assets/icons/ic-emotion-eyes.svg';
 
 const SCREEN_HEIGHT = Dimensions.get('window').height;
@@ -50,16 +48,9 @@ const PasswordBox = ({status}: PasswordBoxProps) => {
 interface PasswordInputAreaProps {
   password: string;
   error: boolean;
-  onChange: (text: string) => void;
-  inputRef: React.RefObject<TextInput | null>;
 }
 
-const PasswordInputArea = ({
-  password,
-  error,
-  onChange,
-  inputRef,
-}: PasswordInputAreaProps) => {
+const PasswordInputArea = ({password, error}: PasswordInputAreaProps) => {
   const getBoxStatus = useCallback(
     (idx: number, pw: string, isError: boolean): PasswordBoxStatus => {
       if (pw.length === PASSWORD_LENGTH) {
@@ -82,44 +73,80 @@ const PasswordInputArea = ({
   );
 
   return (
-    <TouchableOpacity
-      activeOpacity={1}
-      onPress={() => inputRef.current?.focus()}
-      style={styles.inputBoxWrap}>
+    <View style={styles.inputBoxWrap}>
       {inputBoxStatusList.map((status, idx) => (
         <PasswordBox key={idx} status={status} />
       ))}
-      {/* 실제 입력은 숨김 TextInput으로 처리 */}
-      <TextInput
-        ref={inputRef}
-        value={password}
-        onChangeText={onChange}
-        keyboardType="number-pad"
-        maxLength={PASSWORD_LENGTH}
-        style={styles.hiddenInput}
-        autoFocus
-        secureTextEntry
-        caretHidden
-      />
-    </TouchableOpacity>
+    </View>
+  );
+};
+
+interface NumPadProps {
+  onPress: (num: string) => void;
+  onBackspace: () => void;
+  disabled?: boolean;
+}
+
+const NumPad = ({onPress, onBackspace, disabled}: NumPadProps) => {
+  const numbers = [
+    ['1', '2', '3'],
+    ['4', '5', '6'],
+    ['7', '8', '9'],
+    ['', '0', '←'],
+  ];
+  return (
+    <View style={styles.numpadWrap}>
+      {numbers.map((row, rowIdx) => (
+        <View key={rowIdx} style={styles.numpadRow}>
+          {row.map((item, colIdx) => {
+            if (item === '') {
+              return <View key={colIdx} style={styles.numpadButton} />;
+            }
+            if (item === '←') {
+              return (
+                <TouchableOpacity
+                  key={colIdx}
+                  style={styles.numpadButton}
+                  onPress={onBackspace}
+                  disabled={disabled}>
+                  <BackspaceIcon width={32} height={32} color={'#888'} />
+                </TouchableOpacity>
+              );
+            }
+            return (
+              <TouchableOpacity
+                key={colIdx}
+                style={styles.numpadButton}
+                onPress={() => onPress(item)}
+                disabled={disabled}>
+                <Text style={styles.numpadButtonText}>{item}</Text>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
+      ))}
+    </View>
   );
 };
 
 const AppLockScreen = () => {
   const [password, setPassword] = useState<string>('');
   const [isError, setIsError] = useState<boolean>(false);
-  const inputRef = useRef<TextInput | null>(null);
   const navigation =
     useNavigation<NativeStackNavigationProp<RootStackParamList, 'AppLock'>>();
 
   const correctPassword = '1234'; // 테스트용 비밀번호
   const username = '아이링'; // 테스트용 사용자명
 
-  const handlePasswordChange = (text: string) => {
-    setPassword(text);
+  const handleNumPress = (num: string) => {
+    if (password.length >= PASSWORD_LENGTH) {
+      return;
+    }
+    const newPassword = password + num;
+    setPassword(newPassword);
     setIsError(false);
-    if (text.length === PASSWORD_LENGTH) {
-      if (text === correctPassword) {
+    if (newPassword.length === PASSWORD_LENGTH) {
+      if (newPassword === correctPassword) {
         setTimeout(() => {
           setPassword('');
           setIsError(false);
@@ -135,26 +162,33 @@ const AppLockScreen = () => {
     }
   };
 
-  return (
-    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-      <View style={styles.container}>
-        <View style={styles.titleWrap}>
-          {/* 상단 안내문구 */}
-          <Text style={styles.title}>비밀번호를 입력해주세요</Text>
-          <Text style={styles.subtitle}>
-            이 일기는 {username}님만 볼 수 있어요!
-          </Text>
-        </View>
+  const handleBackspace = () => {
+    if (password.length === 0) {
+      return;
+    }
+    setPassword(password.slice(0, -1));
+    setIsError(false);
+  };
 
-        {/* 비밀번호 네모 입력칸 */}
-        <PasswordInputArea
-          password={password}
-          error={isError}
-          onChange={handlePasswordChange}
-          inputRef={inputRef}
-        />
+  return (
+    <View style={styles.container}>
+      <View style={styles.titleWrap}>
+        {/* 상단 안내문구 */}
+        <Text style={styles.title}>비밀번호를 입력해주세요</Text>
+        <Text style={styles.subtitle}>
+          이 일기는 {username}님만 볼 수 있어요!
+        </Text>
       </View>
-    </TouchableWithoutFeedback>
+
+      {/* 비밀번호 네모 입력칸 */}
+      <PasswordInputArea password={password} error={isError} />
+      {/* 커스텀 숫자 패드 */}
+      <NumPad
+        onPress={handleNumPress}
+        onBackspace={handleBackspace}
+        disabled={password.length === PASSWORD_LENGTH}
+      />
+    </View>
   );
 };
 
@@ -201,15 +235,35 @@ const styles = StyleSheet.create({
     borderWidth: 1.5,
     marginHorizontal: 0,
   },
-  hiddenInput: {
-    position: 'absolute',
-    width: 1,
-    height: 1,
-    opacity: 0,
-  },
   inputBoxContent: {
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  numpadWrap: {
+    marginTop: 'auto',
+    marginBottom: 40,
+    width: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  numpadRow: {
+    flexDirection: 'row',
+    width: '100%',
+  },
+  numpadButton: {
+    flex: 1,
+    aspectRatio: 1.6,
+    borderRadius: 12,
+    backgroundColor: '#fff',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  numpadButtonText: {
+    fontSize: 28,
+    color: '#0a0a05',
+    fontWeight: '500',
+    fontFamily: 'Pretendard',
+    textAlign: 'center',
   },
 });
 
