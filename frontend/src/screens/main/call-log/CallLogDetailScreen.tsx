@@ -97,16 +97,6 @@ const CallLogDetailScreen = () => {
         title={formatKoreanDate(detail.startedAt)}
         onBackPress={() => navigation.goBack()}
       />
-      {/* <View style={styles.header}>
-        <TouchableOpacity
-          style={styles.backBtn}
-          onPress={() => navigation.goBack()}>
-          <IcChevronLeft width={24} height={24} />
-        </TouchableOpacity>
-        <Text style={[styles.headerDate, styles.textFlexBox]}>
-          {formatKoreanDate(detail.startedAt)}
-        </Text>
-      </View> */}
       <Text style={styles.headerTime}>{formatTime(detail.startedAt)}</Text>
       {/* 대화 내용 */}
       <ScrollView

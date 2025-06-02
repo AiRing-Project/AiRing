@@ -7,12 +7,13 @@ import IcChevronLeft from '../assets/icons/ic-chevron-left.svg';
 interface HeaderProps {
   title: string;
   onBackPress: () => void;
+  marginBottom?: number;
 }
 
-const Header = ({title, onBackPress}: HeaderProps) => {
+const Header = ({title, onBackPress, marginBottom = 0}: HeaderProps) => {
   const insets = useSafeAreaInsets();
   return (
-    <View style={[styles.header, {marginTop: insets.top}]}>
+    <View style={[styles.header, {marginTop: insets.top, marginBottom}]}>
       <TouchableOpacity style={styles.backBtn} onPress={onBackPress}>
         <IcChevronLeft width={24} height={24} />
       </TouchableOpacity>
