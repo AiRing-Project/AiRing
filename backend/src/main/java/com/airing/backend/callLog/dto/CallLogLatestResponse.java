@@ -3,16 +3,17 @@ package com.airing.backend.callLog.dto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
+
 import java.time.OffsetDateTime;
 
 @Getter
-@Setter
-public class CallLogEventRequest {
+@AllArgsConstructor
+@Builder
+public class CallLogLatestResponse {
 
-    private String event;
-
-    private String callType;
-
+    private Long id;
     private OffsetDateTime startedAt;
+    private int duration;
+    private String callType;
+    private String title;
 }

@@ -1,6 +1,7 @@
 package com.airing.backend.callLog.service;
 
 import com.airing.backend.callLog.dto.CallLogEventRequest;
+import com.airing.backend.callLog.dto.CallLogLatestResponse;
 import com.airing.backend.callLog.entity.CallLog;
 import com.airing.backend.callLog.repository.CallLogRepository;
 import lombok.RequiredArgsConstructor;
@@ -23,5 +24,18 @@ public class CallLogService {
                 .build();
 
         callLogRepository.save(callLog);
+    }
+
+    public CallLogLatestResponse getLatestCallLog(Long userId) {
+        CallLog callLog = callLogRepository.findTopByUserIdOrderByStartedAtDesc(userId)
+                .orElseThrow(() -> new RuntimeException("최근 통화 기록이 없습니다."));
+
+        return CallLogLatestResponse.builder()
+                .id(callLog.getId())
+                .startedAt(callLog.getStartedAt())
+                .duration(callLog.getDuration())
+                .callType(callLog.getCallType())
+                .title(null)
+                .build();
     }
 }
