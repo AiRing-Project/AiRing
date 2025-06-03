@@ -93,7 +93,7 @@ const diaryData = [
   },
   {
     date: '2025-06-03',
-    id: 104,
+    id: 105,
     title: '오늘 일기',
     emotion: ['anger'],
     tag: ['stress', 'tired'],
