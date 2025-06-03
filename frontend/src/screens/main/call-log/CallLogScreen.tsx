@@ -1,5 +1,5 @@
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
-import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
+import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import React, {useState} from 'react';
 import {
   ScrollView,
@@ -8,21 +8,18 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import MonthPicker from 'react-native-month-year-picker';
 import {SvgProps} from 'react-native-svg';
 
 import {RootStackParamList} from '../../../../App';
-import IcChevronDown from '../../../assets/icons/ic-chevron-down.svg';
 import IcChevronRight from '../../../assets/icons/ic-chevron-right.svg';
 import InfoCircle from '../../../assets/icons/ic-info-circle.svg';
-import PhoneDeclined from '../../../assets/icons/ic-phone-declined.svg';
 import PhoneIncoming from '../../../assets/icons/ic-phone-incoming.svg';
 import PhoneOutgoing from '../../../assets/icons/ic-phone-outgoing.svg';
 import IcSearch from '../../../assets/icons/ic-search.svg';
+import MonthYearPicker from '../../../components/MonthYearPicker';
 import {formatSectionDate, formatTime} from '../../../utils/date';
 
-// TODO: 통화 거절도 기록을 할 필요가 있을지 추가 논의 필요
-type CallType = 'incoming' | 'outgoing' | 'declined';
+type CallType = 'incoming' | 'outgoing';
 
 interface CallLogItem {
   id: number;
@@ -112,8 +109,8 @@ const callLogs: CallLog[] = [
       {
         id: -1,
         startedAt: '2025-05-10T20:00:00Z',
-        callType: 'declined',
-        summary: '통화 거절',
+        callType: 'incoming',
+        summary: '저녁 대화',
       },
     ],
   },
@@ -122,18 +119,52 @@ const callLogs: CallLog[] = [
 const iconMap: Record<CallType, React.FC<SvgProps>> = {
   incoming: PhoneIncoming,
   outgoing: PhoneOutgoing,
-  declined: PhoneDeclined,
 };
 
 const SectionDate: React.FC<{date: string}> = ({date}) => (
   <Text style={styles.sectionDate}>{date}</Text>
 );
 
-const CallLogScreen = () => {
-  const [showMonthPicker, setShowMonthPicker] = useState(false);
-  const [selectedDate, setSelectedDate] = useState(new Date());
+interface CallLogSectionProps {
+  section: CallLog;
+}
+
+const CallLogRow: React.FC<{log: CallLogItem}> = ({log}) => {
   const navigation =
     useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const IconComponent = iconMap[log.callType];
+  return (
+    <TouchableOpacity
+      key={log.id}
+      style={styles.logRow}
+      onPress={() => navigation.navigate('CallLogDetailScreen', {id: log.id})}
+      activeOpacity={0.7}>
+      <IconComponent width={24} height={24} />
+      <View style={styles.logInfo}>
+        <Text style={styles.name} numberOfLines={1} ellipsizeMode="tail">
+          {log.summary}
+        </Text>
+        <Text style={styles.time}>{formatTime(log.startedAt)}</Text>
+      </View>
+      <IcChevronRight width={8} height={15} />
+    </TouchableOpacity>
+  );
+};
+
+const CallLogSection: React.FC<CallLogSectionProps> = ({section}) => (
+  <View key={section.date} style={styles.section}>
+    <SectionDate date={formatSectionDate(section.date)} />
+    <View style={styles.logRows}>
+      {section.logs.map(log => (
+        <CallLogRow key={log.id} log={log} />
+      ))}
+    </View>
+  </View>
+);
+
+const CallLogScreen = () => {
+  const [showMonthPicker, setShowMonthPicker] = useState<boolean>(false);
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
 
   useFocusEffect(
     React.useCallback(() => {
@@ -151,29 +182,13 @@ const CallLogScreen = () => {
   return (
     <View style={styles.container}>
       <View style={styles.topRow}>
-        <TouchableOpacity
-          style={styles.dropdown}
-          activeOpacity={0.7}
-          onPress={() => setShowMonthPicker(true)}>
-          <View style={styles.dropdownRow}>
-            <Text style={styles.dropdownText}>
-              {selectedDate.getFullYear()}년 {selectedDate.getMonth() + 1}월
-            </Text>
-            <IcChevronDown width={9} height={5} style={styles.dropdownIcon} />
-          </View>
-        </TouchableOpacity>
-        {showMonthPicker && (
-          <MonthPicker
-            onChange={handleMonthChange}
-            value={selectedDate}
-            minimumDate={new Date(2020, 0)} // TODO: 추후 가입일 또는 서비스 오픈일로 설정
-            maximumDate={new Date()}
-            locale="ko"
-            mode="short"
-            okButton="확인"
-            cancelButton="취소"
-          />
-        )}
+        <MonthYearPicker
+          value={selectedDate}
+          onChange={handleMonthChange}
+          show={showMonthPicker}
+          setShow={setShowMonthPicker}
+          minimumDate={new Date(2020, 0)}
+        />
         <TouchableOpacity style={styles.searchBtn} activeOpacity={0.7}>
           <IcSearch width={19} height={19} />
         </TouchableOpacity>
@@ -189,41 +204,7 @@ const CallLogScreen = () => {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}>
         {callLogs.map(section => (
-          <View key={section.date} style={styles.section}>
-            <SectionDate date={formatSectionDate(section.date)} />
-            <View style={styles.logRows}>
-              {section.logs.map(log => {
-                const IconComponent = iconMap[log.callType];
-                return (
-                  <TouchableOpacity
-                    key={log.id}
-                    style={styles.logRow}
-                    onPress={() =>
-                      navigation.navigate('CallLogDetailScreen', {id: log.id})
-                    }
-                    activeOpacity={0.7}>
-                    <IconComponent width={24} height={24} />
-                    <View style={styles.logInfo}>
-                      <Text
-                        style={styles.name}
-                        numberOfLines={1}
-                        ellipsizeMode="tail">
-                        {log.summary}
-                      </Text>
-                      <Text style={styles.time}>
-                        {formatTime(log.startedAt)}
-                      </Text>
-                    </View>
-                    <IcChevronRight
-                      width={8}
-                      height={15}
-                      style={styles.arrow}
-                    />
-                  </TouchableOpacity>
-                );
-              })}
-            </View>
-          </View>
+          <CallLogSection key={section.date} section={section} />
         ))}
       </ScrollView>
     </View>
@@ -242,26 +223,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 24,
     justifyContent: 'space-between',
-  },
-  dropdown: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'transparent',
-    paddingVertical: 4,
-    paddingHorizontal: 8,
-    borderRadius: 6,
-  },
-  dropdownRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 7,
-  },
-  dropdownText: {
-    fontSize: 16,
-    fontFamily: 'Pretendard',
-    fontWeight: '700',
-    color: '#232323',
-    marginLeft: 12,
   },
   searchBtn: {
     padding: 4,
@@ -354,12 +315,6 @@ const styles = StyleSheet.create({
     lineHeight: 20,
     textAlign: 'left',
     flexShrink: 1,
-  },
-  arrow: {
-    // marginLeft 제거 (gap과 paddingRight로 대체)
-  },
-  dropdownIcon: {
-    marginTop: 4,
   },
 });
 
