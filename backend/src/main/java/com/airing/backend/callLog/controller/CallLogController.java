@@ -33,8 +33,9 @@ public class CallLogController {
 
     @GetMapping("/{id}")
     public CallLogDetailResponse getCallLogDetail(
-            @PathVariable("id") Long callLogId) {
+            @AuthenticationPrincipal(expression = "id") Long userId,
+            @PathVariable("id") @Valid Long callLogId) {
 
-        return callLogService.getCallLogDetail(callLogId);
+        return callLogService.getCallLogDetail(userId, callLogId);
     }
 }

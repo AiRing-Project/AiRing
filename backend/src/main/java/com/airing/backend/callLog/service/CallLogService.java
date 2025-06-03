@@ -50,7 +50,7 @@ public class CallLogService {
                 .build();
     }
 
-    public CallLogDetailResponse getCallLogDetail(Long callLogId) {
+    public CallLogDetailResponse getCallLogDetail(Long userId, Long callLogId) {
         CallLog callLog = callLogRepository.findById(callLogId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "통화 기록을 찾을 수 없습니다."));
 
@@ -63,7 +63,7 @@ public class CallLogService {
 
         try {
             messages = new ObjectMapper().readValue(
-                    callLog.getRawTranscript(),
+                    transcriptJson,
                     new TypeReference<>() {
                     }
             );
