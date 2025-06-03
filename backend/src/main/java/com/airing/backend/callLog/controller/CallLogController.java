@@ -1,5 +1,6 @@
 package com.airing.backend.callLog.controller;
 
+import com.airing.backend.callLog.dto.CallLogDetailResponse;
 import com.airing.backend.callLog.dto.CallLogEventRequest;
 import com.airing.backend.callLog.dto.CallLogLatestResponse;
 import com.airing.backend.callLog.service.CallLogService;
@@ -28,5 +29,12 @@ public class CallLogController {
             @AuthenticationPrincipal(expression = "id") Long userId) {
 
         return callLogService.getLatestCallLog(userId);
+    }
+
+    @GetMapping("/{id}")
+    public CallLogDetailResponse getCallLogDetail(
+            @PathVariable("id") Long callLogId) {
+
+        return callLogService.getCallLogDetail(callLogId);
     }
 }
