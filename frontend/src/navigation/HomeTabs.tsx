@@ -27,7 +27,7 @@ import SettingsIcon from '../assets/icons/tab-settings.svg';
 import CalendarScreen from '../screens/main/calendar/CalendarScreen';
 import CallLogScreen from '../screens/main/call-log/CallLogScreen';
 import ReportScreen from '../screens/main/report/ReportScreen';
-import MyPageScreen from '../screens/main/settings/MyPageScreen';
+import SettingsScreen from '../screens/main/settings/SettingsScreen';
 
 const Tab = createBottomTabNavigator();
 
@@ -151,7 +151,7 @@ const HomeTabs = () => {
         />
         <Tab.Screen
           name="Settings"
-          component={MyPageScreen}
+          component={SettingsScreen}
           options={{tabBarLabel: '설정', tabBarStyle: false}}
         />
       </Tab.Navigator>

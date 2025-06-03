@@ -15,7 +15,7 @@ import IcSetting from '../../../assets/icons/ic-setting.svg';
 import {useAuthStore} from '../../../store/authStore';
 import {getRefreshToken, removeTokens} from '../../../utils/tokenManager';
 
-const MyPageScreen = () => {
+const SettingsScreen = () => {
   const navigation =
     useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const setLoggedIn = useAuthStore(s => s.setLoggedIn);
@@ -204,4 +204,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default MyPageScreen;
+export default SettingsScreen;
