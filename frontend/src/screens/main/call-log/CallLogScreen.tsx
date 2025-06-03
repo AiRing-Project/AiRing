@@ -8,17 +8,16 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import MonthPicker from 'react-native-month-year-picker';
 import {SvgProps} from 'react-native-svg';
 
 import {RootStackParamList} from '../../../../App';
-import IcChevronDown from '../../../assets/icons/ic-chevron-down.svg';
 import IcChevronRight from '../../../assets/icons/ic-chevron-right.svg';
 import InfoCircle from '../../../assets/icons/ic-info-circle.svg';
 import PhoneDeclined from '../../../assets/icons/ic-phone-declined.svg';
 import PhoneIncoming from '../../../assets/icons/ic-phone-incoming.svg';
 import PhoneOutgoing from '../../../assets/icons/ic-phone-outgoing.svg';
 import IcSearch from '../../../assets/icons/ic-search.svg';
+import MonthYearPicker from '../../../components/MonthYearPicker';
 import {formatSectionDate, formatTime} from '../../../utils/date';
 
 // TODO: 통화 거절도 기록을 할 필요가 있을지 추가 논의 필요
@@ -151,29 +150,13 @@ const CallLogScreen = () => {
   return (
     <View style={styles.container}>
       <View style={styles.topRow}>
-        <TouchableOpacity
-          style={styles.dropdown}
-          activeOpacity={0.7}
-          onPress={() => setShowMonthPicker(true)}>
-          <View style={styles.dropdownRow}>
-            <Text style={styles.dropdownText}>
-              {selectedDate.getFullYear()}년 {selectedDate.getMonth() + 1}월
-            </Text>
-            <IcChevronDown width={9} height={5} style={styles.dropdownIcon} />
-          </View>
-        </TouchableOpacity>
-        {showMonthPicker && (
-          <MonthPicker
-            onChange={handleMonthChange}
-            value={selectedDate}
-            minimumDate={new Date(2020, 0)} // TODO: 추후 가입일 또는 서비스 오픈일로 설정
-            maximumDate={new Date()}
-            locale="ko"
-            mode="short"
-            okButton="확인"
-            cancelButton="취소"
-          />
-        )}
+        <MonthYearPicker
+          value={selectedDate}
+          onChange={handleMonthChange}
+          show={showMonthPicker}
+          setShow={setShowMonthPicker}
+          minimumDate={new Date(2020, 0)}
+        />
         <TouchableOpacity style={styles.searchBtn} activeOpacity={0.7}>
           <IcSearch width={19} height={19} />
         </TouchableOpacity>
@@ -214,11 +197,7 @@ const CallLogScreen = () => {
                         {formatTime(log.startedAt)}
                       </Text>
                     </View>
-                    <IcChevronRight
-                      width={8}
-                      height={15}
-                      style={styles.arrow}
-                    />
+                    <IcChevronRight width={8} height={15} />
                   </TouchableOpacity>
                 );
               })}
@@ -242,26 +221,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 24,
     justifyContent: 'space-between',
-  },
-  dropdown: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'transparent',
-    paddingVertical: 4,
-    paddingHorizontal: 8,
-    borderRadius: 6,
-  },
-  dropdownRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 7,
-  },
-  dropdownText: {
-    fontSize: 16,
-    fontFamily: 'Pretendard',
-    fontWeight: '700',
-    color: '#232323',
-    marginLeft: 12,
   },
   searchBtn: {
     padding: 4,
@@ -354,12 +313,6 @@ const styles = StyleSheet.create({
     lineHeight: 20,
     textAlign: 'left',
     flexShrink: 1,
-  },
-  arrow: {
-    // marginLeft 제거 (gap과 paddingRight로 대체)
-  },
-  dropdownIcon: {
-    marginTop: 4,
   },
 });
 

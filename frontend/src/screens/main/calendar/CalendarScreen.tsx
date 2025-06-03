@@ -1,10 +1,9 @@
 import React, {useState} from 'react';
 import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import {Calendar, LocaleConfig} from 'react-native-calendars';
-import MonthPicker from 'react-native-month-year-picker';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 
-import IcChevronDown from '../../../assets/icons/ic-chevron-down.svg';
+import MonthYearPicker from '../../../components/MonthYearPicker';
 import {getTodayString, isDateInCurrentMonth} from '../../../utils/date';
 
 // 한글 요일/월 설정
@@ -115,33 +114,16 @@ const CalendarScreen = () => {
 
   return (
     <View style={[styles.container, {paddingTop: insets.top}]}>
-      {/* 상단 월/연도 드롭다운 */}
       <View style={styles.topRow}>
-        <TouchableOpacity
-          style={styles.dropdown}
-          activeOpacity={0.7}
-          onPress={() => setShowMonthPicker(true)}>
-          <View style={styles.dropdownRow}>
-            <Text style={styles.dropdownText}>
-              {current.getFullYear()}년 {current.getMonth() + 1}월
-            </Text>
-            <IcChevronDown width={9} height={5} style={styles.dropdownIcon} />
-          </View>
-        </TouchableOpacity>
-        {showMonthPicker && (
-          <MonthPicker
-            onChange={handleMonthPickerChange}
-            value={current}
-            minimumDate={new Date(2020, 0)} // TODO: 추후 가입일 또는 서비스 오픈일로 설정
-            maximumDate={new Date()}
-            locale="ko"
-            mode="short"
-            okButton="확인"
-            cancelButton="취소"
-          />
-        )}
+        <MonthYearPicker
+          value={current}
+          onChange={handleMonthPickerChange}
+          show={showMonthPicker}
+          setShow={setShowMonthPicker}
+          minimumDate={new Date(2020, 0)}
+          textStyle={styles.dropdownText}
+        />
       </View>
-      {/* 커스텀 감정 일기 캘린더 */}
       <Calendar
         key={current.toISOString()}
         current={current.toISOString().split('T')[0]}
@@ -180,19 +162,6 @@ const styles = StyleSheet.create({
     marginBottom: 35,
     justifyContent: 'space-between',
   },
-  dropdown: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'transparent',
-    paddingVertical: 4,
-    paddingHorizontal: 8,
-    borderRadius: 6,
-  },
-  dropdownRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 7,
-  },
   dropdownText: {
     fontSize: 20,
     letterSpacing: 0.2,
@@ -200,9 +169,6 @@ const styles = StyleSheet.create({
     fontFamily: 'Pretendard',
     color: '#000',
     marginLeft: 12,
-  },
-  dropdownIcon: {
-    marginTop: 4,
   },
   dayBox: {
     width: 36,
