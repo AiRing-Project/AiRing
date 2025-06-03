@@ -17,7 +17,7 @@ const Header = ({title, onBackPress, marginBottom = 0}: HeaderProps) => {
   return (
     <View style={[styles.header, {marginTop: insets.top, marginBottom}]}>
       <TouchableOpacity style={styles.backBtn} onPress={onBackPress}>
-        <IcChevronLeft width={24} height={24} />
+        <IcChevronLeft color="#000" />
       </TouchableOpacity>
       <Text style={[styles.headerTitle, styles.textFlexBox]}>{title}</Text>
     </View>

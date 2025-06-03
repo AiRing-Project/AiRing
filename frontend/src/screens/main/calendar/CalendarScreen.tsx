@@ -4,6 +4,8 @@ import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import {Calendar, LocaleConfig} from 'react-native-calendars';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 
+import IcChevronLeft from '../../../assets/icons/ic-chevron-left.svg';
+import HorizontalDivider from '../../../components/HorizontalDivider';
 import MonthYearPicker from '../../../components/MonthYearPicker';
 import {getTodayString, isDateInCurrentMonth} from '../../../utils/date';
 
@@ -87,6 +89,11 @@ const CalendarScreen = () => {
     }
   };
 
+  const handleGoToDiary = () => {
+    // TODO: 실제 네비게이션 연결 필요
+    console.log('일기장으로 이동');
+  };
+
   const renderDay = ({date, state, marking: _marking}: any) => {
     const isToday = date.dateString === todayString;
     const isSelected = date.dateString === selected;
@@ -151,6 +158,16 @@ const CalendarScreen = () => {
         firstDay={0}
         enableSwipeMonths={true}
       />
+      {/* 하단 "일기장으로 이동" 버튼 */}
+      <TouchableOpacity
+        style={styles.goDiaryBtn}
+        activeOpacity={0.7}
+        onPress={handleGoToDiary}>
+        <Text style={styles.goDiaryText}>일기장으로 이동</Text>
+        <IcChevronLeft height={20} style={styles.goDiaryIcon} />
+      </TouchableOpacity>
+      {/* eslint-disable-next-line react-native/no-inline-styles */}
+      <HorizontalDivider style={{marginVertical: 25}} />
     </View>
   );
 };
@@ -256,6 +273,25 @@ const styles = StyleSheet.create({
     position: 'relative',
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  goDiaryBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    marginTop: 15,
+    marginRight: 5,
+  },
+  goDiaryText: {
+    fontSize: 12,
+    letterSpacing: 0.1,
+    lineHeight: 20,
+    fontWeight: '500',
+    fontFamily: 'Pretendard',
+    color: 'rgba(0, 0, 0, 0.5)',
+  },
+  goDiaryIcon: {
+    transform: [{scaleX: -1}],
+    color: 'rgba(0, 0, 0, 0.5)',
   },
 });
 
