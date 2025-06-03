@@ -1,18 +1,13 @@
 import {useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import React from 'react';
-import {
-  Alert,
-  Image,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import {Alert, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 
 import {logoutApi} from '../../../api/authApi';
 import IcChevronRight from '../../../assets/icons/ic-chevron-right.svg';
+import IcEllipse from '../../../assets/icons/ic-Ellipse.svg';
 import IcLock from '../../../assets/icons/ic-lock.svg';
+import IcPerson from '../../../assets/icons/ic-person.svg';
 import IcPhone from '../../../assets/icons/ic-phone.svg';
 import IcPieChart from '../../../assets/icons/ic-pie-chart.svg';
 import IcSetting from '../../../assets/icons/ic-setting.svg';
@@ -48,10 +43,18 @@ const MyPageScreen = () => {
 
       {/* 프로필 */}
       <View style={styles.profileBox}>
-        <View style={styles.avatarWrapper}>
-          <Image
-            source={{uri: 'https://placekitten.com/100/100'}}
-            style={styles.avatar}
+        <View style={{position: 'relative', width: 50, height: 50}}>
+          <IcEllipse style={{width: 50, height: 50}} />
+          <IcPerson
+            style={{
+              position: 'absolute',
+              top: 11,
+              left: 11,
+              right: 11,
+              bottom: 11,
+              width: 28,
+              height: 28,
+            }}
           />
         </View>
         <View style={styles.profileInfo}>
@@ -106,7 +109,8 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#FFFFFF',
     paddingHorizontal: 20,
-    paddingTop: 28,
+    paddingTop: 129,
+    paddingBottom: 683,
   },
   statusBar: {
     height: 28,
@@ -121,44 +125,51 @@ const styles = StyleSheet.create({
     color: '#170E2B',
   },
   profileBox: {
-    backgroundColor: '#F8F8F8',
     borderRadius: 10,
+    backgroundColor: '#f8f8f8',
+    width: '100%',
+    height: 105,
+    marginBottom: 30,
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 20,
-    marginBottom: 24,
+    paddingTop: 28,
+    paddingBottom: 27,
+    paddingLeft: 19,
+    paddingRight: 100,
+    position: 'relative',
   },
-  avatarWrapper: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    backgroundColor: 'rgba(26,27,26,0.1)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 15,
-    overflow: 'hidden',
+  profileInfo: {
+    flexDirection: 'column',
+    alignItems: 'flex-start',
+    marginLeft: 15,
   },
-  avatar: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-  },
-  profileInfo: {flex: 1},
   profileName: {
     fontSize: 16,
+    letterSpacing: 0.3,
     fontWeight: '600',
+    fontFamily: 'Pretendard',
     color: '#000',
-    marginBottom: 2,
+    textAlign: 'left',
   },
   profileEmail: {
     fontSize: 12,
+    letterSpacing: 0.2,
     fontWeight: '500',
-    color: '#8A8A8A',
+    fontFamily: 'Pretendard',
+    color: '#8a8a8a',
+    textAlign: 'left',
+    marginTop: 6,
   },
   logoutBtn: {
-    marginLeft: 10,
-    paddingVertical: 4,
-    paddingHorizontal: 8,
+    position: 'absolute',
+    right: 21,
+    top: 35.5,
+    borderRadius: 10,
+    backgroundColor: 'rgba(0, 0, 0, 0.1)',
+    width: 75,
+    height: 35,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   logoutText: {
     fontSize: 12,
@@ -173,16 +184,20 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 18,
     paddingHorizontal: 20,
-    marginBottom: 12,
+    marginBottom: 10,
     justifyContent: 'space-between',
+    height: 70,
   },
   menuIcon: {
     marginRight: 12,
   },
   menuLabel: {
     fontSize: 16,
+    letterSpacing: 0.3,
     fontWeight: '600',
+    fontFamily: 'Pretendard',
     color: 'rgba(0,0,0,0.9)',
+    textAlign: 'left',
     flex: 1,
   },
   emoji: {
