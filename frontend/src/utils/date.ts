@@ -58,10 +58,11 @@ export const formatKoreanDate = (dateString: string) => {
 };
 
 /**
- * 오늘 날짜를 YYYY-MM-DD string으로 반환
+ * 주어진 Date(없으면 오늘)를 YYYY-MM-DD string으로 반환
  */
-export const getTodayString = () => {
-  return new Date().toISOString().split('T')[0];
+export const getDateString = (date?: Date) => {
+  const d = date ? new Date(date) : new Date();
+  return d.toISOString().split('T')[0];
 };
 
 /**
@@ -83,5 +84,9 @@ export const isDateInCurrentMonth = (
  * 주어진 날짜가 오늘 이후(미래)인지 여부
  */
 export const isFuture = (dateString: string) => {
-  return new Date(dateString) > new Date(getTodayString());
+  // 입력값과 오늘을 YYYY-MM-DD로 변환해서 비교
+  const inputDate = new Date(dateString);
+  const inputDateString = getDateString(inputDate);
+  const todayString = getDateString();
+  return inputDateString > todayString;
 };

@@ -8,7 +8,7 @@ import IcChevronLeft from '../../../assets/icons/ic-chevron-left.svg';
 import HorizontalDivider from '../../../components/HorizontalDivider';
 import MonthYearPicker from '../../../components/MonthYearPicker';
 import {
-  getTodayString,
+  getDateString,
   isDateInCurrentMonth,
   isFuture,
 } from '../../../utils/date';
@@ -112,14 +112,14 @@ const emotionColorMap: Record<string, string> = {
 
 const CalendarScreen = () => {
   const insets = useSafeAreaInsets();
-  const todayString = getTodayString();
+  const todayString = getDateString();
   const [selected, setSelected] = useState<string>(todayString);
   const [current, setCurrent] = useState<Date>(new Date());
   const [showMonthPicker, setShowMonthPicker] = useState<boolean>(false);
 
   useFocusEffect(
     React.useCallback(() => {
-      setSelected(getTodayString());
+      setSelected(getDateString());
       setCurrent(new Date());
     }, []),
   );
