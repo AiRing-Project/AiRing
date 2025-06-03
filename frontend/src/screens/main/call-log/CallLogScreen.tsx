@@ -146,7 +146,7 @@ const CallLogRow: React.FC<{log: CallLogItem}> = ({log}) => {
         </Text>
         <Text style={styles.time}>{formatTime(log.startedAt)}</Text>
       </View>
-      <IcChevronRight width={8} height={15} />
+      <IcChevronRight width={16} height={16} />
     </TouchableOpacity>
   );
 };

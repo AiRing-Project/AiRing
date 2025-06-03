@@ -94,7 +94,7 @@ const MenuItem = ({
   <TouchableOpacity style={styles.menuItem} onPress={onPress}>
     <View style={styles.menuIcon}>{icon}</View>
     <Text style={styles.menuLabel}>{label}</Text>
-    <IcChevronRight width={22} height={22} style={styles.chevron} />
+    <IcChevronRight width={16} height={16} style={styles.chevron} />
   </TouchableOpacity>
 );
 

@@ -4,6 +4,7 @@ import React, {useCallback, useState} from 'react';
 import {StyleSheet, Switch, Text, TouchableOpacity, View} from 'react-native';
 
 import {RootStackParamList} from '../../../../App';
+import IcChevronRight from '../../../assets/icons/ic-chevron-right.svg';
 import Header from '../../../components/Header';
 import {
   getAppLockPassword,
@@ -45,6 +46,7 @@ const SecuritySettingsScreen = () => {
             style={styles.menuItem}
             onPress={() => navigation.navigate('ResetPassword')}>
             <Text style={styles.menuText}>비밀번호 변경</Text>
+            <IcChevronRight width={16} height={16} />
           </TouchableOpacity>
         </View>
 
@@ -85,8 +87,8 @@ const styles = StyleSheet.create({
   card: {
     backgroundColor: '#F8F8F8',
     borderRadius: 10,
-    paddingHorizontal: 24,
-    paddingVertical: 18,
+    paddingHorizontal: 25,
+    paddingVertical: 25,
   },
   menuItem: {
     flexDirection: 'row',
