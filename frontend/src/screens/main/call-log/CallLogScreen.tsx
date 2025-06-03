@@ -1,5 +1,5 @@
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
-import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
+import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import React, {useState} from 'react';
 import {
   ScrollView,
@@ -13,15 +13,13 @@ import {SvgProps} from 'react-native-svg';
 import {RootStackParamList} from '../../../../App';
 import IcChevronRight from '../../../assets/icons/ic-chevron-right.svg';
 import InfoCircle from '../../../assets/icons/ic-info-circle.svg';
-import PhoneDeclined from '../../../assets/icons/ic-phone-declined.svg';
 import PhoneIncoming from '../../../assets/icons/ic-phone-incoming.svg';
 import PhoneOutgoing from '../../../assets/icons/ic-phone-outgoing.svg';
 import IcSearch from '../../../assets/icons/ic-search.svg';
 import MonthYearPicker from '../../../components/MonthYearPicker';
 import {formatSectionDate, formatTime} from '../../../utils/date';
 
-// TODO: 통화 거절도 기록을 할 필요가 있을지 추가 논의 필요
-type CallType = 'incoming' | 'outgoing' | 'declined';
+type CallType = 'incoming' | 'outgoing';
 
 interface CallLogItem {
   id: number;
@@ -111,8 +109,8 @@ const callLogs: CallLog[] = [
       {
         id: -1,
         startedAt: '2025-05-10T20:00:00Z',
-        callType: 'declined',
-        summary: '통화 거절',
+        callType: 'incoming',
+        summary: '저녁 대화',
       },
     ],
   },
@@ -121,18 +119,52 @@ const callLogs: CallLog[] = [
 const iconMap: Record<CallType, React.FC<SvgProps>> = {
   incoming: PhoneIncoming,
   outgoing: PhoneOutgoing,
-  declined: PhoneDeclined,
 };
 
 const SectionDate: React.FC<{date: string}> = ({date}) => (
   <Text style={styles.sectionDate}>{date}</Text>
 );
 
+interface CallLogSectionProps {
+  section: CallLog;
+}
+
+const CallLogRow: React.FC<{log: CallLogItem}> = ({log}) => {
+  const navigation =
+    useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const IconComponent = iconMap[log.callType];
+  return (
+    <TouchableOpacity
+      key={log.id}
+      style={styles.logRow}
+      onPress={() => navigation.navigate('CallLogDetailScreen', {id: log.id})}
+      activeOpacity={0.7}>
+      <IconComponent width={24} height={24} />
+      <View style={styles.logInfo}>
+        <Text style={styles.name} numberOfLines={1} ellipsizeMode="tail">
+          {log.summary}
+        </Text>
+        <Text style={styles.time}>{formatTime(log.startedAt)}</Text>
+      </View>
+      <IcChevronRight width={8} height={15} />
+    </TouchableOpacity>
+  );
+};
+
+const CallLogSection: React.FC<CallLogSectionProps> = ({section}) => (
+  <View key={section.date} style={styles.section}>
+    <SectionDate date={formatSectionDate(section.date)} />
+    <View style={styles.logRows}>
+      {section.logs.map(log => (
+        <CallLogRow key={log.id} log={log} />
+      ))}
+    </View>
+  </View>
+);
+
 const CallLogScreen = () => {
   const [showMonthPicker, setShowMonthPicker] = useState<boolean>(false);
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
-  const navigation =
-    useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
   useFocusEffect(
     React.useCallback(() => {
@@ -172,37 +204,7 @@ const CallLogScreen = () => {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}>
         {callLogs.map(section => (
-          <View key={section.date} style={styles.section}>
-            <SectionDate date={formatSectionDate(section.date)} />
-            <View style={styles.logRows}>
-              {section.logs.map(log => {
-                const IconComponent = iconMap[log.callType];
-                return (
-                  <TouchableOpacity
-                    key={log.id}
-                    style={styles.logRow}
-                    onPress={() =>
-                      navigation.navigate('CallLogDetailScreen', {id: log.id})
-                    }
-                    activeOpacity={0.7}>
-                    <IconComponent width={24} height={24} />
-                    <View style={styles.logInfo}>
-                      <Text
-                        style={styles.name}
-                        numberOfLines={1}
-                        ellipsizeMode="tail">
-                        {log.summary}
-                      </Text>
-                      <Text style={styles.time}>
-                        {formatTime(log.startedAt)}
-                      </Text>
-                    </View>
-                    <IcChevronRight width={8} height={15} />
-                  </TouchableOpacity>
-                );
-              })}
-            </View>
-          </View>
+          <CallLogSection key={section.date} section={section} />
         ))}
       </ScrollView>
     </View>
