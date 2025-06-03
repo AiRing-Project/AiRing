@@ -130,8 +130,8 @@ const SectionDate: React.FC<{date: string}> = ({date}) => (
 );
 
 const CallLogScreen = () => {
-  const [showMonthPicker, setShowMonthPicker] = useState(false);
-  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [showMonthPicker, setShowMonthPicker] = useState<boolean>(false);
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const navigation =
     useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
