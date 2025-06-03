@@ -26,8 +26,8 @@ import ReportIcon from '../assets/icons/tab-report.svg';
 import SettingsIcon from '../assets/icons/tab-settings.svg';
 import CalendarScreen from '../screens/main/calendar/CalendarScreen';
 import CallLogScreen from '../screens/main/call-log/CallLogScreen';
-import ReportScreen from '../screens/main/ReportScreen';
-import SettingsStack from './SettingsStack';
+import ReportScreen from '../screens/main/report/ReportScreen';
+import MyPageScreen from '../screens/main/settings/MyPageScreen';
 
 const Tab = createBottomTabNavigator();
 
@@ -151,8 +151,8 @@ const HomeTabs = () => {
         />
         <Tab.Screen
           name="Settings"
-          component={SettingsStack}
-          options={{tabBarLabel: '설정'}}
+          component={MyPageScreen}
+          options={{tabBarLabel: '설정', tabBarStyle: false}}
         />
       </Tab.Navigator>
       {/* 커스텀 모달 */}

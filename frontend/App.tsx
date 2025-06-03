@@ -16,17 +16,28 @@ import HomeTabs from './src/navigation/HomeTabs';
 import AppLockScreen from './src/screens/AppLockScreen';
 import CallLogDetailScreen from './src/screens/main/call-log/CallLogDetailScreen';
 import ReserveAiCallScreen from './src/screens/main/ReserveAiCallScreen';
+import ResetPasswordScreen from './src/screens/main/settings/ResetPasswordScreen';
+import SecuritySettingsScreen from './src/screens/main/settings/SecuritySettingsScreen';
+import SetAppLockPasswordScreen from './src/screens/main/settings/SetAppLockPasswordScreen';
 import SplashScreen from './src/screens/SplashScreen';
 import {useAuthStore} from './src/store/authStore';
 
 export type RootStackParamList = {
   Auth: undefined;
+
   AppLock: undefined;
   Home: undefined;
+  ReserveAiCall: undefined;
+
+  // Call Log Tab 내부 화면
   CallLogDetailScreen: {
     id: number;
   };
-  ReserveAiCall: undefined;
+
+  // Settings Tab 내부 화면
+  SecuritySettings: undefined;
+  ResetPassword: undefined;
+  SetAppLockPassword: undefined;
 };
 
 enableScreens();
@@ -53,12 +64,28 @@ const App = () => {
               <Stack.Screen name="AppLock" component={AppLockScreen} />
               <Stack.Screen name="Home" component={HomeTabs} />
               <Stack.Screen
+                name="ReserveAiCall"
+                component={ReserveAiCallScreen}
+              />
+
+              {/* Call Log Tab 내부 화면 */}
+              <Stack.Screen
                 name="CallLogDetailScreen"
                 component={CallLogDetailScreen}
               />
+
+              {/* Settings Tab 내부 화면 */}
               <Stack.Screen
-                name="ReserveAiCall"
-                component={ReserveAiCallScreen}
+                name="SecuritySettings"
+                component={SecuritySettingsScreen}
+              />
+              <Stack.Screen
+                name="ResetPassword"
+                component={ResetPasswordScreen}
+              />
+              <Stack.Screen
+                name="SetAppLockPassword"
+                component={SetAppLockPasswordScreen}
               />
             </>
           ) : (

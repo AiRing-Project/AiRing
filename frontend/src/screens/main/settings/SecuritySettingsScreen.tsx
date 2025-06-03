@@ -3,8 +3,8 @@ import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import React, {useCallback, useState} from 'react';
 import {StyleSheet, Switch, Text, TouchableOpacity, View} from 'react-native';
 
+import {RootStackParamList} from '../../../../App';
 import Header from '../../../components/Header';
-import {SettingsStackParamList} from '../../../navigation/SettingsStack';
 import {
   getAppLockPassword,
   removeAppLockPassword,
@@ -12,9 +12,7 @@ import {
 
 const SecuritySettingsScreen = () => {
   const navigation =
-    useNavigation<
-      NativeStackNavigationProp<SettingsStackParamList, 'SecuritySettings'>
-    >();
+    useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const [appLock, setAppLock] = useState(false);
 
   useFocusEffect(
@@ -43,7 +41,9 @@ const SecuritySettingsScreen = () => {
 
       <View style={styles.cardList}>
         <View style={styles.card}>
-          <TouchableOpacity style={styles.menuItem}>
+          <TouchableOpacity
+            style={styles.menuItem}
+            onPress={() => navigation.navigate('ResetPassword')}>
             <Text style={styles.menuText}>비밀번호 변경</Text>
           </TouchableOpacity>
         </View>

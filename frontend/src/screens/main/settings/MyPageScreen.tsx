@@ -3,6 +3,7 @@ import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import React from 'react';
 import {Alert, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 
+import {RootStackParamList} from '../../../../App';
 import {logoutApi} from '../../../api/authApi';
 import IcChevronRight from '../../../assets/icons/ic-chevron-right.svg';
 import IcEllipse from '../../../assets/icons/ic-Ellipse.svg';
@@ -11,36 +12,29 @@ import IcPerson from '../../../assets/icons/ic-person.svg';
 import IcPhone from '../../../assets/icons/ic-phone.svg';
 import IcPieChart from '../../../assets/icons/ic-pie-chart.svg';
 import IcSetting from '../../../assets/icons/ic-setting.svg';
-import {SettingsStackParamList} from '../../../navigation/SettingsStack';
+import {useAuthStore} from '../../../store/authStore';
 import {getRefreshToken, removeTokens} from '../../../utils/tokenManager';
-const handleLogout = async () => {
-  try {
-    const refreshToken = await getRefreshToken();
-    if (refreshToken) {
-      await logoutApi(refreshToken);
-    }
-    await removeTokens();
-    // useAuthStore.getState().setUser(null, null);
-  } catch (e) {
-    Alert.alert('로그아웃 실패', '다시 시도해 주세요.');
-  }
-};
 
 const MyPageScreen = () => {
   const navigation =
-    useNavigation<
-      NativeStackNavigationProp<SettingsStackParamList, 'MyPage'>
-    >();
-  // const username = useAuthStore(s => s.username);
-  // const email = useAuthStore(s => s.email);
+    useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const setLoggedIn = useAuthStore(s => s.setLoggedIn);
+
+  const handleLogout = async () => {
+    try {
+      const refreshToken = await getRefreshToken();
+      if (refreshToken) {
+        await logoutApi(refreshToken);
+      }
+      await removeTokens();
+      setLoggedIn(false);
+    } catch (e) {
+      Alert.alert('로그아웃 실패', '다시 시도해 주세요.');
+    }
+  };
 
   return (
     <View style={styles.container}>
-      {/* 상태바(커스텀) */}
-      {/* <View style={styles.statusBar}>
-        <Text style={styles.statusBarTime}>12:30</Text>
-      </View> */}
-
       {/* 프로필 */}
       <View style={styles.profileBox}>
         <View style={{position: 'relative', width: 50, height: 50}}>
