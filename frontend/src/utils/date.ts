@@ -56,3 +56,25 @@ export const formatKoreanDate = (dateString: string) => {
   const date = new Date(dateString);
   return `${date.getFullYear()}년 ${date.getMonth() + 1}월 ${date.getDate()}일`;
 };
+
+/**
+ * 오늘 날짜를 YYYY-MM-DD string으로 반환
+ */
+export const getTodayString = () => {
+  return new Date().toISOString().split('T')[0];
+};
+
+/**
+ * 특정 날짜가 해당 월(year, month)에 포함되는지 확인
+ * @param dateString YYYY-MM-DD
+ * @param year 년도
+ * @param month 월(1~12)
+ */
+export const isDateInCurrentMonth = (
+  dateString: string,
+  year: number,
+  month: number,
+) => {
+  const date = new Date(dateString);
+  return date.getFullYear() === year && date.getMonth() + 1 === month;
+};

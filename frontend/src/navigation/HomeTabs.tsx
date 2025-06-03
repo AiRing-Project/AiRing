@@ -24,7 +24,7 @@ import CenterIcon from '../assets/icons/tab-center.svg';
 import LogIcon from '../assets/icons/tab-log.svg';
 import ReportIcon from '../assets/icons/tab-report.svg';
 import SettingsIcon from '../assets/icons/tab-settings.svg';
-import CalendarScreen from '../screens/main/CalendarScreen';
+import CalendarScreen from '../screens/main/calendar/CalendarScreen';
 import CallLogScreen from '../screens/main/call-log/CallLogScreen';
 import ReportScreen from '../screens/main/ReportScreen';
 import SettingsStack from './SettingsStack';
