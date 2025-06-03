@@ -3,6 +3,7 @@ package com.airing.backend.callLog.service;
 import com.airing.backend.callLog.dto.CallLogDetailResponse;
 import com.airing.backend.callLog.dto.CallLogEventRequest;
 import com.airing.backend.callLog.dto.CallLogLatestResponse;
+import com.airing.backend.callLog.dto.CallLogMonthlyResponse;
 import com.airing.backend.callLog.entity.CallLog;
 import com.airing.backend.callLog.repository.CallLogRepository;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -12,9 +13,15 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.LocalDate;
 import java.time.OffsetDateTime;
+import java.time.YearMonth;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -50,7 +57,7 @@ public class CallLogService {
                 .build();
     }
 
-    public CallLogDetailResponse getCallLogDetail(Long callLogId) {
+    public CallLogDetailResponse getCallLogDetail(Long userId, Long callLogId) {
         CallLog callLog = callLogRepository.findById(callLogId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "통화 기록을 찾을 수 없습니다."));
 
@@ -63,7 +70,7 @@ public class CallLogService {
 
         try {
             messages = new ObjectMapper().readValue(
-                    callLog.getRawTranscript(),
+                    transcriptJson,
                     new TypeReference<>() {
                     }
             );
@@ -75,5 +82,29 @@ public class CallLogService {
                 .startedAt(callLog.getStartedAt())
                 .messages(messages)
                 .build();
+    }
+
+    public List<CallLogMonthlyResponse> getMonthlyCallLog(Long userId, YearMonth yearMonth) {
+        OffsetDateTime start = yearMonth.atDay(1).atStartOfDay().atOffset(ZoneOffset.UTC);
+        OffsetDateTime end = yearMonth.atEndOfMonth().atTime(23 , 59, 59).atOffset(ZoneOffset.UTC);
+
+        List<CallLog> callLogs = callLogRepository.findAllByUserIdAndStartedAtBetween(userId, start, end);
+
+        Map<LocalDate, List<CallLogMonthlyResponse.LogSummary>> grouped = callLogs.stream()
+                .map(log -> CallLogMonthlyResponse.LogSummary.builder()
+                        .id(log.getId())
+                        .startedAt(log.getStartedAt())
+                        .callType(log.getCallType())
+                        .title(null) // 추후 callSummary 처리
+                        .build())
+                .collect(Collectors.groupingBy(summary -> summary.getStartedAt().toLocalDate()));
+
+        return grouped.entrySet().stream()
+                .map(entry -> CallLogMonthlyResponse.builder()
+                        .date(entry.getKey())
+                        .logs(entry.getValue())
+                        .build())
+                .sorted(Comparator.comparing(CallLogMonthlyResponse::getDate).reversed())
+                .collect(Collectors.toList());
     }
 }
