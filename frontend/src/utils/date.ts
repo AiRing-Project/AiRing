@@ -78,3 +78,10 @@ export const isDateInCurrentMonth = (
   const date = new Date(dateString);
   return date.getFullYear() === year && date.getMonth() + 1 === month;
 };
+
+/**
+ * 주어진 날짜가 오늘 이후(미래)인지 여부
+ */
+export const isFuture = (dateString: string) => {
+  return new Date(dateString) > new Date(getTodayString());
+};
