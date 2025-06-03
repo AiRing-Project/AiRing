@@ -1,3 +1,4 @@
+import {useFocusEffect} from '@react-navigation/native';
 import React, {useState} from 'react';
 import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import {Calendar, LocaleConfig} from 'react-native-calendars';
@@ -57,12 +58,17 @@ const CalendarScreen = () => {
   const [current, setCurrent] = useState<Date>(new Date());
   const [showMonthPicker, setShowMonthPicker] = useState<boolean>(false);
 
-  // 날짜 클릭 시
+  useFocusEffect(
+    React.useCallback(() => {
+      setSelected(getTodayString());
+      setCurrent(new Date());
+    }, []),
+  );
+
   const handleDayPress = (day: any) => {
     setSelected(day.dateString);
   };
 
-  // 월 변경 및 선택된 날짜 유효성 체크 공통 함수
   const updateMonthAndSelected = (year: number, month: number) => {
     setCurrent(new Date(year, month - 1, 1));
     if (!isDateInCurrentMonth(selected, year, month)) {
@@ -70,12 +76,10 @@ const CalendarScreen = () => {
     }
   };
 
-  // 월 변경 시, 선택된 날짜가 해당 월에 없으면 선택 해제
   const handleMonthChange = (month: {year: number; month: number}) => {
     updateMonthAndSelected(month.year, month.month);
   };
 
-  // MonthPicker에서 월/연도 선택 핸들러
   const handleMonthPickerChange = (_event: any, newDate?: Date) => {
     setShowMonthPicker(false);
     if (newDate) {
@@ -89,6 +93,7 @@ const CalendarScreen = () => {
     const boxStyle = [
       styles.dayBox,
       isSelected && styles.dayBoxSelected,
+      state === 'disabled' && styles.dayBoxDisabled,
     ].filter(Boolean);
     const textStyle = [
       styles.dayText,
@@ -174,7 +179,7 @@ const styles = StyleSheet.create({
     width: 36,
     height: 35,
     borderRadius: 5,
-    backgroundColor: 'rgba(0,0,0,0.08)',
+    backgroundColor: 'rgba(0,0,0,0.11)',
     alignItems: 'center',
     justifyContent: 'flex-start',
     position: 'relative',
@@ -183,12 +188,15 @@ const styles = StyleSheet.create({
     width: 36,
     height: 35,
     borderRadius: 5,
-    backgroundColor: 'rgba(0,0,0,0.08)',
+    backgroundColor: 'rgba(0,0,0,0.11)',
     borderColor: '#222',
     borderWidth: 1,
     alignItems: 'center',
     justifyContent: 'flex-start',
     position: 'relative',
+  },
+  dayBoxDisabled: {
+    backgroundColor: '#F2F2F2',
   },
   dayText: {
     fontSize: 12,
