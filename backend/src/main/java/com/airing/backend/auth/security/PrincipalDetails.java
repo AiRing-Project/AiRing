@@ -1,13 +1,14 @@
 package com.airing.backend.auth.security;
 
 
-import com.airing.backend.user.entity.User;
+import java.util.ArrayList;
+import java.util.Collection;
+
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.ArrayList;
-import java.util.Collection;
+import com.airing.backend.user.entity.User;
 
 /**
  * Spring Security는 /login 으로 오는 POST 요청을 낚아채서 로그인 처리함.
@@ -28,6 +29,10 @@ public class PrincipalDetails implements UserDetails {
 
     public Long getId() {
         return user.getId();
+    }
+    
+    public String getNickname() {
+        return user.getUsername();
     }
 
     // 해당 User의 권한을 리턴함
