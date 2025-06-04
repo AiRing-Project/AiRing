@@ -152,7 +152,7 @@ const HomeTabs = () => {
         <Tab.Screen
           name="Settings"
           component={SettingsScreen}
-          options={{tabBarLabel: '설정', tabBarStyle: false}}
+          options={{tabBarLabel: '설정'}}
         />
       </Tab.Navigator>
       {/* 커스텀 모달 */}
