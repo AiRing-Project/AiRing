@@ -58,9 +58,7 @@ const App = () => {
   }, [checkAuth]);
 
   useEffect(() => {
-    if (isLoggedIn) {
-      checkAppLock();
-    }
+    checkAppLock();
   }, [isLoggedIn, checkAppLock]);
 
   if (isAuthLoading || isAppLockLoading) {
