@@ -5,13 +5,13 @@ import {Alert, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 
 import {RootStackParamList} from '../../../../App';
 import {logoutApi} from '../../../api/authApi';
-import IcChevronRight from '../../../assets/icons/ic-chevron-right.svg';
 import IcEllipse from '../../../assets/icons/ic-Ellipse.svg';
 import IcLock from '../../../assets/icons/ic-lock.svg';
 import IcPerson from '../../../assets/icons/ic-person.svg';
 import IcPhone from '../../../assets/icons/ic-phone.svg';
 import IcPieChart from '../../../assets/icons/ic-pie-chart.svg';
 import IcSetting from '../../../assets/icons/ic-setting.svg';
+import ListItem from '../../../components/ListItem';
 import {useAuthStore} from '../../../store/authStore';
 import {getRefreshToken, removeTokens} from '../../../utils/tokenManager';
 
@@ -37,26 +37,12 @@ const SettingsScreen = () => {
     <View style={styles.container}>
       {/* 프로필 */}
       <View style={styles.profileBox}>
-        <View style={{position: 'relative', width: 50, height: 50}}>
-          <IcEllipse style={{width: 50, height: 50}} />
-          <IcPerson
-            style={{
-              position: 'absolute',
-              top: 11,
-              left: 11,
-              right: 11,
-              bottom: 11,
-              width: 28,
-              height: 28,
-            }}
-          />
+        <View style={styles.profileIconContainer}>
+          <IcEllipse style={styles.ellipseIcon} />
+          <IcPerson style={styles.personIcon} />
         </View>
         <View style={styles.profileInfo}>
-          <Text style={styles.profileName}>
-            {/* {username ? `${username}님` : '이름없음'} */}
-            빵딩님
-          </Text>
-          {/* <Text style={styles.profileEmail}>{email || ''}</Text> */}
+          <Text style={styles.profileName}>아이링님</Text>
           <Text style={styles.profileEmail}>airing@gmail.com</Text>
         </View>
         <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout}>
@@ -65,16 +51,22 @@ const SettingsScreen = () => {
       </View>
 
       {/* 설정 메뉴 */}
-      <View style={styles.menuBox}>
-        <MenuItem icon={<IcSetting width={22} height={22} />} label="앱 설정" />
-        <MenuItem
-          icon={<IcLock width={22} height={22} />}
+      <View style={{gap: 10}}>
+        <ListItem
+          leftIcon={<IcSetting width={22} height={22} />}
+          label="앱 설정"
+        />
+        <ListItem
+          leftIcon={<IcLock width={22} height={22} />}
           label="보안 설정"
           onPress={() => navigation.navigate('SecuritySettings')}
         />
-        <MenuItem icon={<IcPhone width={22} height={22} />} label="AI 설정" />
-        <MenuItem
-          icon={<IcPieChart width={22} height={22} />}
+        <ListItem
+          leftIcon={<IcPhone width={22} height={22} />}
+          label="AI 설정"
+        />
+        <ListItem
+          leftIcon={<IcPieChart width={22} height={22} />}
           label="데이터 관리"
         />
       </View>
@@ -82,41 +74,12 @@ const SettingsScreen = () => {
   );
 };
 
-const MenuItem = ({
-  icon,
-  label,
-  onPress,
-}: {
-  icon: React.ReactNode;
-  label: string;
-  onPress?: () => void;
-}) => (
-  <TouchableOpacity style={styles.menuItem} onPress={onPress}>
-    <View style={styles.menuIcon}>{icon}</View>
-    <Text style={styles.menuLabel}>{label}</Text>
-    <IcChevronRight width={16} height={16} style={styles.chevron} />
-  </TouchableOpacity>
-);
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#FFFFFF',
     paddingHorizontal: 20,
-    paddingTop: 129,
-    paddingBottom: 683,
-  },
-  statusBar: {
-    height: 28,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'flex-end',
-    marginBottom: 20,
-  },
-  statusBarTime: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: '#170E2B',
+    paddingTop: 100,
   },
   profileBox: {
     borderRadius: 10,
@@ -124,17 +87,30 @@ const styles = StyleSheet.create({
     width: '100%',
     height: 105,
     marginBottom: 30,
+    padding: 20,
     flexDirection: 'row',
     alignItems: 'center',
-    paddingTop: 28,
-    paddingBottom: 27,
-    paddingLeft: 19,
-    paddingRight: 100,
+    justifyContent: 'space-between',
+  },
+  profileIconContainer: {
+    width: 50,
+    height: 50,
     position: 'relative',
   },
+  ellipseIcon: {
+    width: 50,
+    height: 50,
+  },
+  personIcon: {
+    width: 28,
+    height: 28,
+    position: 'absolute',
+    top: 11,
+    left: 11,
+  },
   profileInfo: {
-    flexDirection: 'column',
-    alignItems: 'flex-start',
+    flex: 1,
+    gap: 6,
     marginLeft: 15,
   },
   profileName: {
@@ -143,7 +119,6 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     fontFamily: 'Pretendard',
     color: '#000',
-    textAlign: 'left',
   },
   profileEmail: {
     fontSize: 12,
@@ -151,13 +126,8 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     fontFamily: 'Pretendard',
     color: '#8a8a8a',
-    textAlign: 'left',
-    marginTop: 6,
   },
   logoutBtn: {
-    position: 'absolute',
-    right: 21,
-    top: 35.5,
     borderRadius: 10,
     backgroundColor: 'rgba(0, 0, 0, 0.1)',
     width: 75,
@@ -167,40 +137,11 @@ const styles = StyleSheet.create({
   },
   logoutText: {
     fontSize: 12,
-    fontWeight: '600',
-    color: '#000',
-  },
-  menuBox: {},
-  menuItem: {
-    backgroundColor: '#F8F8F8',
-    borderRadius: 10,
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 18,
-    paddingHorizontal: 20,
-    marginBottom: 10,
-    justifyContent: 'space-between',
-    height: 70,
-  },
-  menuIcon: {
-    marginRight: 12,
-  },
-  menuLabel: {
-    fontSize: 16,
-    letterSpacing: 0.3,
+    letterSpacing: 0.1,
+    lineHeight: 20,
     fontWeight: '600',
     fontFamily: 'Pretendard',
-    color: 'rgba(0,0,0,0.9)',
-    textAlign: 'left',
-    flex: 1,
-  },
-  emoji: {
-    fontSize: 22,
-  },
-  chevron: {
-    fontSize: 22,
-    color: '#B6B6B6',
-    marginLeft: 8,
+    color: '#000',
   },
 });
 
