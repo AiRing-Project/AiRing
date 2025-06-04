@@ -16,6 +16,7 @@ import com.airing.backend.user.dto.UserLoginRequest;
 import com.airing.backend.user.dto.UserLoginResponse;
 import com.airing.backend.user.dto.UserSignupRequest;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -26,12 +27,14 @@ public class AuthController {
 
     private final AuthService authService;
 
+    @SecurityRequirements({})
     @PostMapping("/signup")
     public ResponseEntity<?> signup(@Valid @RequestBody UserSignupRequest request) {
         authService.signup(request);
         return ResponseEntity.status(HttpStatus.CREATED).body("회원가입 완료");
     }
 
+    @SecurityRequirements({})
     @PostMapping("/login")
     public ResponseEntity<UserLoginResponse> login(@Valid @RequestBody UserLoginRequest request) {
         UserLoginResponse response = authService.login(request);
