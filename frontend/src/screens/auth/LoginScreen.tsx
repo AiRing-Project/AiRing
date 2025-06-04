@@ -14,7 +14,7 @@ import {
 } from 'react-native';
 import * as yup from 'yup';
 
-import {getUserInfo, loginApi} from '../../api/authApi';
+import {getUserInfo, login} from '../../api/authApi';
 import type {AuthStackParamList} from '../../navigation/AuthStack';
 import {useAuthStore} from '../../store/authStore';
 import {saveTokens} from '../../utils/tokenManager';
@@ -58,7 +58,7 @@ const LoginScreen = () => {
   const onSubmit = async (data: LoginFormData) => {
     setLoading(true);
     try {
-      const {accessToken, refreshToken} = await loginApi({
+      const {accessToken, refreshToken} = await login({
         email: data.email,
         password: data.password,
       });

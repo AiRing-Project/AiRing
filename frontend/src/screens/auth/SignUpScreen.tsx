@@ -14,7 +14,7 @@ import {
 } from 'react-native';
 import * as yup from 'yup';
 
-import {signUpApi} from '../../api/authApi';
+import {signUp} from '../../api/authApi';
 import type {AuthStackParamList} from '../../navigation/AuthStack';
 
 interface SignUpFormData {
@@ -61,7 +61,7 @@ const SignUpScreen = () => {
   const onSubmit = async (data: SignUpFormData) => {
     setLoading(true);
     try {
-      await signUpApi({
+      await signUp({
         email: data.email,
         username: data.username,
         password: data.password,

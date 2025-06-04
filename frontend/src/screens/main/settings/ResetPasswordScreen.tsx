@@ -15,7 +15,7 @@ import {
 import * as yup from 'yup';
 
 import {RootStackParamList} from '../../../../App';
-import {resetPasswordApi} from '../../../api/authApi';
+import {resetPassword} from '../../../api/authApi';
 const schema = yup.object({
   currentPassword: yup.string().required('현재 비밀번호를 입력하세요.'),
   newPassword: yup
@@ -51,7 +51,7 @@ const ResetPasswordScreen = () => {
   const onSubmit = async (data: ResetPasswordFormData) => {
     setLoading(true);
     try {
-      await resetPasswordApi({
+      await resetPassword({
         currentPassword: data.currentPassword,
         newPassword: data.newPassword,
       });

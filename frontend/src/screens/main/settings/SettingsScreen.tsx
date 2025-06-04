@@ -4,7 +4,7 @@ import React from 'react';
 import {Alert, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 
 import {RootStackParamList} from '../../../../App';
-import {logoutApi} from '../../../api/authApi';
+import {logout} from '../../../api/authApi';
 import IcEllipse from '../../../assets/icons/ic-Ellipse.svg';
 import IcLock from '../../../assets/icons/ic-lock.svg';
 import IcPerson from '../../../assets/icons/ic-person.svg';
@@ -25,7 +25,7 @@ const SettingsScreen = () => {
     try {
       const refreshToken = await getRefreshToken();
       if (refreshToken) {
-        await logoutApi(refreshToken);
+        await logout(refreshToken);
       }
       await removeTokens();
       setLoggedIn(false);
