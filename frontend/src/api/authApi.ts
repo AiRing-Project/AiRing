@@ -20,12 +20,17 @@ export interface ResetPasswordParams {
   newPassword: string;
 }
 
-export async function loginApi(data: LoginParams): Promise<TokenResponse> {
+export interface UserInfo {
+  email: string;
+  username: string;
+}
+
+export async function login(data: LoginParams): Promise<TokenResponse> {
   const res = await plainApi.post('/auth/login', data);
   return res.data;
 }
 
-export async function signUpApi(data: SignUpParams): Promise<void> {
+export async function signUp(data: SignUpParams): Promise<void> {
   await plainApi.post('/auth/signup', data);
 }
 
@@ -40,7 +45,7 @@ export async function reissueToken(
   return res.data;
 }
 
-export async function logoutApi(refreshToken: string) {
+export async function logout(refreshToken: string) {
   return plainApi.post('/auth/logout', undefined, {
     headers: {
       Authorization: `Bearer ${refreshToken}`,
@@ -48,8 +53,11 @@ export async function logoutApi(refreshToken: string) {
   });
 }
 
-export async function resetPasswordApi(
-  data: ResetPasswordParams,
-): Promise<void> {
+export async function resetPassword(data: ResetPasswordParams): Promise<void> {
   await api.put('/auth/reset-password', data);
+}
+
+export async function getUserInfo(): Promise<UserInfo> {
+  const res = await api.get('/auth/me');
+  return res.data;
 }

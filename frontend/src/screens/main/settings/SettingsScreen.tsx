@@ -4,7 +4,7 @@ import React from 'react';
 import {Alert, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 
 import {RootStackParamList} from '../../../../App';
-import {logoutApi} from '../../../api/authApi';
+import {logout} from '../../../api/authApi';
 import IcEllipse from '../../../assets/icons/ic-Ellipse.svg';
 import IcLock from '../../../assets/icons/ic-lock.svg';
 import IcPerson from '../../../assets/icons/ic-person.svg';
@@ -18,13 +18,13 @@ import {getRefreshToken, removeTokens} from '../../../utils/tokenManager';
 const SettingsScreen = () => {
   const navigation =
     useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-  const setLoggedIn = useAuthStore(s => s.setLoggedIn);
+  const {user, setLoggedIn} = useAuthStore();
 
   const handleLogout = async () => {
     try {
       const refreshToken = await getRefreshToken();
       if (refreshToken) {
-        await logoutApi(refreshToken);
+        await logout(refreshToken);
       }
       await removeTokens();
       setLoggedIn(false);
@@ -42,8 +42,8 @@ const SettingsScreen = () => {
           <IcPerson style={styles.personIcon} />
         </View>
         <View style={styles.profileInfo}>
-          <Text style={styles.profileName}>아이링님</Text>
-          <Text style={styles.profileEmail}>airing@gmail.com</Text>
+          <Text style={styles.profileName}>{user.username}님</Text>
+          <Text style={styles.profileEmail}>{user.email}</Text>
         </View>
         <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout}>
           <Text style={styles.logoutText}>로그아웃</Text>
