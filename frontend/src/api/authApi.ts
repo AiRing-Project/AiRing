@@ -20,6 +20,11 @@ export interface ResetPasswordParams {
   newPassword: string;
 }
 
+export interface UserInfo {
+  email: string;
+  username: string;
+}
+
 export async function loginApi(data: LoginParams): Promise<TokenResponse> {
   const res = await plainApi.post('/auth/login', data);
   return res.data;
@@ -52,4 +57,9 @@ export async function resetPasswordApi(
   data: ResetPasswordParams,
 ): Promise<void> {
   await api.put('/auth/reset-password', data);
+}
+
+export async function getUserInfo(): Promise<UserInfo> {
+  const res = await api.get('/auth/me');
+  return res.data;
 }
