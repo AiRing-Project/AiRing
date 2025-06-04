@@ -26,8 +26,8 @@ import ReportIcon from '../assets/icons/tab-report.svg';
 import SettingsIcon from '../assets/icons/tab-settings.svg';
 import CalendarScreen from '../screens/main/calendar/CalendarScreen';
 import CallLogScreen from '../screens/main/call-log/CallLogScreen';
-import ReportScreen from '../screens/main/ReportScreen';
-import SettingsStack from './SettingsStack';
+import ReportScreen from '../screens/main/report/ReportScreen';
+import SettingsScreen from '../screens/main/settings/SettingsScreen';
 
 const Tab = createBottomTabNavigator();
 
@@ -151,7 +151,7 @@ const HomeTabs = () => {
         />
         <Tab.Screen
           name="Settings"
-          component={SettingsStack}
+          component={SettingsScreen}
           options={{tabBarLabel: '설정'}}
         />
       </Tab.Navigator>

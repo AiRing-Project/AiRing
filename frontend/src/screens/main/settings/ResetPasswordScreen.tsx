@@ -14,9 +14,8 @@ import {
 } from 'react-native';
 import * as yup from 'yup';
 
-import {resetPasswordApi} from '../../api/authApi';
-import type {SettingsStackParamList} from '../../navigation/SettingsStack';
-
+import {RootStackParamList} from '../../../../App';
+import {resetPasswordApi} from '../../../api/authApi';
 const schema = yup.object({
   currentPassword: yup.string().required('현재 비밀번호를 입력하세요.'),
   newPassword: yup
@@ -38,9 +37,7 @@ interface ResetPasswordFormData {
 const ResetPasswordScreen = () => {
   const [loading, setLoading] = useState(false);
   const navigation =
-    useNavigation<
-      NativeStackNavigationProp<SettingsStackParamList, 'ResetPassword'>
-    >();
+    useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const {
     control,
     handleSubmit,
@@ -60,7 +57,7 @@ const ResetPasswordScreen = () => {
       });
       Alert.alert('비밀번호 변경', '비밀번호가 성공적으로 변경되었습니다.');
       reset();
-      navigation.popTo('SettingsMain');
+      navigation.goBack();
     } catch (e: any) {
       let msg = '비밀번호 변경에 실패했습니다.';
       const status = e?.response?.status;
