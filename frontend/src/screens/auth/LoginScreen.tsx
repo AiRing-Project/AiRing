@@ -14,7 +14,7 @@ import {
 } from 'react-native';
 import * as yup from 'yup';
 
-import {loginApi} from '../../api/authApi';
+import {getUserInfo, loginApi} from '../../api/authApi';
 import type {AuthStackParamList} from '../../navigation/AuthStack';
 import {useAuthStore} from '../../store/authStore';
 import {saveTokens} from '../../utils/tokenManager';
@@ -36,7 +36,7 @@ interface LoginFormData {
 const LoginScreen = () => {
   const navigation =
     useNavigation<NativeStackNavigationProp<AuthStackParamList, 'Login'>>();
-  const setLoggedIn = useAuthStore(s => s.setLoggedIn);
+  const {setLoggedIn, setUser} = useAuthStore();
   const [loading, setLoading] = useState<boolean>(false);
 
   const {
@@ -63,6 +63,8 @@ const LoginScreen = () => {
         password: data.password,
       });
       await saveTokens(accessToken, refreshToken);
+      const user = await getUserInfo();
+      setUser(user);
       setLoggedIn(true);
     } catch (e: any) {
       let alertMessage = '로그인에 실패했습니다. 잠시 후 다시 시도해 주세요.';
