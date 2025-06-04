@@ -18,8 +18,7 @@ import {getRefreshToken, removeTokens} from '../../../utils/tokenManager';
 const SettingsScreen = () => {
   const navigation =
     useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-  const setLoggedIn = useAuthStore(s => s.setLoggedIn);
-  const {user} = useAuthStore();
+  const {user, setLoggedIn} = useAuthStore();
 
   const handleLogout = async () => {
     try {

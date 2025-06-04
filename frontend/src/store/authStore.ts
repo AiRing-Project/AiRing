@@ -2,13 +2,8 @@ import {SKIP_AUTH} from '@env';
 import {jwtDecode} from 'jwt-decode';
 import {create} from 'zustand';
 
-import {getUserInfo} from '../api/authApi';
+import {getUserInfo, UserInfo} from '../api/authApi';
 import {getAccessToken, tryRefreshToken} from '../utils/tokenManager';
-
-interface UserInfo {
-  email: string | null;
-  username: string | null;
-}
 
 interface AuthState {
   isLoading: boolean;
@@ -41,7 +36,7 @@ async function fetchAndSetUser(set: (state: Partial<AuthState>) => void) {
     set({
       isLoggedIn: false,
       isLoading: false,
-      user: {email: null, username: null},
+      user: {email: '', username: ''},
     });
     return false;
   }
@@ -50,7 +45,7 @@ async function fetchAndSetUser(set: (state: Partial<AuthState>) => void) {
 export const useAuthStore = create<AuthState>(set => ({
   isLoading: true,
   isLoggedIn: false,
-  user: {email: null, username: null},
+  user: {email: '', username: ''},
   setLoading: (val: boolean) => set({isLoading: val}),
   setLoggedIn: (val: boolean) => set({isLoggedIn: val}),
   setUser: (user: UserInfo) => set({user}),
@@ -78,7 +73,7 @@ export const useAuthStore = create<AuthState>(set => ({
     set({
       isLoggedIn: false,
       isLoading: false,
-      user: {email: null, username: null},
+      user: {email: '', username: ''},
     });
   },
 }));

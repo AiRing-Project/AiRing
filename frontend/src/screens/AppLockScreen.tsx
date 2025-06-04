@@ -53,7 +53,7 @@ const AppLockScreen = () => {
         {/* 상단 안내문구 */}
         <Text style={styles.title}>비밀번호를 입력해주세요</Text>
         <Text style={styles.subtitle}>
-          이 일기는 {user.username}님만 볼 수 있어요!
+          이 일기는 {user.username || '사용자'}님만 볼 수 있어요!
         </Text>
       </View>
 
