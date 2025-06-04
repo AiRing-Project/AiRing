@@ -1,22 +1,18 @@
-import {useNavigation} from '@react-navigation/native';
-import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import React, {useState} from 'react';
 import {Dimensions, StyleSheet, Text, View} from 'react-native';
 
-import {RootStackParamList} from '../../App';
 import {PASSWORD_LENGTH} from '../components/password/constants';
 import NumPad from '../components/password/NumPad';
 import PasswordInputArea from '../components/password/PasswordInputArea';
+import {useAppLockStore} from '../store/appLockStore';
 
 const SCREEN_HEIGHT = Dimensions.get('window').height;
 
 const AppLockScreen = () => {
   const [password, setPassword] = useState<string>('');
   const [isError, setIsError] = useState<boolean>(false);
-  const navigation =
-    useNavigation<NativeStackNavigationProp<RootStackParamList, 'AppLock'>>();
+  const {password: correctPassword, setLocked} = useAppLockStore();
 
-  const correctPassword = '1234'; // 테스트용 비밀번호
   const username = '아이링'; // 테스트용 사용자명
 
   const handleNumPress = (num: string) => {
@@ -31,7 +27,7 @@ const AppLockScreen = () => {
         setTimeout(() => {
           setPassword('');
           setIsError(false);
-          navigation.replace('Home');
+          setLocked(false);
         }, 500);
       } else {
         setIsError(true);
