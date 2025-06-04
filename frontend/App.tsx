@@ -20,6 +20,7 @@ import ResetPasswordScreen from './src/screens/main/settings/ResetPasswordScreen
 import SecuritySettingsScreen from './src/screens/main/settings/SecuritySettingsScreen';
 import SetAppLockPasswordScreen from './src/screens/main/settings/SetAppLockPasswordScreen';
 import SplashScreen from './src/screens/SplashScreen';
+import {useAppLockStore} from './src/store/appLockStore';
 import {useAuthStore} from './src/store/authStore';
 
 export type RootStackParamList = {
@@ -45,13 +46,24 @@ enableScreens();
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 const App = () => {
-  const {isLoading, isLoggedIn, checkAuth} = useAuthStore();
+  const {isLoading: isAuthLoading, isLoggedIn, checkAuth} = useAuthStore();
+  const {
+    isLoading: isAppLockLoading,
+    isLocked,
+    checkAppLock,
+  } = useAppLockStore();
 
   useEffect(() => {
     checkAuth();
   }, [checkAuth]);
 
-  if (isLoading) {
+  useEffect(() => {
+    if (isLoggedIn) {
+      checkAppLock();
+    }
+  }, [isLoggedIn, checkAppLock]);
+
+  if (isAuthLoading || isAppLockLoading) {
     return <SplashScreen />;
   }
 
@@ -61,32 +73,37 @@ const App = () => {
         <Stack.Navigator screenOptions={{headerShown: false}}>
           {isLoggedIn ? (
             <>
-              <Stack.Screen name="AppLock" component={AppLockScreen} />
-              <Stack.Screen name="Home" component={HomeTabs} />
-              <Stack.Screen
-                name="ReserveAiCall"
-                component={ReserveAiCallScreen}
-              />
+              {isLocked ? (
+                <Stack.Screen name="AppLock" component={AppLockScreen} />
+              ) : (
+                <>
+                  <Stack.Screen name="Home" component={HomeTabs} />
+                  <Stack.Screen
+                    name="ReserveAiCall"
+                    component={ReserveAiCallScreen}
+                  />
 
-              {/* Call Log Tab 내부 화면 */}
-              <Stack.Screen
-                name="CallLogDetailScreen"
-                component={CallLogDetailScreen}
-              />
+                  {/* Call Log Tab 내부 화면 */}
+                  <Stack.Screen
+                    name="CallLogDetailScreen"
+                    component={CallLogDetailScreen}
+                  />
 
-              {/* Settings Tab 내부 화면 */}
-              <Stack.Screen
-                name="SecuritySettings"
-                component={SecuritySettingsScreen}
-              />
-              <Stack.Screen
-                name="ResetPassword"
-                component={ResetPasswordScreen}
-              />
-              <Stack.Screen
-                name="SetAppLockPassword"
-                component={SetAppLockPasswordScreen}
-              />
+                  {/* Settings Tab 내부 화면 */}
+                  <Stack.Screen
+                    name="SecuritySettings"
+                    component={SecuritySettingsScreen}
+                  />
+                  <Stack.Screen
+                    name="ResetPassword"
+                    component={ResetPasswordScreen}
+                  />
+                  <Stack.Screen
+                    name="SetAppLockPassword"
+                    component={SetAppLockPasswordScreen}
+                  />
+                </>
+              )}
             </>
           ) : (
             <Stack.Screen name="Auth" component={AuthStack} />
