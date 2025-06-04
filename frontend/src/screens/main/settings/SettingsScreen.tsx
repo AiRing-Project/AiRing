@@ -19,6 +19,7 @@ const SettingsScreen = () => {
   const navigation =
     useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const setLoggedIn = useAuthStore(s => s.setLoggedIn);
+  const {user} = useAuthStore();
 
   const handleLogout = async () => {
     try {
@@ -42,8 +43,8 @@ const SettingsScreen = () => {
           <IcPerson style={styles.personIcon} />
         </View>
         <View style={styles.profileInfo}>
-          <Text style={styles.profileName}>아이링님</Text>
-          <Text style={styles.profileEmail}>airing@gmail.com</Text>
+          <Text style={styles.profileName}>{user.username}님</Text>
+          <Text style={styles.profileEmail}>{user.email}</Text>
         </View>
         <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout}>
           <Text style={styles.logoutText}>로그아웃</Text>

@@ -5,6 +5,7 @@ import {PASSWORD_LENGTH} from '../components/password/constants';
 import NumPad from '../components/password/NumPad';
 import PasswordInputArea from '../components/password/PasswordInputArea';
 import {useAppLockStore} from '../store/appLockStore';
+import {useAuthStore} from '../store/authStore';
 
 const SCREEN_HEIGHT = Dimensions.get('window').height;
 
@@ -12,8 +13,7 @@ const AppLockScreen = () => {
   const [password, setPassword] = useState<string>('');
   const [isError, setIsError] = useState<boolean>(false);
   const {password: correctPassword, setLocked} = useAppLockStore();
-
-  const username = '아이링'; // 테스트용 사용자명
+  const {user} = useAuthStore();
 
   const handleNumPress = (num: string) => {
     if (password.length >= PASSWORD_LENGTH) {
@@ -53,7 +53,7 @@ const AppLockScreen = () => {
         {/* 상단 안내문구 */}
         <Text style={styles.title}>비밀번호를 입력해주세요</Text>
         <Text style={styles.subtitle}>
-          이 일기는 {username}님만 볼 수 있어요!
+          이 일기는 {user.username}님만 볼 수 있어요!
         </Text>
       </View>
 
