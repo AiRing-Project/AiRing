@@ -37,8 +37,9 @@ public class CallSummaryService {
 
     @Transactional
     public void upsertSummary(Long userId, Long callLogId, CallSummaryRequest request) {
-        CallLog callLog = callLogRepository.findById(callLogId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "요약 정보가 존재하지 않습니다."));
+               CallLog callLog = callLogRepository.findById(callLogId)
+                               .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "통화 로그가 존재하지 않습니다."));
+
         validateUserAccess(userId, callLog);
 
         CallSummary callSummary = callSummaryRepository.findByCallLog_Id(callLogId)
@@ -61,7 +62,7 @@ public class CallSummaryService {
 
     private void validateUserAccess(Long userId, CallLog callLog) {
         if (!callLog.getUserId().equals(userId)) {
-            throw new SecurityException("해당 통화 요약에 접근할 수 없습니다.");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "해당 통화 요약에 접근할 수 없습니다.");
         }
     }
 }

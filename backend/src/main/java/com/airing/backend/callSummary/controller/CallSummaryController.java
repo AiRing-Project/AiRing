@@ -3,6 +3,7 @@ package com.airing.backend.callSummary.controller;
 import com.airing.backend.callSummary.dto.CallSummaryRequest;
 import com.airing.backend.callSummary.dto.CallSummaryResponse;
 import com.airing.backend.callSummary.service.CallSummaryService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -26,10 +27,10 @@ public class CallSummaryController {
     @PutMapping("/{callLogId}")
     public ResponseEntity<?> upsertSummary(
             @PathVariable Long callLogId,
-            @RequestBody CallSummaryRequest request,
+            @RequestBody @Valid CallSummaryRequest request,
             @AuthenticationPrincipal(expression = "id") Long userId) {
 
         callSummaryService.upsertSummary(userId, callLogId, request);
-        return ResponseEntity.ok().body("요약 저장 완료");
+        return ResponseEntity.ok().build();
     }
 }
