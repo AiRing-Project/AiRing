@@ -5,8 +5,11 @@ import {Calendar, LocaleConfig} from 'react-native-calendars';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 
 import IcChevronLeft from '../../../assets/icons/ic-chevron-left.svg';
+import IcEmotionEmpty from '../../../assets/icons/ic-emotion-empty.svg';
 import HorizontalDivider from '../../../components/HorizontalDivider';
+import ListItem from '../../../components/ListItem';
 import MonthYearPicker from '../../../components/MonthYearPicker';
+import {useAuthStore} from '../../../store/authStore';
 import {
   getDateString,
   isDateInCurrentMonth,
@@ -116,6 +119,7 @@ const CalendarScreen = () => {
   const [selected, setSelected] = useState<string>(todayString);
   const [current, setCurrent] = useState<Date>(new Date());
   const [showMonthPicker, setShowMonthPicker] = useState<boolean>(false);
+  const {user} = useAuthStore();
 
   useFocusEffect(
     React.useCallback(() => {
@@ -125,6 +129,9 @@ const CalendarScreen = () => {
   );
 
   const handleDayPress = (day: any) => {
+    if (isFuture(day.dateString)) {
+      return;
+    } // 미래 날짜는 선택 불가
     setSelected(day.dateString);
   };
 
@@ -160,11 +167,11 @@ const CalendarScreen = () => {
     const isToday = date.dateString === todayString;
     const isSelected = date.dateString === selected;
     // 해당 날짜의 일기 데이터
-    const diary = diaryData.find(d => d.date === date.dateString);
+    const selectedDiary = diaryData.find(d => d.date === date.dateString);
     // 감정 색상(여러 감정이면 첫 번째만 적용)
     const emotionColor =
-      diary && diary.emotion.length > 0
-        ? emotionColorMap[diary.emotion[0]]
+      selectedDiary && selectedDiary.emotion.length > 0
+        ? emotionColorMap[selectedDiary.emotion[0]]
         : undefined;
     const boxStyle = [
       styles.dayBox,
@@ -206,69 +213,89 @@ const CalendarScreen = () => {
           textStyle={styles.dropdownText}
         />
       </View>
-      <Calendar
-        key={current.toISOString()}
-        current={current.toISOString().split('T')[0]}
-        onMonthChange={handleMonthChange}
-        markingType="custom"
-        dayComponent={props => renderDay(props)}
-        renderHeader={() => null}
-        hideArrows={true}
-        hideDayNames={false}
-        theme={
-          {
-            textSectionTitleColor: '#000',
-            'stylesheet.calendar.header': {
-              dayTextAtIndex0: {color: '#FF5A5A'},
-              dayTextAtIndex6: {color: '#3A7BFF'},
-            },
-          } as any
-        }
-        hideExtraDays={false}
-        firstDay={0}
-        enableSwipeMonths={true}
-      />
       {/* eslint-disable-next-line react-native/no-inline-styles */}
-      <HorizontalDivider style={{marginVertical: 25}} />
+      <View style={{gap: 24}}>
+        <Calendar
+          key={current.toISOString()}
+          current={current.toISOString().split('T')[0]}
+          onMonthChange={handleMonthChange}
+          markingType="custom"
+          dayComponent={props => renderDay(props)}
+          renderHeader={() => null}
+          hideArrows={true}
+          hideDayNames={false}
+          theme={
+            {
+              textSectionTitleColor: '#000',
+              'stylesheet.calendar.header': {
+                dayTextAtIndex0: {color: '#FF5A5A'},
+                dayTextAtIndex6: {color: '#3A7BFF'},
+              },
+            } as any
+          }
+          hideExtraDays={false}
+          firstDay={0}
+          enableSwipeMonths={true}
+        />
+        {/* 선택된 날짜에 따라 일기 카드/버튼 노출 */}
+        {!isFuture(selected) &&
+          (diary ? (
+            <TouchableOpacity
+              style={styles.diaryCard}
+              activeOpacity={0.8}
+              onPress={() => handleGoToDiaryDetail(diary.id)}>
+              {/* eslint-disable-next-line react-native/no-inline-styles */}
+              <View style={{flex: 1}}>
+                <Text style={styles.diaryTitle}>{diary.title}</Text>
+                <View style={styles.diaryRow}>
+                  <Text style={styles.diaryLabel}>감정: </Text>
+                  <Text style={styles.diaryValue}>
+                    {diary.emotion.join(', ')}
+                  </Text>
+                </View>
+                <View style={styles.diaryRow}>
+                  <Text style={styles.diaryLabel}>태그: </Text>
+                  <Text style={styles.diaryValue}>{diary.tag.join(', ')}</Text>
+                </View>
+                <View style={styles.diaryRow}>
+                  <Text style={styles.diaryLabel}>답장: </Text>
+                  <Text style={styles.diaryValue}>
+                    {diary.hasReply ? 'O' : 'X'}
+                  </Text>
+                </View>
+              </View>
+              <IcChevronLeft style={styles.goDiaryIcon} />
+            </TouchableOpacity>
+          ) : (
+            <ListItem
+              containerStyle={styles.diaryWriteBtn}
+              leftIcon={<IcEmotionEmpty width={45} height={45} />}
+              label={
+                <View style={styles.diaryWriteTextWrap}>
+                  <Text
+                    style={[
+                      styles.diaryWriteText,
+                      // eslint-disable-next-line react-native/no-inline-styles
+                      {textAlign: 'right', flexShrink: 1},
+                    ]}
+                    numberOfLines={1}
+                    ellipsizeMode="tail">
+                    {user.username}
+                  </Text>
+                  {/* eslint-disable-next-line react-native/no-inline-styles */}
+                  <Text style={[styles.diaryWriteText, {textAlign: 'left'}]}>
+                    님의 하루, 일기로 정리해볼까요?
+                  </Text>
+                </View>
+              }
+              onPress={() => handleGoToDiaryWrite(selected)}
+            />
+          ))}
 
-      {/* 선택된 날짜에 따라 일기 카드/버튼 노출 */}
-      {!isFuture(selected) &&
-        (diary ? (
-          <TouchableOpacity
-            style={styles.diaryCard}
-            activeOpacity={0.8}
-            onPress={() => handleGoToDiaryDetail(diary.id)}>
-            {/* eslint-disable-next-line react-native/no-inline-styles */}
-            <View style={{flex: 1}}>
-              <Text style={styles.diaryTitle}>{diary.title}</Text>
-              <View style={styles.diaryRow}>
-                <Text style={styles.diaryLabel}>감정: </Text>
-                <Text style={styles.diaryValue}>
-                  {diary.emotion.join(', ')}
-                </Text>
-              </View>
-              <View style={styles.diaryRow}>
-                <Text style={styles.diaryLabel}>태그: </Text>
-                <Text style={styles.diaryValue}>{diary.tag.join(', ')}</Text>
-              </View>
-              <View style={styles.diaryRow}>
-                <Text style={styles.diaryLabel}>답장: </Text>
-                <Text style={styles.diaryValue}>
-                  {diary.hasReply ? 'O' : 'X'}
-                </Text>
-              </View>
-            </View>
-            <IcChevronLeft style={styles.goDiaryIcon} />
-          </TouchableOpacity>
-        ) : (
-          <TouchableOpacity
-            style={styles.diaryWriteBtn}
-            activeOpacity={0.8}
-            onPress={() => handleGoToDiaryWrite(selected)}>
-            <Text style={styles.diaryWriteText}>일기 쓰러가기</Text>
-            <IcChevronLeft style={styles.goDiaryIcon} />
-          </TouchableOpacity>
-        ))}
+        <HorizontalDivider />
+
+        {/* 최근 통화 요약 */}
+      </View>
     </View>
   );
 };
@@ -282,7 +309,7 @@ const styles = StyleSheet.create({
   topRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 25,
+    marginBottom: 24,
     justifyContent: 'space-between',
   },
   dropdownText: {
@@ -382,6 +409,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    marginTop: 24,
   },
   diaryTitle: {
     fontSize: 16,
@@ -406,18 +434,22 @@ const styles = StyleSheet.create({
     marginLeft: 4,
   },
   diaryWriteBtn: {
-    backgroundColor: '#F8F8F8',
-    borderRadius: 10,
-    padding: 25,
-    width: '100%',
+    height: 80,
+    paddingVertical: 16,
+    paddingHorizontal: 25,
+  },
+  diaryWriteTextWrap: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
+    justifyContent: 'center',
+    flex: 1,
   },
   diaryWriteText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#232323',
+    fontSize: 12,
+    letterSpacing: -0.1,
+    lineHeight: 20,
+    fontWeight: '500',
+    color: 'rgba(0, 0, 0, 0.9)',
   },
 });
 

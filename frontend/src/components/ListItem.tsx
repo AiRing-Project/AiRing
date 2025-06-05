@@ -59,8 +59,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   leftIcon: {
-    width: 24,
-    height: 24,
     marginRight: 20,
     justifyContent: 'center',
     alignItems: 'center',
