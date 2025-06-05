@@ -59,8 +59,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   leftIcon: {
-    width: 24,
-    height: 24,
     marginRight: 20,
     justifyContent: 'center',
     alignItems: 'center',
@@ -69,13 +67,10 @@ const styles = StyleSheet.create({
     fontSize: 16,
     letterSpacing: 0.3,
     fontWeight: '600',
-    fontFamily: 'Pretendard',
     color: 'rgba(0,0,0,0.9)',
     flex: 1,
   },
   rightIcon: {
-    width: 24,
-    height: 24,
     marginLeft: 8,
     justifyContent: 'center',
     alignItems: 'center',

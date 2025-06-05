@@ -117,14 +117,14 @@ const styles = StyleSheet.create({
     fontSize: 16,
     letterSpacing: 0.3,
     fontWeight: '600',
-    fontFamily: 'Pretendard',
+
     color: '#000',
   },
   profileEmail: {
     fontSize: 12,
     letterSpacing: 0.2,
     fontWeight: '500',
-    fontFamily: 'Pretendard',
+
     color: '#8a8a8a',
   },
   logoutBtn: {
@@ -140,7 +140,7 @@ const styles = StyleSheet.create({
     letterSpacing: 0.1,
     lineHeight: 20,
     fontWeight: '600',
-    fontFamily: 'Pretendard',
+
     color: '#000',
   },
 });

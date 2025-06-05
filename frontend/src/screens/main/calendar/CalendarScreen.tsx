@@ -1,12 +1,21 @@
 import {useFocusEffect} from '@react-navigation/native';
 import React, {useState} from 'react';
-import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import {
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import {Calendar, LocaleConfig} from 'react-native-calendars';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 
 import IcChevronLeft from '../../../assets/icons/ic-chevron-left.svg';
+import IcEmotionEmpty from '../../../assets/icons/ic-emotion-empty.svg';
 import HorizontalDivider from '../../../components/HorizontalDivider';
+import ListItem from '../../../components/ListItem';
 import MonthYearPicker from '../../../components/MonthYearPicker';
+import {useAuthStore} from '../../../store/authStore';
 import {
   getDateString,
   isDateInCurrentMonth,
@@ -116,6 +125,7 @@ const CalendarScreen = () => {
   const [selected, setSelected] = useState<string>(todayString);
   const [current, setCurrent] = useState<Date>(new Date());
   const [showMonthPicker, setShowMonthPicker] = useState<boolean>(false);
+  const {user} = useAuthStore();
 
   useFocusEffect(
     React.useCallback(() => {
@@ -125,6 +135,9 @@ const CalendarScreen = () => {
   );
 
   const handleDayPress = (day: any) => {
+    if (isFuture(day.dateString)) {
+      return;
+    } // 미래 날짜는 선택 불가
     setSelected(day.dateString);
   };
 
@@ -160,11 +173,11 @@ const CalendarScreen = () => {
     const isToday = date.dateString === todayString;
     const isSelected = date.dateString === selected;
     // 해당 날짜의 일기 데이터
-    const diary = diaryData.find(d => d.date === date.dateString);
+    const selectedDiary = diaryData.find(d => d.date === date.dateString);
     // 감정 색상(여러 감정이면 첫 번째만 적용)
     const emotionColor =
-      diary && diary.emotion.length > 0
-        ? emotionColorMap[diary.emotion[0]]
+      selectedDiary && selectedDiary.emotion.length > 0
+        ? emotionColorMap[selectedDiary.emotion[0]]
         : undefined;
     const boxStyle = [
       styles.dayBox,
@@ -196,78 +209,118 @@ const CalendarScreen = () => {
 
   return (
     <View style={[styles.container, {paddingTop: insets.top}]}>
-      <View style={styles.topRow}>
-        <MonthYearPicker
-          value={current}
-          onChange={handleMonthPickerChange}
-          show={showMonthPicker}
-          setShow={setShowMonthPicker}
-          minimumDate={new Date(2020, 0)}
-          textStyle={styles.dropdownText}
-        />
-      </View>
-      <Calendar
-        key={current.toISOString()}
-        current={current.toISOString().split('T')[0]}
-        onMonthChange={handleMonthChange}
-        markingType="custom"
-        dayComponent={props => renderDay(props)}
-        renderHeader={() => null}
-        hideArrows={true}
-        hideDayNames={false}
-        theme={
-          {
-            textSectionTitleColor: '#000',
-            'stylesheet.calendar.header': {
-              dayTextAtIndex0: {color: '#FF5A5A'},
-              dayTextAtIndex6: {color: '#3A7BFF'},
-            },
-          } as any
-        }
-        hideExtraDays={false}
-        firstDay={0}
-        enableSwipeMonths={true}
-      />
-      {/* eslint-disable-next-line react-native/no-inline-styles */}
-      <HorizontalDivider style={{marginVertical: 25}} />
+      <ScrollView
+        // eslint-disable-next-line react-native/no-inline-styles
+        contentContainerStyle={{paddingBottom: 32}}
+        showsVerticalScrollIndicator={false}>
+        <View style={styles.topRow}>
+          <MonthYearPicker
+            value={current}
+            onChange={handleMonthPickerChange}
+            show={showMonthPicker}
+            setShow={setShowMonthPicker}
+            minimumDate={new Date(2020, 0)}
+            textStyle={styles.dropdownText}
+          />
+        </View>
+        {/* eslint-disable-next-line react-native/no-inline-styles */}
+        <View style={{gap: 24}}>
+          <Calendar
+            key={current.toISOString()}
+            current={current.toISOString().split('T')[0]}
+            onMonthChange={handleMonthChange}
+            markingType="custom"
+            dayComponent={props => renderDay(props)}
+            renderHeader={() => null}
+            hideArrows={true}
+            hideDayNames={false}
+            theme={
+              {
+                textSectionTitleColor: '#000',
+                'stylesheet.calendar.header': {
+                  dayTextAtIndex0: {color: '#FF5A5A'},
+                  dayTextAtIndex6: {color: '#3A7BFF'},
+                },
+              } as any
+            }
+            hideExtraDays={false}
+            firstDay={0}
+            enableSwipeMonths={true}
+          />
+          {/* 선택된 날짜에 따라 일기 카드/버튼 노출 */}
+          {!isFuture(selected) &&
+            (diary ? (
+              <TouchableOpacity
+                style={styles.diaryCard}
+                activeOpacity={0.8}
+                onPress={() => handleGoToDiaryDetail(diary.id)}>
+                {/* eslint-disable-next-line react-native/no-inline-styles */}
+                <View style={{flex: 1}}>
+                  <Text style={styles.diaryTitle}>{diary.title}</Text>
+                  <View style={styles.diaryRow}>
+                    <Text style={styles.diaryLabel}>감정: </Text>
+                    <Text style={styles.diaryValue}>
+                      {diary.emotion.join(', ')}
+                    </Text>
+                  </View>
+                  <View style={styles.diaryRow}>
+                    <Text style={styles.diaryLabel}>태그: </Text>
+                    <Text style={styles.diaryValue}>
+                      {diary.tag.join(', ')}
+                    </Text>
+                  </View>
+                  <View style={styles.diaryRow}>
+                    <Text style={styles.diaryLabel}>답장: </Text>
+                    <Text style={styles.diaryValue}>
+                      {diary.hasReply ? 'O' : 'X'}
+                    </Text>
+                  </View>
+                </View>
+                <IcChevronLeft style={styles.goDiaryIcon} />
+              </TouchableOpacity>
+            ) : (
+              <ListItem
+                containerStyle={styles.diaryWriteBtn}
+                leftIcon={<IcEmotionEmpty width={45} height={45} />}
+                label={
+                  <View style={styles.diaryWriteTextWrap}>
+                    <Text
+                      style={[
+                        styles.diaryWriteText,
+                        // eslint-disable-next-line react-native/no-inline-styles
+                        {textAlign: 'right', flexShrink: 1},
+                      ]}
+                      numberOfLines={1}
+                      ellipsizeMode="tail">
+                      {user.username}
+                    </Text>
+                    {/* eslint-disable-next-line react-native/no-inline-styles */}
+                    <Text style={[styles.diaryWriteText, {textAlign: 'left'}]}>
+                      님의 하루, 일기로 정리해볼까요?
+                    </Text>
+                  </View>
+                }
+                onPress={() => handleGoToDiaryWrite(selected)}
+              />
+            ))}
 
-      {/* 선택된 날짜에 따라 일기 카드/버튼 노출 */}
-      {!isFuture(selected) &&
-        (diary ? (
-          <TouchableOpacity
-            style={styles.diaryCard}
-            activeOpacity={0.8}
-            onPress={() => handleGoToDiaryDetail(diary.id)}>
-            <View style={{flex: 1}}>
-              <Text style={styles.diaryTitle}>{diary.title}</Text>
-              <View style={styles.diaryRow}>
-                <Text style={styles.diaryLabel}>감정: </Text>
-                <Text style={styles.diaryValue}>
-                  {diary.emotion.join(', ')}
+          <HorizontalDivider />
+
+          {/* 최근 통화 요약 */}
+          <View style={styles.recentCallSummary}>
+            <Text style={styles.recentCallSummaryTitle}>최근 통화 요약</Text>
+            <ListItem
+              containerStyle={styles.recentCallListItem}
+              label={
+                <Text style={styles.recentCallListItemLabel}>
+                  친구와의 오해 그리고 다툼
                 </Text>
-              </View>
-              <View style={styles.diaryRow}>
-                <Text style={styles.diaryLabel}>태그: </Text>
-                <Text style={styles.diaryValue}>{diary.tag.join(', ')}</Text>
-              </View>
-              <View style={styles.diaryRow}>
-                <Text style={styles.diaryLabel}>답장: </Text>
-                <Text style={styles.diaryValue}>
-                  {diary.hasReply ? 'O' : 'X'}
-                </Text>
-              </View>
-            </View>
-            <IcChevronLeft style={styles.goDiaryIcon} />
-          </TouchableOpacity>
-        ) : (
-          <TouchableOpacity
-            style={styles.diaryWriteBtn}
-            activeOpacity={0.8}
-            onPress={() => handleGoToDiaryWrite(selected)}>
-            <Text style={styles.diaryWriteText}>일기 쓰러가기</Text>
-            <IcChevronLeft style={styles.goDiaryIcon} />
-          </TouchableOpacity>
-        ))}
+              }
+              rightIcon={<IcEmotionEmpty width={45} height={45} />}
+            />
+          </View>
+        </View>
+      </ScrollView>
     </View>
   );
 };
@@ -281,14 +334,13 @@ const styles = StyleSheet.create({
   topRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 25,
+    marginBottom: 24,
     justifyContent: 'space-between',
   },
   dropdownText: {
     fontSize: 20,
     letterSpacing: 0.2,
     fontWeight: '700',
-    fontFamily: 'Pretendard',
     color: '#000',
     marginLeft: 12,
   },
@@ -320,7 +372,6 @@ const styles = StyleSheet.create({
     letterSpacing: 0.1,
     lineHeight: 20,
     fontWeight: '500',
-    fontFamily: 'Pretendard',
     color: '#000',
     display: 'flex',
     alignItems: 'center',
@@ -330,7 +381,6 @@ const styles = StyleSheet.create({
     letterSpacing: 0.1,
     lineHeight: 20,
     fontWeight: '500',
-    fontFamily: 'Pretendard',
     color: '#000',
     alignItems: 'center',
     display: 'flex',
@@ -340,7 +390,6 @@ const styles = StyleSheet.create({
     letterSpacing: 0.1,
     lineHeight: 20,
     fontWeight: '500',
-    fontFamily: 'Pretendard',
     color: '#C9CACC',
     display: 'flex',
     alignItems: 'center',
@@ -350,7 +399,6 @@ const styles = StyleSheet.create({
     letterSpacing: 0.1,
     lineHeight: 20,
     fontWeight: '500',
-    fontFamily: 'Pretendard',
     color: '#fff',
     alignItems: 'center',
     display: 'flex',
@@ -386,13 +434,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    marginTop: 24,
   },
   diaryTitle: {
     fontSize: 16,
     fontWeight: '600',
     color: '#232323',
     marginBottom: 8,
-    fontFamily: 'Pretendard',
   },
   diaryRow: {
     flexDirection: 'row',
@@ -402,30 +450,54 @@ const styles = StyleSheet.create({
   diaryLabel: {
     fontSize: 14,
     color: '#2b2b2b',
-    fontFamily: 'Pretendard',
     fontWeight: '500',
   },
   diaryValue: {
     fontSize: 14,
     color: '#2b2b2b',
-    fontFamily: 'Pretendard',
     fontWeight: '700',
     marginLeft: 4,
   },
   diaryWriteBtn: {
+    height: 80,
+    paddingVertical: 16,
+    paddingHorizontal: 25,
+  },
+  diaryWriteTextWrap: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flex: 1,
+  },
+  diaryWriteText: {
+    fontSize: 12,
+    letterSpacing: -0.1,
+    lineHeight: 20,
+    fontWeight: '500',
+    color: 'rgba(0, 0, 0, 0.9)',
+  },
+  recentCallSummary: {
     backgroundColor: '#F8F8F8',
     borderRadius: 10,
     padding: 25,
-    width: '100%',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    paddingBottom: 20,
+    height: 164,
+    gap: 18,
   },
-  diaryWriteText: {
+  recentCallSummaryTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#232323',
-    fontFamily: 'Pretendard',
+    color: 'rgba(0, 0, 0, 0.9)',
+  },
+  recentCallListItem: {
+    backgroundColor: '#eee',
+    padding: 16,
+    height: 80,
+  },
+  recentCallListItemLabel: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: 'rgba(0, 0, 0, 0.9)',
   },
 });
 

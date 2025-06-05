@@ -76,7 +76,6 @@ const styles = StyleSheet.create({
     fontSize: 28,
     color: '#0a0a05',
     fontWeight: '500',
-    fontFamily: 'Pretendard',
     textAlign: 'center',
   },
 });
