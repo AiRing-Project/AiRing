@@ -221,7 +221,7 @@ const styles = StyleSheet.create({
   topRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 24,
+    marginBottom: 32,
     justifyContent: 'space-between',
   },
   searchBtn: {
@@ -231,20 +231,21 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#e0e0e0',
+    backgroundColor: '#3f3f3f',
     borderRadius: 10,
     height: 65,
     paddingHorizontal: 31,
     paddingVertical: 22,
-    marginBottom: 24,
+    marginBottom: 40,
     gap: 12,
   },
   noticeIcon: {
     borderRadius: 2,
+    color: '#fff',
   },
   noticeText: {
     fontSize: 14,
-    color: '#2b2b2b',
+    color: '#fff',
     textAlign: 'center',
     fontFamily: 'Pretendard',
     fontWeight: '500',
