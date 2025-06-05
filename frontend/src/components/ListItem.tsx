@@ -71,8 +71,6 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   rightIcon: {
-    width: 24,
-    height: 24,
     marginLeft: 8,
     justifyContent: 'center',
     alignItems: 'center',

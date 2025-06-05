@@ -1,6 +1,12 @@
 import {useFocusEffect} from '@react-navigation/native';
 import React, {useState} from 'react';
-import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import {
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import {Calendar, LocaleConfig} from 'react-native-calendars';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 
@@ -203,99 +209,118 @@ const CalendarScreen = () => {
 
   return (
     <View style={[styles.container, {paddingTop: insets.top}]}>
-      <View style={styles.topRow}>
-        <MonthYearPicker
-          value={current}
-          onChange={handleMonthPickerChange}
-          show={showMonthPicker}
-          setShow={setShowMonthPicker}
-          minimumDate={new Date(2020, 0)}
-          textStyle={styles.dropdownText}
-        />
-      </View>
-      {/* eslint-disable-next-line react-native/no-inline-styles */}
-      <View style={{gap: 24}}>
-        <Calendar
-          key={current.toISOString()}
-          current={current.toISOString().split('T')[0]}
-          onMonthChange={handleMonthChange}
-          markingType="custom"
-          dayComponent={props => renderDay(props)}
-          renderHeader={() => null}
-          hideArrows={true}
-          hideDayNames={false}
-          theme={
-            {
-              textSectionTitleColor: '#000',
-              'stylesheet.calendar.header': {
-                dayTextAtIndex0: {color: '#FF5A5A'},
-                dayTextAtIndex6: {color: '#3A7BFF'},
-              },
-            } as any
-          }
-          hideExtraDays={false}
-          firstDay={0}
-          enableSwipeMonths={true}
-        />
-        {/* 선택된 날짜에 따라 일기 카드/버튼 노출 */}
-        {!isFuture(selected) &&
-          (diary ? (
-            <TouchableOpacity
-              style={styles.diaryCard}
-              activeOpacity={0.8}
-              onPress={() => handleGoToDiaryDetail(diary.id)}>
-              {/* eslint-disable-next-line react-native/no-inline-styles */}
-              <View style={{flex: 1}}>
-                <Text style={styles.diaryTitle}>{diary.title}</Text>
-                <View style={styles.diaryRow}>
-                  <Text style={styles.diaryLabel}>감정: </Text>
-                  <Text style={styles.diaryValue}>
-                    {diary.emotion.join(', ')}
-                  </Text>
+      <ScrollView
+        // eslint-disable-next-line react-native/no-inline-styles
+        contentContainerStyle={{paddingBottom: 32}}
+        showsVerticalScrollIndicator={false}>
+        <View style={styles.topRow}>
+          <MonthYearPicker
+            value={current}
+            onChange={handleMonthPickerChange}
+            show={showMonthPicker}
+            setShow={setShowMonthPicker}
+            minimumDate={new Date(2020, 0)}
+            textStyle={styles.dropdownText}
+          />
+        </View>
+        {/* eslint-disable-next-line react-native/no-inline-styles */}
+        <View style={{gap: 24}}>
+          <Calendar
+            key={current.toISOString()}
+            current={current.toISOString().split('T')[0]}
+            onMonthChange={handleMonthChange}
+            markingType="custom"
+            dayComponent={props => renderDay(props)}
+            renderHeader={() => null}
+            hideArrows={true}
+            hideDayNames={false}
+            theme={
+              {
+                textSectionTitleColor: '#000',
+                'stylesheet.calendar.header': {
+                  dayTextAtIndex0: {color: '#FF5A5A'},
+                  dayTextAtIndex6: {color: '#3A7BFF'},
+                },
+              } as any
+            }
+            hideExtraDays={false}
+            firstDay={0}
+            enableSwipeMonths={true}
+          />
+          {/* 선택된 날짜에 따라 일기 카드/버튼 노출 */}
+          {!isFuture(selected) &&
+            (diary ? (
+              <TouchableOpacity
+                style={styles.diaryCard}
+                activeOpacity={0.8}
+                onPress={() => handleGoToDiaryDetail(diary.id)}>
+                {/* eslint-disable-next-line react-native/no-inline-styles */}
+                <View style={{flex: 1}}>
+                  <Text style={styles.diaryTitle}>{diary.title}</Text>
+                  <View style={styles.diaryRow}>
+                    <Text style={styles.diaryLabel}>감정: </Text>
+                    <Text style={styles.diaryValue}>
+                      {diary.emotion.join(', ')}
+                    </Text>
+                  </View>
+                  <View style={styles.diaryRow}>
+                    <Text style={styles.diaryLabel}>태그: </Text>
+                    <Text style={styles.diaryValue}>
+                      {diary.tag.join(', ')}
+                    </Text>
+                  </View>
+                  <View style={styles.diaryRow}>
+                    <Text style={styles.diaryLabel}>답장: </Text>
+                    <Text style={styles.diaryValue}>
+                      {diary.hasReply ? 'O' : 'X'}
+                    </Text>
+                  </View>
                 </View>
-                <View style={styles.diaryRow}>
-                  <Text style={styles.diaryLabel}>태그: </Text>
-                  <Text style={styles.diaryValue}>{diary.tag.join(', ')}</Text>
-                </View>
-                <View style={styles.diaryRow}>
-                  <Text style={styles.diaryLabel}>답장: </Text>
-                  <Text style={styles.diaryValue}>
-                    {diary.hasReply ? 'O' : 'X'}
-                  </Text>
-                </View>
-              </View>
-              <IcChevronLeft style={styles.goDiaryIcon} />
-            </TouchableOpacity>
-          ) : (
+                <IcChevronLeft style={styles.goDiaryIcon} />
+              </TouchableOpacity>
+            ) : (
+              <ListItem
+                containerStyle={styles.diaryWriteBtn}
+                leftIcon={<IcEmotionEmpty width={45} height={45} />}
+                label={
+                  <View style={styles.diaryWriteTextWrap}>
+                    <Text
+                      style={[
+                        styles.diaryWriteText,
+                        // eslint-disable-next-line react-native/no-inline-styles
+                        {textAlign: 'right', flexShrink: 1},
+                      ]}
+                      numberOfLines={1}
+                      ellipsizeMode="tail">
+                      {user.username}
+                    </Text>
+                    {/* eslint-disable-next-line react-native/no-inline-styles */}
+                    <Text style={[styles.diaryWriteText, {textAlign: 'left'}]}>
+                      님의 하루, 일기로 정리해볼까요?
+                    </Text>
+                  </View>
+                }
+                onPress={() => handleGoToDiaryWrite(selected)}
+              />
+            ))}
+
+          <HorizontalDivider />
+
+          {/* 최근 통화 요약 */}
+          <View style={styles.recentCallSummary}>
+            <Text style={styles.recentCallSummaryTitle}>최근 통화 요약</Text>
             <ListItem
-              containerStyle={styles.diaryWriteBtn}
-              leftIcon={<IcEmotionEmpty width={45} height={45} />}
+              containerStyle={styles.recentCallListItem}
               label={
-                <View style={styles.diaryWriteTextWrap}>
-                  <Text
-                    style={[
-                      styles.diaryWriteText,
-                      // eslint-disable-next-line react-native/no-inline-styles
-                      {textAlign: 'right', flexShrink: 1},
-                    ]}
-                    numberOfLines={1}
-                    ellipsizeMode="tail">
-                    {user.username}
-                  </Text>
-                  {/* eslint-disable-next-line react-native/no-inline-styles */}
-                  <Text style={[styles.diaryWriteText, {textAlign: 'left'}]}>
-                    님의 하루, 일기로 정리해볼까요?
-                  </Text>
-                </View>
+                <Text style={styles.recentCallListItemLabel}>
+                  친구와의 오해 그리고 다툼
+                </Text>
               }
-              onPress={() => handleGoToDiaryWrite(selected)}
+              rightIcon={<IcEmotionEmpty width={45} height={45} />}
             />
-          ))}
-
-        <HorizontalDivider />
-
-        {/* 최근 통화 요약 */}
-      </View>
+          </View>
+        </View>
+      </ScrollView>
     </View>
   );
 };
@@ -449,6 +474,29 @@ const styles = StyleSheet.create({
     letterSpacing: -0.1,
     lineHeight: 20,
     fontWeight: '500',
+    color: 'rgba(0, 0, 0, 0.9)',
+  },
+  recentCallSummary: {
+    backgroundColor: '#F8F8F8',
+    borderRadius: 10,
+    padding: 25,
+    paddingBottom: 20,
+    height: 164,
+    gap: 18,
+  },
+  recentCallSummaryTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: 'rgba(0, 0, 0, 0.9)',
+  },
+  recentCallListItem: {
+    backgroundColor: '#eee',
+    padding: 16,
+    height: 80,
+  },
+  recentCallListItemLabel: {
+    fontSize: 12,
+    fontWeight: '600',
     color: 'rgba(0, 0, 0, 0.9)',
   },
 });
