@@ -148,7 +148,6 @@ const styles = StyleSheet.create({
     fontSize: 24,
     letterSpacing: 0.5,
     fontWeight: '600',
-    fontFamily: 'Pretendard',
     color: '#0a0a05',
     textAlign: 'center',
   },
@@ -156,7 +155,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     letterSpacing: 0.3,
     fontWeight: '500',
-    fontFamily: 'Pretendard',
     color: 'rgba(0, 0, 0, 0.4)',
     textAlign: 'center',
   },
@@ -166,7 +164,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: 16,
     marginBottom: 0,
-    fontFamily: 'Pretendard',
     fontWeight: '500',
   },
 });

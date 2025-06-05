@@ -94,7 +94,6 @@ const styles = StyleSheet.create({
   },
   dropdownText: {
     fontSize: 16,
-    fontFamily: 'Pretendard',
     fontWeight: '700',
     color: '#232323',
     marginLeft: 12,

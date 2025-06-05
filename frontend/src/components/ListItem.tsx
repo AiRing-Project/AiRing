@@ -69,7 +69,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     letterSpacing: 0.3,
     fontWeight: '600',
-    fontFamily: 'Pretendard',
     color: 'rgba(0,0,0,0.9)',
     flex: 1,
   },

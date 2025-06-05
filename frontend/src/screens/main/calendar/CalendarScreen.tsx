@@ -238,6 +238,7 @@ const CalendarScreen = () => {
             style={styles.diaryCard}
             activeOpacity={0.8}
             onPress={() => handleGoToDiaryDetail(diary.id)}>
+            {/* eslint-disable-next-line react-native/no-inline-styles */}
             <View style={{flex: 1}}>
               <Text style={styles.diaryTitle}>{diary.title}</Text>
               <View style={styles.diaryRow}>
@@ -288,7 +289,6 @@ const styles = StyleSheet.create({
     fontSize: 20,
     letterSpacing: 0.2,
     fontWeight: '700',
-    fontFamily: 'Pretendard',
     color: '#000',
     marginLeft: 12,
   },
@@ -320,7 +320,6 @@ const styles = StyleSheet.create({
     letterSpacing: 0.1,
     lineHeight: 20,
     fontWeight: '500',
-    fontFamily: 'Pretendard',
     color: '#000',
     display: 'flex',
     alignItems: 'center',
@@ -330,7 +329,6 @@ const styles = StyleSheet.create({
     letterSpacing: 0.1,
     lineHeight: 20,
     fontWeight: '500',
-    fontFamily: 'Pretendard',
     color: '#000',
     alignItems: 'center',
     display: 'flex',
@@ -340,7 +338,6 @@ const styles = StyleSheet.create({
     letterSpacing: 0.1,
     lineHeight: 20,
     fontWeight: '500',
-    fontFamily: 'Pretendard',
     color: '#C9CACC',
     display: 'flex',
     alignItems: 'center',
@@ -350,7 +347,6 @@ const styles = StyleSheet.create({
     letterSpacing: 0.1,
     lineHeight: 20,
     fontWeight: '500',
-    fontFamily: 'Pretendard',
     color: '#fff',
     alignItems: 'center',
     display: 'flex',
@@ -392,7 +388,6 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#232323',
     marginBottom: 8,
-    fontFamily: 'Pretendard',
   },
   diaryRow: {
     flexDirection: 'row',
@@ -402,13 +397,11 @@ const styles = StyleSheet.create({
   diaryLabel: {
     fontSize: 14,
     color: '#2b2b2b',
-    fontFamily: 'Pretendard',
     fontWeight: '500',
   },
   diaryValue: {
     fontSize: 14,
     color: '#2b2b2b',
-    fontFamily: 'Pretendard',
     fontWeight: '700',
     marginLeft: 4,
   },
@@ -425,7 +418,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     color: '#232323',
-    fontFamily: 'Pretendard',
   },
 });
 

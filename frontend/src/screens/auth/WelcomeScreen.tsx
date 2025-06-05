@@ -58,7 +58,6 @@ const styles = StyleSheet.create({
     fontSize: 20,
     color: '#232323',
     textAlign: 'center',
-    fontFamily: 'Pretendard',
     fontWeight: '600',
   },
   startButton: {

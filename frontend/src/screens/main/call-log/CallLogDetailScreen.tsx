@@ -3,8 +3,8 @@ import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import React from 'react';
 import {ScrollView, StyleSheet, Text, View} from 'react-native';
 
+import {RootStackParamList} from '../../../../App';
 import Header from '../../../components/Header';
-import type {CallLogStackParamList} from '../../../navigation/CallLogStack';
 import {formatKoreanDate, formatTime} from '../../../utils/date';
 
 type speakerType = 'ai' | 'user';
@@ -83,10 +83,10 @@ const detail: CallDetail = {
 
 const CallLogDetailScreen = () => {
   const route =
-    useRoute<RouteProp<CallLogStackParamList, 'CallLogDetailScreen'>>();
+    useRoute<RouteProp<RootStackParamList, 'CallLogDetailScreen'>>();
   const navigation =
     useNavigation<
-      NativeStackNavigationProp<CallLogStackParamList, 'CallLogDetailScreen'>
+      NativeStackNavigationProp<RootStackParamList, 'CallLogDetailScreen'>
     >();
 
   console.log(route.params.id);
@@ -143,7 +143,6 @@ const styles = StyleSheet.create({
     letterSpacing: 0.2,
     fontWeight: '600',
     color: '#000',
-    fontFamily: 'Pretendard',
     lineHeight: 20,
     textAlign: 'center',
     alignSelf: 'stretch',
@@ -153,7 +152,6 @@ const styles = StyleSheet.create({
     letterSpacing: 0.1,
     fontWeight: '500',
     color: 'rgba(0, 0, 0, 0.33)',
-    fontFamily: 'Pretendard',
     lineHeight: 20,
     textAlign: 'center',
     alignSelf: 'stretch',
@@ -162,7 +160,6 @@ const styles = StyleSheet.create({
   },
   textFlexBox: {
     textAlign: 'center',
-    fontFamily: 'Pretendard',
     lineHeight: 20,
     alignSelf: 'stretch',
   },
