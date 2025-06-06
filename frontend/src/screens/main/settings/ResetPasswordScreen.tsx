@@ -10,12 +10,12 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  View,
 } from 'react-native';
 import * as yup from 'yup';
 
 import {RootStackParamList} from '../../../../App';
 import {resetPassword} from '../../../api/authApi';
+import AppScreen from '../../../components/AppScreen';
 const schema = yup.object({
   currentPassword: yup.string().required('현재 비밀번호를 입력하세요.'),
   newPassword: yup
@@ -75,7 +75,7 @@ const ResetPasswordScreen = () => {
   };
 
   return (
-    <View style={styles.container}>
+    <AppScreen style={styles.container}>
       <Text style={styles.title}>비밀번호 재설정</Text>
       <Controller
         control={control}
@@ -152,17 +152,14 @@ const ResetPasswordScreen = () => {
           <Text style={styles.resetButtonText}>비밀번호 재설정</Text>
         )}
       </TouchableOpacity>
-    </View>
+    </AppScreen>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#fff',
-    paddingHorizontal: 20,
   },
   title: {
     fontSize: 24,

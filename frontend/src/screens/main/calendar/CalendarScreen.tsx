@@ -1,26 +1,16 @@
 import {useFocusEffect} from '@react-navigation/native';
 import React, {useState} from 'react';
-import {
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import {Calendar, LocaleConfig} from 'react-native-calendars';
-import {useSafeAreaInsets} from 'react-native-safe-area-context';
 
 import IcChevronLeft from '../../../assets/icons/ic-chevron-left.svg';
 import IcEmotionEmpty from '../../../assets/icons/ic-emotion-empty.svg';
+import AppScreen from '../../../components/AppScreen';
 import HorizontalDivider from '../../../components/HorizontalDivider';
 import ListItem from '../../../components/ListItem';
 import MonthYearPicker from '../../../components/MonthYearPicker';
 import {useAuthStore} from '../../../store/authStore';
-import {
-  getDateString,
-  isDateInCurrentMonth,
-  isFuture,
-} from '../../../utils/date';
+import {getDateString, isFuture} from '../../../utils/date';
 
 // 한글 요일/월 설정
 LocaleConfig.locales.ko = {
@@ -120,9 +110,8 @@ const emotionColorMap: Record<string, string> = {
 };
 
 const CalendarScreen = () => {
-  const insets = useSafeAreaInsets();
   const todayString = getDateString();
-  const [selected, setSelected] = useState<string>(todayString);
+  const [selected, setSelected] = useState<string | null>(todayString);
   const [current, setCurrent] = useState<Date>(new Date());
   const [showMonthPicker, setShowMonthPicker] = useState<boolean>(false);
   const {user} = useAuthStore();
@@ -143,9 +132,7 @@ const CalendarScreen = () => {
 
   const updateMonthAndSelected = (year: number, month: number) => {
     setCurrent(new Date(year, month - 1, 1));
-    if (!isDateInCurrentMonth(selected, year, month)) {
-      setSelected('');
-    }
+    setSelected(null); // 월 변경 시 아무 날짜도 선택하지 않음
   };
 
   const handleMonthChange = (month: {year: number; month: number}) => {
@@ -160,7 +147,7 @@ const CalendarScreen = () => {
   };
 
   // 선택된 날짜의 일기 데이터
-  const diary = diaryData.find(d => d.date === selected);
+  const diary = selected ? diaryData.find(d => d.date === selected) : undefined;
 
   const handleGoToDiaryDetail = (id: number) => {
     console.log('상세', id);
@@ -171,7 +158,7 @@ const CalendarScreen = () => {
 
   const renderDay = ({date, state, marking: _marking}: any) => {
     const isToday = date.dateString === todayString;
-    const isSelected = date.dateString === selected;
+    const isSelected = selected ? date.dateString === selected : false;
     // 해당 날짜의 일기 데이터
     const selectedDiary = diaryData.find(d => d.date === date.dateString);
     // 감정 색상(여러 감정이면 첫 번째만 적용)
@@ -181,17 +168,17 @@ const CalendarScreen = () => {
         : undefined;
     const boxStyle = [
       styles.dayBox,
-      isSelected && styles.dayBoxSelected,
+      isToday && styles.dayBoxSelected,
       state === 'disabled' && styles.dayBoxDisabled,
       emotionColor && {backgroundColor: emotionColor},
     ].filter(Boolean);
     const textStyle = [
       styles.dayText,
-      isSelected && styles.dayTextSelected,
-      isToday && styles.dayTextToday,
+      isToday && styles.dayTextSelected,
+      isSelected && styles.dayTextToday,
       state === 'disabled' && styles.dayTextDisabled,
     ].filter(Boolean);
-    const showCircle = isToday;
+    const showCircle = isSelected;
     return (
       <TouchableOpacity
         style={styles.dayCell}
@@ -208,129 +195,118 @@ const CalendarScreen = () => {
   };
 
   return (
-    <View style={[styles.container, {paddingTop: insets.top}]}>
-      <ScrollView
-        // eslint-disable-next-line react-native/no-inline-styles
-        contentContainerStyle={{paddingBottom: 32}}
-        showsVerticalScrollIndicator={false}>
-        <View style={styles.topRow}>
-          <MonthYearPicker
-            value={current}
-            onChange={handleMonthPickerChange}
-            show={showMonthPicker}
-            setShow={setShowMonthPicker}
-            minimumDate={new Date(2020, 0)}
-            textStyle={styles.dropdownText}
-          />
-        </View>
-        {/* eslint-disable-next-line react-native/no-inline-styles */}
-        <View style={{gap: 24}}>
-          <Calendar
-            key={current.toISOString()}
-            current={current.toISOString().split('T')[0]}
-            onMonthChange={handleMonthChange}
-            markingType="custom"
-            dayComponent={props => renderDay(props)}
-            renderHeader={() => null}
-            hideArrows={true}
-            hideDayNames={false}
-            theme={
-              {
-                textSectionTitleColor: '#000',
-                'stylesheet.calendar.header': {
-                  dayTextAtIndex0: {color: '#FF5A5A'},
-                  dayTextAtIndex6: {color: '#3A7BFF'},
-                },
-              } as any
-            }
-            hideExtraDays={false}
-            firstDay={0}
-            enableSwipeMonths={true}
-          />
-          {/* 선택된 날짜에 따라 일기 카드/버튼 노출 */}
-          {!isFuture(selected) &&
-            (diary ? (
-              <TouchableOpacity
-                style={styles.diaryCard}
-                activeOpacity={0.8}
-                onPress={() => handleGoToDiaryDetail(diary.id)}>
-                {/* eslint-disable-next-line react-native/no-inline-styles */}
-                <View style={{flex: 1}}>
-                  <Text style={styles.diaryTitle}>{diary.title}</Text>
-                  <View style={styles.diaryRow}>
-                    <Text style={styles.diaryLabel}>감정: </Text>
-                    <Text style={styles.diaryValue}>
-                      {diary.emotion.join(', ')}
-                    </Text>
-                  </View>
-                  <View style={styles.diaryRow}>
-                    <Text style={styles.diaryLabel}>태그: </Text>
-                    <Text style={styles.diaryValue}>
-                      {diary.tag.join(', ')}
-                    </Text>
-                  </View>
-                  <View style={styles.diaryRow}>
-                    <Text style={styles.diaryLabel}>답장: </Text>
-                    <Text style={styles.diaryValue}>
-                      {diary.hasReply ? 'O' : 'X'}
-                    </Text>
-                  </View>
+    <AppScreen isTabScreen scrollable>
+      <View style={styles.topRow}>
+        <MonthYearPicker
+          value={current}
+          onChange={handleMonthPickerChange}
+          show={showMonthPicker}
+          setShow={setShowMonthPicker}
+          minimumDate={new Date(2020, 0)}
+          textStyle={styles.dropdownText}
+        />
+      </View>
+      {/* eslint-disable-next-line react-native/no-inline-styles */}
+      <View style={{gap: 24}}>
+        <Calendar
+          key={current.toISOString()}
+          current={current.toISOString().split('T')[0]}
+          onMonthChange={handleMonthChange}
+          markingType="custom"
+          dayComponent={props => renderDay(props)}
+          renderHeader={() => null}
+          hideArrows={true}
+          hideDayNames={false}
+          theme={
+            {
+              textSectionTitleColor: '#000',
+              'stylesheet.calendar.header': {
+                dayTextAtIndex0: {color: '#FF5A5A'},
+                dayTextAtIndex6: {color: '#3A7BFF'},
+              },
+            } as any
+          }
+          hideExtraDays={false}
+          firstDay={0}
+          enableSwipeMonths={true}
+        />
+        {/* 선택된 날짜에 따라 일기 카드/버튼 노출 */}
+        {selected &&
+          !isFuture(selected) &&
+          (diary ? (
+            <TouchableOpacity
+              style={styles.diaryCard}
+              activeOpacity={0.8}
+              onPress={() => handleGoToDiaryDetail(diary.id)}>
+              {/* eslint-disable-next-line react-native/no-inline-styles */}
+              <View style={{flex: 1}}>
+                <Text style={styles.diaryTitle}>{diary.title}</Text>
+                <View style={styles.diaryRow}>
+                  <Text style={styles.diaryLabel}>감정: </Text>
+                  <Text style={styles.diaryValue}>
+                    {diary.emotion.join(', ')}
+                  </Text>
                 </View>
-                <IcChevronLeft style={styles.goDiaryIcon} />
-              </TouchableOpacity>
-            ) : (
-              <ListItem
-                containerStyle={styles.diaryWriteBtn}
-                leftIcon={<IcEmotionEmpty width={45} height={45} />}
-                label={
-                  <View style={styles.diaryWriteTextWrap}>
-                    <Text
-                      style={[
-                        styles.diaryWriteText,
-                        // eslint-disable-next-line react-native/no-inline-styles
-                        {textAlign: 'right', flexShrink: 1},
-                      ]}
-                      numberOfLines={1}
-                      ellipsizeMode="tail">
-                      {user.username}
-                    </Text>
-                    {/* eslint-disable-next-line react-native/no-inline-styles */}
-                    <Text style={[styles.diaryWriteText, {textAlign: 'left'}]}>
-                      님의 하루, 일기로 정리해볼까요?
-                    </Text>
-                  </View>
-                }
-                onPress={() => handleGoToDiaryWrite(selected)}
-              />
-            ))}
-
-          <HorizontalDivider />
-
-          {/* 최근 통화 요약 */}
-          <View style={styles.recentCallSummary}>
-            <Text style={styles.recentCallSummaryTitle}>최근 통화 요약</Text>
+                <View style={styles.diaryRow}>
+                  <Text style={styles.diaryLabel}>태그: </Text>
+                  <Text style={styles.diaryValue}>{diary.tag.join(', ')}</Text>
+                </View>
+                <View style={styles.diaryRow}>
+                  <Text style={styles.diaryLabel}>답장: </Text>
+                  <Text style={styles.diaryValue}>
+                    {diary.hasReply ? 'O' : 'X'}
+                  </Text>
+                </View>
+              </View>
+              <IcChevronLeft style={styles.goDiaryIcon} />
+            </TouchableOpacity>
+          ) : (
             <ListItem
-              containerStyle={styles.recentCallListItem}
+              containerStyle={styles.diaryWriteBtn}
+              leftIcon={<IcEmotionEmpty width={45} height={45} />}
               label={
-                <Text style={styles.recentCallListItemLabel}>
-                  친구와의 오해 그리고 다툼
-                </Text>
+                <View style={styles.diaryWriteTextWrap}>
+                  <Text
+                    style={[
+                      styles.diaryWriteText,
+                      // eslint-disable-next-line react-native/no-inline-styles
+                      {textAlign: 'right', flexShrink: 1},
+                    ]}
+                    numberOfLines={1}
+                    ellipsizeMode="tail">
+                    {user.username}
+                  </Text>
+                  {/* eslint-disable-next-line react-native/no-inline-styles */}
+                  <Text style={[styles.diaryWriteText, {textAlign: 'left'}]}>
+                    님의 하루, 일기로 정리해볼까요?
+                  </Text>
+                </View>
               }
-              rightIcon={<IcEmotionEmpty width={45} height={45} />}
+              onPress={() => handleGoToDiaryWrite(selected)}
             />
-          </View>
+          ))}
+
+        <HorizontalDivider />
+
+        {/* 최근 통화 요약 */}
+        <View style={styles.recentCallSummary}>
+          <Text style={styles.recentCallSummaryTitle}>최근 통화 요약</Text>
+          <ListItem
+            containerStyle={styles.recentCallListItem}
+            label={
+              <Text style={styles.recentCallListItemLabel}>
+                친구와의 오해 그리고 다툼
+              </Text>
+            }
+            rightIcon={<IcEmotionEmpty width={45} height={45} />}
+          />
         </View>
-      </ScrollView>
-    </View>
+      </View>
+    </AppScreen>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    paddingHorizontal: 20,
-  },
   topRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -434,7 +410,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginTop: 24,
   },
   diaryTitle: {
     fontSize: 16,

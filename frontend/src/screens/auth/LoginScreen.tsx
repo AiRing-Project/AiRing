@@ -15,6 +15,7 @@ import {
 import * as yup from 'yup';
 
 import {getUserInfo, login} from '../../api/authApi';
+import AppScreen from '../../components/AppScreen';
 import type {AuthStackParamList} from '../../navigation/AuthStack';
 import {useAuthStore} from '../../store/authStore';
 import {saveTokens} from '../../utils/tokenManager';
@@ -81,7 +82,7 @@ const LoginScreen = () => {
   };
 
   return (
-    <View style={styles.container}>
+    <AppScreen style={styles.container}>
       <Text style={styles.title}>로그인</Text>
       <Controller
         control={control}
@@ -143,17 +144,14 @@ const LoginScreen = () => {
           <Text style={styles.signupLink}>회원가입</Text>
         </TouchableOpacity>
       </View>
-    </View>
+    </AppScreen>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#fff',
-    paddingHorizontal: 20,
   },
   title: {
     fontSize: 28,

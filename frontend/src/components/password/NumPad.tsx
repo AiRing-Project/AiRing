@@ -55,7 +55,6 @@ const NumPad = ({onPress, onBackspace, disabled}: NumPadProps) => {
 const styles = StyleSheet.create({
   numpadWrap: {
     marginTop: 'auto',
-    marginBottom: 40,
     width: '100%',
     alignItems: 'center',
     justifyContent: 'center',

@@ -4,6 +4,7 @@ import React from 'react';
 import {ScrollView, StyleSheet, Text, View} from 'react-native';
 
 import {RootStackParamList} from '../../../../App';
+import AppScreen from '../../../components/AppScreen';
 import Header from '../../../components/Header';
 import {formatKoreanDate, formatTime} from '../../../utils/date';
 
@@ -91,7 +92,7 @@ const CallLogDetailScreen = () => {
 
   console.log(route.params.id);
   return (
-    <View style={styles.container}>
+    <AppScreen>
       {/* 상단 헤더 */}
       <Header
         title={formatKoreanDate(detail.startedAt)}
@@ -113,7 +114,7 @@ const CallLogDetailScreen = () => {
           </View>
         ))}
       </ScrollView>
-    </View>
+    </AppScreen>
   );
 };
 

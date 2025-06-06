@@ -11,6 +11,7 @@ import IcPerson from '../../../assets/icons/ic-person.svg';
 import IcPhone from '../../../assets/icons/ic-phone.svg';
 import IcPieChart from '../../../assets/icons/ic-pie-chart.svg';
 import IcSetting from '../../../assets/icons/ic-setting.svg';
+import AppScreen from '../../../components/AppScreen';
 import ListItem from '../../../components/ListItem';
 import {useAuthStore} from '../../../store/authStore';
 import {getRefreshToken, removeTokens} from '../../../utils/tokenManager';
@@ -34,7 +35,7 @@ const SettingsScreen = () => {
   };
 
   return (
-    <View style={styles.container}>
+    <AppScreen isTabScreen>
       {/* 프로필 */}
       <View style={styles.profileBox}>
         <View style={styles.profileIconContainer}>
@@ -70,17 +71,11 @@ const SettingsScreen = () => {
           label="데이터 관리"
         />
       </View>
-    </View>
+    </AppScreen>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#FFFFFF',
-    paddingHorizontal: 20,
-    paddingTop: 100,
-  },
   profileBox: {
     borderRadius: 10,
     backgroundColor: '#f8f8f8',

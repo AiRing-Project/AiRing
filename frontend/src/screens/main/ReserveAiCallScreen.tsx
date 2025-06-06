@@ -6,6 +6,7 @@ import ToggleOffIcon from '../../assets/icons/ic-toggle-off.svg';
 import ToggleOnIcon from '../../assets/icons/ic-toggle-on.svg';
 import VibrateIcon from '../../assets/icons/ic-vibrate.svg';
 import VoiceIcon from '../../assets/icons/ic-voice.svg';
+import AppScreen from '../../components/AppScreen';
 
 const DAYS = ['월', '화', '수', '목', '금', '토', '일'];
 
@@ -40,7 +41,7 @@ const ReserveAiCallScreen = () => {
   };
 
   return (
-    <View style={styles.container}>
+    <AppScreen style={styles.container}>
       {/* 상단 제목 */}
       <Text style={styles.title}>AI 전화 예약</Text>
 
@@ -224,17 +225,13 @@ const ReserveAiCallScreen = () => {
           <Text style={styles.saveText}>저장</Text>
         </TouchableOpacity>
       </View>
-    </View>
+    </AppScreen>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
     backgroundColor: '#F7F7F7', // 피그마 배경색 반영
-    paddingHorizontal: 20,
-    paddingTop: 50,
-    paddingBottom: 30,
   },
   title: {
     fontSize: 18,

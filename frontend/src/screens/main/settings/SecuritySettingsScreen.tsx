@@ -1,9 +1,10 @@
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import React, {useCallback, useState} from 'react';
-import {StyleSheet, Switch, View} from 'react-native';
+import {Switch, View} from 'react-native';
 
 import {RootStackParamList} from '../../../../App';
+import AppScreen from '../../../components/AppScreen';
 import Header from '../../../components/Header';
 import ListItem from '../../../components/ListItem';
 import {
@@ -33,7 +34,7 @@ const SecuritySettingsScreen = () => {
   };
 
   return (
-    <View style={styles.container}>
+    <AppScreen>
       <Header
         title="보안 설정"
         onBackPress={() => navigation.goBack()}
@@ -57,16 +58,8 @@ const SecuritySettingsScreen = () => {
           }
         />
       </View>
-    </View>
+    </AppScreen>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    paddingHorizontal: 20,
-  },
-});
 
 export default SecuritySettingsScreen;

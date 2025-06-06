@@ -1,14 +1,9 @@
 import {useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import React from 'react';
-import {
-  SafeAreaView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 
+import AppScreen from '../../components/AppScreen';
 import {AuthStackParamList} from '../../navigation/AuthStack';
 
 const WelcomeScreen = () => {
@@ -16,7 +11,7 @@ const WelcomeScreen = () => {
     useNavigation<NativeStackNavigationProp<AuthStackParamList, 'Welcome'>>();
 
   return (
-    <SafeAreaView style={styles.container}>
+    <AppScreen style={styles.container}>
       <View style={styles.centerBox}>
         <Text style={styles.logoText}>AiRing</Text>
       </View>
@@ -27,14 +22,12 @@ const WelcomeScreen = () => {
         activeOpacity={0.8}>
         <Text style={styles.startButtonText}>시작하기</Text>
       </TouchableOpacity>
-    </SafeAreaView>
+    </AppScreen>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    backgroundColor: '#fff',
     alignItems: 'center',
   },
   centerBox: {
