@@ -1,19 +1,19 @@
 import React, {useState} from 'react';
 import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 
-import CallIcon from '../../assets/icons/ic-call.svg';
-import ToggleOffIcon from '../../assets/icons/ic-toggle-off.svg';
-import ToggleOnIcon from '../../assets/icons/ic-toggle-on.svg';
-import VibrateIcon from '../../assets/icons/ic-vibrate.svg';
-import VoiceIcon from '../../assets/icons/ic-voice.svg';
-import AppScreen from '../../components/AppScreen';
+import CallIcon from '../../../assets/icons/ic-call.svg';
+import ToggleOffIcon from '../../../assets/icons/ic-toggle-off.svg';
+import ToggleOnIcon from '../../../assets/icons/ic-toggle-on.svg';
+import VibrateIcon from '../../../assets/icons/ic-vibrate.svg';
+import VoiceIcon from '../../../assets/icons/ic-voice.svg';
+import AppScreen from '../../../components/AppScreen';
 
 const DAYS = ['월', '화', '수', '목', '금', '토', '일'];
 
 // 옵션 타입 정의
 type OptionType = 'vibrate' | 'call' | 'voice';
 
-const ReserveAiCallScreen = () => {
+const AiCallSettingsScreen = () => {
   const [selectedDays, setSelectedDays] = useState<number[]>([]);
   const [hour, _setHour] = useState<number>(8); // 임시 값, 나중에 상태 관리 방식 변경 필요
   const [minute, _setMinute] = useState<number>(0); // 임시 값, 나중에 상태 관리 방식 변경 필요
@@ -427,4 +427,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ReserveAiCallScreen;
+export default AiCallSettingsScreen;
