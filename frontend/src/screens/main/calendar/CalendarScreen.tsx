@@ -195,7 +195,7 @@ const CalendarScreen = () => {
   };
 
   return (
-    <AppScreen isTabScreen scrollable>
+    <AppScreen isTabScreen scrollable style={styles.container}>
       <View style={styles.topRow}>
         <MonthYearPicker
           value={current}
@@ -307,6 +307,9 @@ const CalendarScreen = () => {
 };
 
 const styles = StyleSheet.create({
+  container: {
+    paddingBottom: 24,
+  },
   topRow: {
     flexDirection: 'row',
     alignItems: 'center',

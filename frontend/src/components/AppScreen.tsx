@@ -1,6 +1,6 @@
 import React from 'react';
-import {SafeAreaView, ScrollView, StyleSheet} from 'react-native';
-import {useSafeAreaInsets} from 'react-native-safe-area-context';
+import {ScrollView, StyleSheet} from 'react-native';
+import {SafeAreaView} from 'react-native-safe-area-context';
 
 interface AppScreenProps {
   children: React.ReactNode;
@@ -11,7 +11,6 @@ interface AppScreenProps {
 }
 
 const DEFAULT_HORIZONTAL = 20;
-const DEFAULT_BOTTOM = 24;
 
 const AppScreen = ({
   children,
@@ -20,20 +19,16 @@ const AppScreen = ({
   contentContainerStyle,
   isTabScreen = false,
 }: AppScreenProps) => {
-  const insets = useSafeAreaInsets();
   const paddingHorizontal = DEFAULT_HORIZONTAL;
-  const paddingBottom = isTabScreen
-    ? DEFAULT_BOTTOM
-    : DEFAULT_BOTTOM + insets.bottom;
-  const paddingTop = insets.top;
+  const edges = isTabScreen ? (['top'] as const) : (['top', 'bottom'] as const);
 
   if (scrollable) {
     return (
-      <SafeAreaView style={[styles.safeArea, {paddingTop}, style]}>
+      <SafeAreaView edges={edges} style={[styles.safeArea, style]}>
         <ScrollView
           contentContainerStyle={[
             styles.scrollContent,
-            {paddingHorizontal, paddingBottom},
+            {paddingHorizontal},
             contentContainerStyle,
           ]}
           showsVerticalScrollIndicator={false}>
@@ -43,12 +38,7 @@ const AppScreen = ({
     );
   }
   return (
-    <SafeAreaView
-      style={[
-        styles.safeArea,
-        {paddingHorizontal, paddingTop, paddingBottom},
-        style,
-      ]}>
+    <SafeAreaView style={[styles.safeArea, {paddingHorizontal}, style]}>
       {children}
     </SafeAreaView>
   );
