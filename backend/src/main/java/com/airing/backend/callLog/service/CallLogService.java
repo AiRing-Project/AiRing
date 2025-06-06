@@ -34,7 +34,7 @@ public class CallLogService {
                 .userId(userId)
                 .startedAt(request.getStartedAt())
                 .callType(request.getCallType())
-                .rawTranscript(null)
+                .rawTranscript(request.getRawTranscript())
                 .build();
 
         callLogRepository.save(callLog);

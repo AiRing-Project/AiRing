@@ -13,4 +13,6 @@ public class CallLogEventRequest {
     private String callType;
 
     private OffsetDateTime startedAt;
+
+    private String rawTranscript;
 }
