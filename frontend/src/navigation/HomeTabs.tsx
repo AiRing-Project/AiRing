@@ -10,13 +10,13 @@ import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import React, {useCallback, useState} from 'react';
 import {
   Modal,
-  Platform,
   Pressable,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from 'react-native';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
 
 import type {RootStackParamList} from '../../App';
 import CalendarIcon from '../assets/icons/tab-calendar.svg';
@@ -41,8 +41,18 @@ function CustomTabBar({
   navigation,
   onCallPress,
 }: BottomTabBarProps & {onCallPress: () => void}) {
+  const insets = useSafeAreaInsets();
+  const TAB_BAR_HEIGHT = 85;
+
   return (
-    <View style={styles.tabBar}>
+    <View
+      style={[
+        styles.tabBar,
+        {
+          height: TAB_BAR_HEIGHT + insets.bottom,
+          paddingBottom: insets.bottom,
+        },
+      ]}>
       {state.routes.map((route, index) => {
         // 가운데(3번째) 탭에만 전화 버튼을 Floating하게 배치
         if (index === 2) {
@@ -188,7 +198,6 @@ const HomeTabs = () => {
 const styles = StyleSheet.create({
   tabBar: {
     flexDirection: 'row',
-    height: 85,
     backgroundColor: '#FFFFFF',
     borderTopWidth: 1,
     borderTopColor: 'rgba(0,0,0,0.04)',
@@ -199,7 +208,6 @@ const styles = StyleSheet.create({
     elevation: 8,
     alignItems: 'center',
     justifyContent: 'space-around',
-    paddingBottom: Platform.OS === 'ios' ? 20 : 0,
   },
   tabItem: {
     flex: 1,
@@ -210,8 +218,7 @@ const styles = StyleSheet.create({
   tabLabel: {
     fontSize: 12,
     fontWeight: '600',
-    letterSpacing: 0.24, // 2% of 12px
-    fontFamily: 'Pretendard-SemiBold', // 폰트 적용 시
+    letterSpacing: 0.24,
     marginTop: 2,
   },
   tabLabelFocused: {color: '#222222'},

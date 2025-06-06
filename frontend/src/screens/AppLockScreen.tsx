@@ -1,6 +1,7 @@
 import React, {useState} from 'react';
 import {Dimensions, StyleSheet, Text, View} from 'react-native';
 
+import AppScreen from '../components/AppScreen';
 import {PASSWORD_LENGTH} from '../components/password/constants';
 import NumPad from '../components/password/NumPad';
 import PasswordInputArea from '../components/password/PasswordInputArea';
@@ -48,7 +49,7 @@ const AppLockScreen = () => {
   };
 
   return (
-    <View style={styles.container}>
+    <AppScreen>
       <View style={styles.titleWrap}>
         {/* 상단 안내문구 */}
         <Text style={styles.title}>비밀번호를 입력해주세요</Text>
@@ -65,7 +66,7 @@ const AppLockScreen = () => {
         onBackspace={handleBackspace}
         disabled={password.length === PASSWORD_LENGTH}
       />
-    </View>
+    </AppScreen>
   );
 };
 

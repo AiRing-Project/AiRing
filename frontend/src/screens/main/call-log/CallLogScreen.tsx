@@ -16,6 +16,7 @@ import InfoCircle from '../../../assets/icons/ic-info-circle.svg';
 import PhoneIncoming from '../../../assets/icons/ic-phone-incoming.svg';
 import PhoneOutgoing from '../../../assets/icons/ic-phone-outgoing.svg';
 import IcSearch from '../../../assets/icons/ic-search.svg';
+import AppScreen from '../../../components/AppScreen';
 import MonthYearPicker from '../../../components/MonthYearPicker';
 import {formatSectionDate, formatTime} from '../../../utils/date';
 
@@ -180,7 +181,7 @@ const CallLogScreen = () => {
   };
 
   return (
-    <View style={styles.container}>
+    <AppScreen isTabScreen>
       <View style={styles.topRow}>
         <MonthYearPicker
           value={selectedDate}
@@ -207,17 +208,11 @@ const CallLogScreen = () => {
           <CallLogSection key={section.date} section={section} />
         ))}
       </ScrollView>
-    </View>
+    </AppScreen>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    paddingHorizontal: 20,
-    paddingTop: 48,
-  },
   topRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -253,7 +248,6 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   scrollContent: {
-    paddingBottom: 32,
     gap: 36,
   },
   section: {

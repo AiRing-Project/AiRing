@@ -2,9 +2,9 @@ import {useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import React, {useState} from 'react';
 import {Alert, Dimensions, StyleSheet, Text, View} from 'react-native';
-import {useSafeAreaInsets} from 'react-native-safe-area-context';
 
 import {RootStackParamList} from '../../../../App';
+import AppScreen from '../../../components/AppScreen';
 import Header, {HEADER_HEIGHT} from '../../../components/Header';
 import {PASSWORD_LENGTH} from '../../../components/password/constants';
 import NumPad from '../../../components/password/NumPad';
@@ -16,8 +16,6 @@ const SCREEN_HEIGHT = Dimensions.get('window').height;
 const SetAppLockPasswordScreen = () => {
   const navigation =
     useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-  const insets = useSafeAreaInsets();
-  const headerOffset = HEADER_HEIGHT + insets.top;
   const [step, setStep] = useState<'new' | 'confirm'>('new');
   const [newPassword, setNewPassword] = useState<string>('');
   const [confirmPassword, setConfirmPassword] = useState<string>('');
@@ -95,7 +93,7 @@ const SetAppLockPasswordScreen = () => {
   };
 
   return (
-    <View style={styles.container}>
+    <AppScreen>
       <Header
         title="앱 잠금 비밀번호 설정"
         onBackPress={() => navigation.goBack()}
@@ -103,7 +101,7 @@ const SetAppLockPasswordScreen = () => {
       <View
         style={[
           styles.titleWrap,
-          {marginTop: SCREEN_HEIGHT * 0.188 - headerOffset},
+          {marginTop: SCREEN_HEIGHT * 0.188 - HEADER_HEIGHT},
         ]}>
         <Text style={styles.title}>
           {step === 'new'
@@ -129,7 +127,7 @@ const SetAppLockPasswordScreen = () => {
             : confirmPassword.length === PASSWORD_LENGTH
         }
       />
-    </View>
+    </AppScreen>
   );
 };
 

@@ -1,20 +1,20 @@
 import React from 'react';
-import {ActivityIndicator, StyleSheet, Text, View} from 'react-native';
+import {ActivityIndicator, StyleSheet, Text} from 'react-native';
+
+import AppScreen from '../components/AppScreen';
 
 const SplashScreen = () => {
   return (
-    <View style={styles.container}>
+    <AppScreen style={styles.container}>
       <Text style={styles.logo}>AiRing</Text>
       <ActivityIndicator size="large" color="#5d8fc5" style={styles.spinner} />
       <Text style={styles.loadingText}>잠시만 기다려주세요...</Text>
-    </View>
+    </AppScreen>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    backgroundColor: '#fff',
     alignItems: 'center',
     justifyContent: 'center',
   },
