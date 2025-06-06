@@ -48,19 +48,22 @@ const ReserveAiCallScreen = () => {
       <View style={styles.timePickerWrapper}>
         {' '}
         {/* 피그마 카드 배경 */}
-        <View style={styles.timePickerContainer}>
+        {/* <View style={styles.timePickerContainer}> // 이 View 제거 */}{' '}
+        {/* 시간 표시 부분 컨테이너 */}
+        {/* WheelPicker 구현 */}
+        {/* 임시 시간 표시 (WheelPicker 대체 전) */}
+        {/* 시간 표시 부분을 눌러서 시간 선택 휠이 뜨도록 구현 예정 */}
+        <TouchableOpacity onPress={() => console.log('시간 선택 클릭')}>
           {' '}
-          {/* 시간 표시 부분 컨테이너 */}
-          {/* WheelPicker 구현 */}
-          {/* 임시 시간 표시 (WheelPicker 대체 전) */}
-          {/* 시간 표시 부분을 눌러서 시간 선택 휠이 뜨도록 구현 예정 */}
-          <TouchableOpacity onPress={() => console.log('시간 선택 클릭')}>
+          {/* TODO: 시간 선택 휠 띄우기 기능 추가 */}
+          {/* 임시 시간 표시 UI */}
+          <View style={styles.timeDisplayRow}>
             {' '}
-            {/* TODO: 시간 선택 휠 띄우기 기능 추가 */}
-            {/* 임시 시간 표시 UI */}
+            {/* 새로운 View 추가 */} {/* 왼쪽 회색 점 */}
+            <View style={styles.timeIndicator} />
+            {/* 임시 시간 표시 컨테이너 */}
             <View style={styles.tempTimeDisplay}>
               {' '}
-              {/* 임시 시간 표시 컨테이너 */}
               {/* 피그마의 오전/오후 텍스트 (왼쪽 배치) */}
               <Text style={styles.ampmTextLeft}>오전</Text>{' '}
               {/* TODO: 실제 오전/오후 상태에 따라 텍스트 변경 필요 */}
@@ -71,9 +74,12 @@ const ReserveAiCallScreen = () => {
               <Text style={styles.tempTimeText}>
                 {minute.toString().padStart(2, '0')}
               </Text>
-            </View>
-          </TouchableOpacity>
-        </View>
+            </View>{' '}
+            {/* 오른쪽 회색 점 */}
+            <View style={styles.timeIndicator} />
+          </View>
+        </TouchableOpacity>
+        {/* </View> // 이 View 제거 */}
       </View>
 
       {/* 반복 (요일 선택) */}
@@ -88,7 +94,7 @@ const ReserveAiCallScreen = () => {
             <TouchableOpacity
               key={d}
               style={[
-                styles.dayBtn,
+                styles.dayBtn, // 개별 요일 버튼에 직사각형 디자인 스타일 적용
                 selectedDays.includes(i) && styles.dayBtnActive,
               ]}
               onPress={() => toggleDay(i)}>
@@ -227,15 +233,15 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#F7F7F7', // 피그마 배경색 반영
     paddingHorizontal: 20,
-    paddingTop: 50, // 전체적으로 아래로 내리기 위해 상단 여백 증가
+    paddingTop: 50,
     paddingBottom: 30,
   },
   title: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#000', // 피그마 색상 반영
+    color: '#000',
     textAlign: 'center',
-    marginBottom: 30, // 피그마 여백 반영
+    marginBottom: 30,
   },
   timePickerWrapper: {
     // 시간 선택 섹션 전체 컨테이너 (피그마 흰색 카드)
@@ -245,9 +251,10 @@ const styles = StyleSheet.create({
     marginBottom: 30, // 피그마 간격 반영
     alignItems: 'center',
     justifyContent: 'center',
+    paddingHorizontal: 20, // 추가: 피그마 패딩
   },
   timePickerContainer: {
-    // 시간 표시 부분 컨테이너
+    // 기존 스타일 블록 주석 처리
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
@@ -259,12 +266,23 @@ const styles = StyleSheet.create({
     width: 100,
   },
 
+  timeDisplayRow: {
+    // 새로운 스타일: 시간 표시 전체를 감싸는 컨테이너 (점 포함)
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center', // 중앙 정렬
+    gap: 10, // 점과 시간 표시 사이 간격 (피그마 참고)
+  },
+  timeIndicator: {
+    // 새로운 스타일: 시간 표시 좌우 회색 점
+    width: 22, // 피그마 크기 참고 (약 23x22)
+    height: 22,
+    borderRadius: 11, // width/height의 절반으로 둥글게
+    backgroundColor: '#1E1E1E', // 피그마 색상 참고
+  },
+
   repeatContainer: {
-    // 반복 섹션 전체 컨테이너 (피그마 흰색 카드)
-    backgroundColor: '#fff',
-    borderRadius: 10,
-    padding: 20,
-    marginBottom: 30, // 피그마 간격 반영
+    marginBottom: 30,
   },
   repeatTitle: {
     fontSize: 18,
@@ -273,37 +291,37 @@ const styles = StyleSheet.create({
     marginBottom: 15,
   },
   daysContainer: {
-    // 요일 버튼 컨테이너
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginHorizontal: 0,
   },
   dayBtn: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: '#E4E4E4', // 기본 배경색
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: '#fff',
+    borderRadius: 5,
+    height: 60,
+    flex: 1,
+    marginHorizontal: 4,
   },
   dayBtnActive: {
-    backgroundColor: '#222222', // 선택된 배경색
+    backgroundColor: '#222222',
   },
   dayText: {
     fontSize: 16,
-    color: '#888', // 기본 텍스트 색상
+    color: '#888',
     fontWeight: '600',
   },
   dayTextActive: {
-    color: '#fff', // 선택된 텍스트 색상
+    color: '#fff',
+    fontWeight: '600',
   },
 
   optionsContainer: {
-    // 옵션 섹션 전체 컨테이너 (피그마 흰색 카드)
     backgroundColor: '#fff',
     borderRadius: 10,
     padding: 20,
-    marginBottom: 40, // 피그마 간격 반영
+    marginBottom: 23,
   },
   optionsTitle: {
     fontSize: 18,
@@ -312,104 +330,103 @@ const styles = StyleSheet.create({
     marginBottom: 15,
   },
   optionsList: {
-    // 옵션 항목들을 담는 컨테이너 (세로 나열)
     flexDirection: 'column',
-    gap: 0, // 각 옵션 항목 자체에 패딩/마진 적용
+    gap: 0,
   },
   optionItem: {
-    // 각 옵션 항목 (아이콘+라벨+토글)
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingVertical: 15, // 피그마 간격 참고
+    paddingVertical: 15,
   },
   optionIconLabel: {
-    // 아이콘과 라벨/서브라벨 컨테이너
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 15, // 아이콘과 텍스트 사이 간격
+    gap: 15,
   },
   optionLabel: {
     fontSize: 16,
-    color: '#000', // 기본 텍스트 색상 (피그마)
+    color: '#000',
     fontWeight: '500',
   },
   optionLabelActive: {
-    color: '#222', // 선택된 텍스트 색상 (피그마)
-    fontWeight: '600', // 선택된 텍스트 굵기 (피그마)
+    color: '#222',
+    fontWeight: '600',
   },
   optionSubLabel: {
-    // 서브 텍스트 스타일 (Basic call, 10분 후, Sol)
     fontSize: 12,
-    color: '#888', // 피그마 색상 참고
+    color: '#888',
     fontWeight: '400',
     marginTop: 2,
   },
   separator: {
-    // 구분선 스타일
     height: 1,
-    backgroundColor: '#F0F0F0', // 피그마 색상 참고
-    marginVertical: 0, // 각 항목 내부에 패딩이 있으므로 구분선 마진 제거
+    backgroundColor: '#F0F0F0',
+    marginVertical: 0,
   },
 
   buttonRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginTop: 'auto',
-    gap: 16,
+    gap: 28,
   },
   cancelBtn: {
     flex: 1,
-    backgroundColor: '#E4E4E4', // 피그마 색상 반영
-    borderRadius: 10, // 피그마 라운드 반영
-    paddingVertical: 16,
+    backgroundColor: '#fff',
+    borderRadius: 10,
     alignItems: 'center',
     justifyContent: 'center',
+    height: 58,
   },
   saveBtn: {
     flex: 1,
-    backgroundColor: '#232323', // 피그마 색상 반영
-    borderRadius: 10, // 피그마 라운드 반영
-    paddingVertical: 16,
+    backgroundColor: '#232323',
+    borderRadius: 10,
     alignItems: 'center',
     justifyContent: 'center',
+    height: 58,
   },
   cancelText: {
-    color: '#232323', // 피그마 색상 반영
+    color: '#232323',
     fontSize: 16,
     fontWeight: '600',
   },
   saveText: {
-    color: '#fff', // 피그마 색상 반영
+    color: '#fff',
     fontSize: 16,
     fontWeight: '600',
   },
   ampmTextLeft: {
     // 오전/오후 텍스트 스타일 (시간 표시 왼쪽에 배치)
-    fontSize: 16,
+    fontSize: 26, // 피그마 '오전' 텍스트 스타일 참고
     fontWeight: '600',
-    color: '#222', // 피그마 색상 참고
-    marginRight: 10, // 시간 표시와의 간격 조정
+    color: '#333333', // 피그마 색상 참고
+    marginRight: 10, // 시간 표시와의 간격 조정 (피그마 참고)
+    // lineHeight, textAlignHorizontal, textAlignVertical 등은 필요시 추가
   },
   colon: {
-    fontSize: 40,
+    fontSize: 40, // 피그마 ':' 텍스트 스타일 참고
     fontWeight: '600',
-    color: '#222',
-    marginHorizontal: 5,
+    color: '#333333', // 피그마 색상 참고
+    marginHorizontal: 5, // 피그마 참고
+    // lineHeight, textAlignHorizontal, textAlignVertical 등은 필요시 추가
   },
   tempTimeDisplay: {
-    // 임시 시간 표시 컨테이너 스타일
+    // 임시 시간 표시 컨테이너 스타일 (시간, 콜론, 분)
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
+    gap: 5, // 피그마 시간/콜론/분 사이 간격 참고
   },
   tempTimeText: {
     // 임시 시간/분 텍스트 스타일
-    fontSize: 40,
+    fontSize: 40, // 피그마 '7', '40' 텍스트 스타일 참고
     fontWeight: '600',
-    color: '#222',
-    width: 60, // 적절한 간격 확보
-    textAlign: 'center',
+    color: '#333333', // 피그마 색상 참고
+    width: 60, // 적절한 간격 확보 (기존 유지 또는 피그마 너비 참고)
+    textAlign: 'center', // 중앙 정렬
+    letterSpacing: -2, // 피그마 letterSpacing 참고 (React Native에서는 px 단위로 적용)
+    // lineHeight, textAlignVertical 등은 필요시 추가
   },
 });
 
