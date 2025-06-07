@@ -4,6 +4,7 @@
  * Modified date: 2025-06-07
  * Changes:
  *   - Add visibleItemCount prop
+ *   - Add zeroPadLength prop
  */
 import React, {
   ReactNode,
@@ -69,6 +70,7 @@ export type ScrollPickerProps<ItemT extends string | number> = {
   wrapperHeight?: number;
   wrapperBackground?: string;
   visibleItemCount?: number;
+  zeroPadLength?: number;
   // TODO: add proper type to `scrollViewComponent` prop
   // tried using ComponentType<ScrollViewProps & { ref: React.RefObject<ScrollView> }>
   // but ScrollView component from react-native-gesture=handler is not compatible with this.
@@ -154,26 +156,35 @@ const ScrollPicker: {
 
   const renderItem = (data: (typeof props.dataSource)[0], index: number) => {
     const isSelected = index === selectedIndex;
-    const item = props.renderItem ? (
-      props.renderItem(data, index, isSelected)
-    ) : (
-      <Text
-        style={
-          isSelected
-            ? [
-                props.activeItemTextStyle
-                  ? props.activeItemTextStyle
-                  : styles.activeItemTextStyle,
-              ]
-            : [props.itemTextStyle ? props.itemTextStyle : styles.itemTextStyle]
-        }>
-        {data}
-      </Text>
-    );
-
+    // renderItem prop이 있으면 그대로 사용
+    if (props.renderItem) {
+      return props.renderItem(data, index, isSelected);
+    }
+    // 숫자이고 zeroPadLength가 있으면 0-padding
+    let display: string;
+    if (typeof data === 'number' && typeof props.zeroPadLength === 'number') {
+      display = String(data).padStart(props.zeroPadLength, '0');
+    } else {
+      display = String(data);
+    }
     return (
       <View style={[styles.itemWrapper, {height: itemHeight}]} key={index}>
-        {item}
+        <Text
+          style={
+            isSelected
+              ? [
+                  props.activeItemTextStyle
+                    ? props.activeItemTextStyle
+                    : styles.activeItemTextStyle,
+                ]
+              : [
+                  props.itemTextStyle
+                    ? props.itemTextStyle
+                    : styles.itemTextStyle,
+                ]
+          }>
+          {display}
+        </Text>
       </View>
     );
   };
