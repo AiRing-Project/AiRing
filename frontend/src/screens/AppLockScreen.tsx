@@ -64,6 +64,7 @@ const AppLockScreen = () => {
       <NumPad
         onPress={handleNumPress}
         onBackspace={handleBackspace}
+        onClear={() => setPassword('')}
         disabled={password.length === PASSWORD_LENGTH}
       />
     </AppScreen>

@@ -22,6 +22,11 @@ const SetAppLockPasswordScreen = () => {
   const [isError, setIsError] = useState<boolean>(false);
   const [errorMsg, setErrorMsg] = useState<string>('');
 
+  const resetError = () => {
+    setIsError(false);
+    setErrorMsg('');
+  };
+
   const handleNumPress = (num: string) => {
     if (step === 'new') {
       if (newPassword.length >= PASSWORD_LENGTH) {
@@ -29,8 +34,7 @@ const SetAppLockPasswordScreen = () => {
       }
       const next = newPassword + num;
       setNewPassword(next);
-      setIsError(false);
-      setErrorMsg('');
+      resetError();
       if (next.length === PASSWORD_LENGTH) {
         setTimeout(() => setStep('confirm'), 500);
       }
@@ -40,8 +44,7 @@ const SetAppLockPasswordScreen = () => {
       }
       const next = confirmPassword + num;
       setConfirmPassword(next);
-      setIsError(false);
-      setErrorMsg('');
+      resetError();
       if (next.length === PASSWORD_LENGTH) {
         if (next === newPassword) {
           setAppLockPassword(next)
@@ -66,8 +69,7 @@ const SetAppLockPasswordScreen = () => {
             setNewPassword('');
             setConfirmPassword('');
             setStep('new');
-            setIsError(false);
-            setErrorMsg('');
+            resetError();
           }, 1000);
         }
       }
@@ -80,16 +82,22 @@ const SetAppLockPasswordScreen = () => {
         return;
       }
       setNewPassword(newPassword.slice(0, -1));
-      setIsError(false);
-      setErrorMsg('');
     } else {
       if (confirmPassword.length === 0) {
         return;
       }
       setConfirmPassword(confirmPassword.slice(0, -1));
-      setIsError(false);
-      setErrorMsg('');
     }
+    resetError();
+  };
+
+  const handleClear = () => {
+    if (step === 'new') {
+      setNewPassword('');
+    } else {
+      setConfirmPassword('');
+    }
+    resetError();
   };
 
   return (
@@ -121,6 +129,7 @@ const SetAppLockPasswordScreen = () => {
       <NumPad
         onPress={handleNumPress}
         onBackspace={handleBackspace}
+        onClear={handleClear}
         disabled={
           step === 'new'
             ? newPassword.length === PASSWORD_LENGTH
