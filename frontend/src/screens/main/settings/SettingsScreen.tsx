@@ -5,7 +5,7 @@ import {Alert, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 
 import {RootStackParamList} from '../../../../App';
 import {logout} from '../../../api/authApi';
-import IcEllipse from '../../../assets/icons/ic-Ellipse.svg';
+import IcEllipse from '../../../assets/icons/ic-ellipse.svg';
 import IcLock from '../../../assets/icons/ic-lock.svg';
 import IcPerson from '../../../assets/icons/ic-person.svg';
 import IcPhone from '../../../assets/icons/ic-phone.svg';

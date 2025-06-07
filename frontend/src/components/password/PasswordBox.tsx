@@ -1,7 +1,7 @@
 import React from 'react';
-import {StyleSheet, View} from 'react-native';
+import {StyleSheet} from 'react-native';
 
-import EyesIcon from '../../assets/icons/ic-emotion-eyes.svg';
+import EmojiBox from '../common/EmojiBox';
 import {PASSWORD_BOX_STYLE, PasswordBoxStatus} from './constants';
 
 interface PasswordBoxProps {
@@ -12,14 +12,13 @@ const PasswordBox = ({status}: PasswordBoxProps) => {
   const {color, showEyes} = PASSWORD_BOX_STYLE[status];
 
   return (
-    <View
-      style={[
-        styles.inputBox,
-        styles.inputBoxContent,
-        {backgroundColor: color, borderColor: color},
-      ]}>
-      {showEyes && <EyesIcon />}
-    </View>
+    <EmojiBox
+      size={70}
+      backgroundColor={color}
+      eyesColor="#fff"
+      showEyes={showEyes}
+      style={styles.inputBox}
+    />
   );
 };
 
@@ -30,10 +29,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     borderWidth: 1.5,
     marginHorizontal: 0,
-  },
-  inputBoxContent: {
-    justifyContent: 'center',
-    alignItems: 'center',
+    position: 'relative',
   },
 });
 
