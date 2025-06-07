@@ -185,7 +185,10 @@ const HomeTabs = () => {
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.modalButton}
-              onPress={() => setModalVisible(false)}>
+              onPress={() => {
+                setModalVisible(false);
+                navigation.navigate('Call');
+              }}>
               <Text style={styles.modalButtonText}>통화하기</Text>
             </TouchableOpacity>
           </View>
