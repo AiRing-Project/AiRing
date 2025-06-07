@@ -10,50 +10,19 @@ import VoiceIcon from '../../../assets/icons/ic-voice.svg';
 import AppScreen from '../../../components/AppScreen';
 import Header from '../../../components/Header';
 import Switch from '../../../components/Switch';
+import TimePicker from '../../../components/TimePicker';
 
 const DAYS = ['월', '화', '수', '목', '금', '토', '일'];
 
 // 옵션 타입 정의
 type OptionType = 'vibrate' | 'call' | 'voice';
 
-function TimePickerCard({
-  hour,
-  minute,
-  onPress,
-}: {
-  hour: number;
-  minute: number;
-  onPress: () => void;
-}) {
-  return (
-    <View style={styles.timePickerWrapper}>
-      <TouchableOpacity onPress={onPress}>
-        <View style={styles.timeDisplayRow}>
-          <View style={styles.timeIndicator} />
-          <View style={styles.tempTimeDisplay}>
-            <Text style={styles.ampmTextLeft}>오전</Text>
-            <Text style={styles.tempTimeText}>
-              {hour.toString().padStart(2, '0')}
-            </Text>
-            <Text style={styles.colon}>:</Text>
-            <Text style={styles.tempTimeText}>
-              {minute.toString().padStart(2, '0')}
-            </Text>
-          </View>
-          <View style={styles.timeIndicator} />
-        </View>
-      </TouchableOpacity>
-    </View>
-  );
-}
-
-function RepeatDaysCard({
-  selectedDays,
-  onToggleDay,
-}: {
+interface RepeatDaysCardProps {
   selectedDays: number[];
   onToggleDay: (idx: number) => void;
-}) {
+}
+
+function RepeatDaysCard({selectedDays, onToggleDay}: RepeatDaysCardProps) {
   return (
     <View style={styles.repeatContainer}>
       <Text style={styles.repeatTitle}>반복</Text>
@@ -80,6 +49,15 @@ function RepeatDaysCard({
   );
 }
 
+interface OptionItemProps {
+  icon: React.ReactNode;
+  label: string;
+  subLabel: string;
+  toggled?: boolean;
+  onPress: () => void;
+  showToggle?: boolean;
+}
+
 function OptionItem({
   icon,
   label,
@@ -87,14 +65,7 @@ function OptionItem({
   toggled,
   onPress,
   showToggle = true,
-}: {
-  icon: React.ReactNode;
-  label: string;
-  subLabel: string;
-  toggled?: boolean;
-  onPress: () => void;
-  showToggle?: boolean;
-}) {
+}: OptionItemProps) {
   return (
     <TouchableOpacity
       style={styles.optionItem}
@@ -118,13 +89,12 @@ function OptionItem({
   );
 }
 
-function OptionsCard({
-  selectedOptions,
-  onToggleOption,
-}: {
+interface OptionsCardProps {
   selectedOptions: OptionType[];
   onToggleOption: (option: OptionType) => void;
-}) {
+}
+
+function OptionsCard({selectedOptions, onToggleOption}: OptionsCardProps) {
   return (
     <View style={styles.optionsContainer}>
       <OptionItem
@@ -170,13 +140,18 @@ function OptionsCard({
   );
 }
 
-function BottomButtonRow() {
+interface BottomButtonRowProps {
+  onCancel: () => void;
+  onSave: () => void;
+}
+
+function BottomButtonRow({onCancel, onSave}: BottomButtonRowProps) {
   return (
     <View style={styles.buttonRow}>
-      <TouchableOpacity style={styles.cancelBtn}>
+      <TouchableOpacity style={styles.cancelBtn} onPress={onCancel}>
         <Text style={styles.cancelText}>취소</Text>
       </TouchableOpacity>
-      <TouchableOpacity style={styles.saveBtn}>
+      <TouchableOpacity style={styles.saveBtn} onPress={onSave}>
         <Text style={styles.saveText}>저장</Text>
       </TouchableOpacity>
     </View>
@@ -187,9 +162,18 @@ const AiCallSettingsScreen = () => {
   const navigation =
     useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
-  const [selectedDays, setSelectedDays] = useState<number[]>([]);
-  const [hour, _setHour] = useState<number>(8);
-  const [minute, _setMinute] = useState<number>(0);
+  // TODO: storage 값이 없으면 기본값을 다음과 같이, 있으면 그 값을 사용하도록 수정
+  const [selectedDays, setSelectedDays] = useState<number[]>([
+    0, 1, 2, 3, 4, 5, 6,
+  ]);
+  const [time, setTime] = useState(() => {
+    const d = new Date();
+    d.setHours(20);
+    d.setMinutes(0);
+    d.setSeconds(0);
+    d.setMilliseconds(0);
+    return d;
+  });
   const [selectedOptions, setSelectedOptions] = useState<OptionType[]>([
     'vibrate',
     'call',
@@ -212,6 +196,14 @@ const AiCallSettingsScreen = () => {
     );
   };
 
+  const handleSave = () => {
+    console.log('시간:', time.getHours(), '시', time.getMinutes(), '분');
+    console.log('요일:', selectedDays); // 0:일, 1:월, ...
+    console.log('진동:', selectedOptions.includes('vibrate'));
+    console.log('다시 전화:', selectedOptions.includes('call'));
+    console.log('AI 음성:', 'Sol');
+  };
+
   return (
     <AppScreen style={styles.container}>
       <Header
@@ -219,73 +211,23 @@ const AiCallSettingsScreen = () => {
         onBackPress={() => navigation.goBack()}
         marginBottom={40}
       />
-      <TimePickerCard
-        hour={hour}
-        minute={minute}
-        onPress={() => {
-          /* TODO: 시간 선택 휠 */
-        }}
-      />
+      <TimePicker value={time} onChange={setTime} />
       <RepeatDaysCard selectedDays={selectedDays} onToggleDay={toggleDay} />
       <OptionsCard
         selectedOptions={selectedOptions}
         onToggleOption={toggleOption}
       />
-      <BottomButtonRow />
+      <BottomButtonRow
+        onCancel={() => navigation.goBack()}
+        onSave={handleSave}
+      />
     </AppScreen>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#F7F7F7',
-  },
-  timePickerWrapper: {
-    backgroundColor: '#fff',
-    borderRadius: 10,
-    paddingVertical: 20,
-    marginBottom: 30,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 20,
-  },
-  timeDisplayRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 10,
-  },
-  timeIndicator: {
-    width: 22,
-    height: 22,
-    borderRadius: 11,
-    backgroundColor: '#1E1E1E',
-  },
-  tempTimeDisplay: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 5,
-  },
-  ampmTextLeft: {
-    fontSize: 26,
-    fontWeight: '600',
-    color: '#333333',
-    marginRight: 10,
-  },
-  tempTimeText: {
-    fontSize: 40,
-    fontWeight: '600',
-    color: '#333333',
-    width: 60,
-    textAlign: 'center',
-    letterSpacing: -2,
-  },
-  colon: {
-    fontSize: 40,
-    fontWeight: '600',
-    color: '#333333',
-    marginHorizontal: 5,
+    backgroundColor: '#F1F1F1',
   },
   repeatContainer: {
     marginBottom: 20,
