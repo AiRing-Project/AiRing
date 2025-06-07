@@ -90,3 +90,14 @@ export const isFuture = (dateString: string) => {
   const todayString = getDateString();
   return inputDateString > todayString;
 };
+
+/**
+ * 초 단위를 mm:ss 형식으로 변환
+ */
+export const formatDuration = (sec: number) => {
+  const m = Math.floor(sec / 60)
+    .toString()
+    .padStart(2, '0');
+  const s = (sec % 60).toString().padStart(2, '0');
+  return `${m}:${s}`;
+};

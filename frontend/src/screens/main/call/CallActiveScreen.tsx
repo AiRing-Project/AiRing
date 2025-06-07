@@ -1,6 +1,6 @@
 import {useNavigation} from '@react-navigation/native';
 import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   Dimensions,
   StyleSheet,
@@ -14,6 +14,7 @@ import IcCallDecline from '../../../assets/icons/ic-call-decline.svg';
 import IcMicOff from '../../../assets/icons/ic-mic-off.svg';
 import IcSpeaker from '../../../assets/icons/ic-speaker.svg';
 import AppScreen from '../../../components/layout/AppScreen';
+import {formatDuration} from '../../../utils/date';
 
 const {height: SCREEN_HEIGHT} = Dimensions.get('window');
 const BUTTON_SIZE = 60;
@@ -23,6 +24,15 @@ const CallActiveScreen = () => {
     useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const [speakerOn, setSpeakerOn] = useState(false);
   const [micMuted, setMicMuted] = useState(false);
+  const [startTime] = useState(Date.now());
+  const [elapsed, setElapsed] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setElapsed(Math.floor((Date.now() - startTime) / 1000));
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [startTime]);
 
   const handleSpeakerPress = () => {
     setSpeakerOn(prev => !prev);
@@ -43,7 +53,7 @@ const CallActiveScreen = () => {
       <View style={styles.textContainer}>
         <Text style={styles.title}>AIRING</Text>
         {/* TODO: 실제 데이터로 교체 */}
-        <Text style={styles.reservation}>00:00</Text>
+        <Text style={styles.reservation}>{formatDuration(elapsed)}</Text>
       </View>
       <View style={styles.buttonContainer}>
         <TouchableOpacity
