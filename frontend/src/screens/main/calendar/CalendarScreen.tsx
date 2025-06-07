@@ -5,10 +5,10 @@ import {Calendar, LocaleConfig} from 'react-native-calendars';
 
 import IcChevronLeft from '../../../assets/icons/ic-chevron-left.svg';
 import IcEmotionEmpty from '../../../assets/icons/ic-emotion-empty.svg';
-import AppScreen from '../../../components/AppScreen';
-import HorizontalDivider from '../../../components/HorizontalDivider';
-import ListItem from '../../../components/ListItem';
-import MonthYearPicker from '../../../components/MonthYearPicker';
+import HorizontalDivider from '../../../components/common/HorizontalDivider';
+import ListItem from '../../../components/common/ListItem';
+import AppScreen from '../../../components/layout/AppScreen';
+import MonthYearPicker from '../../../components/picker/MonthYearPicker';
 import {useAuthStore} from '../../../store/authStore';
 import {getDateString, isFuture} from '../../../utils/date';
 

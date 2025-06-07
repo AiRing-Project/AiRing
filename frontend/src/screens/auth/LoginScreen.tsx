@@ -15,7 +15,7 @@ import {
 import * as yup from 'yup';
 
 import {getUserInfo, login} from '../../api/authApi';
-import AppScreen from '../../components/AppScreen';
+import AppScreen from '../../components/layout/AppScreen';
 import type {AuthStackParamList} from '../../navigation/AuthStack';
 import {useAuthStore} from '../../store/authStore';
 import {saveTokens} from '../../utils/tokenManager';

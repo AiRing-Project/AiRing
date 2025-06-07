@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 import MonthPicker from 'react-native-month-year-picker';
 
-import IcChevronDown from '../assets/icons/ic-chevron-down.svg';
+import IcChevronDown from '../../assets/icons/ic-chevron-down.svg';
 
 interface MonthYearPickerProps {
   value: Date;

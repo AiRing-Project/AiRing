@@ -1,12 +1,13 @@
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import React, {useCallback, useState} from 'react';
-import {Switch, View} from 'react-native';
+import {View} from 'react-native';
 
 import {RootStackParamList} from '../../../../App';
-import AppScreen from '../../../components/AppScreen';
-import Header from '../../../components/Header';
-import ListItem from '../../../components/ListItem';
+import ListItem from '../../../components/common/ListItem';
+import Switch from '../../../components/common/Switch';
+import AppScreen from '../../../components/layout/AppScreen';
+import Header from '../../../components/layout/Header';
 import {
   getAppLockPassword,
   removeAppLockPassword,
@@ -49,12 +50,7 @@ const SecuritySettingsScreen = () => {
         <ListItem
           label="앱 잠금"
           rightIcon={
-            <Switch
-              value={appLock}
-              onValueChange={handleAppLockSwitch}
-              thumbColor={appLock ? '#48C06D' : '#ccc'}
-              trackColor={{false: '#ccc', true: '#B6EFC6'}}
-            />
+            <Switch value={appLock} onValueChange={handleAppLockSwitch} />
           }
         />
       </View>

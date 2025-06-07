@@ -11,8 +11,8 @@ import IcPerson from '../../../assets/icons/ic-person.svg';
 import IcPhone from '../../../assets/icons/ic-phone.svg';
 import IcPieChart from '../../../assets/icons/ic-pie-chart.svg';
 import IcSetting from '../../../assets/icons/ic-setting.svg';
-import AppScreen from '../../../components/AppScreen';
-import ListItem from '../../../components/ListItem';
+import ListItem from '../../../components/common/ListItem';
+import AppScreen from '../../../components/layout/AppScreen';
 import {useAuthStore} from '../../../store/authStore';
 import {getRefreshToken, removeTokens} from '../../../utils/tokenManager';
 

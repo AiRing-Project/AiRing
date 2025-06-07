@@ -15,7 +15,7 @@ import * as yup from 'yup';
 
 import {RootStackParamList} from '../../../../App';
 import {resetPassword} from '../../../api/authApi';
-import AppScreen from '../../../components/AppScreen';
+import AppScreen from '../../../components/layout/AppScreen';
 const schema = yup.object({
   currentPassword: yup.string().required('현재 비밀번호를 입력하세요.'),
   newPassword: yup

@@ -3,7 +3,7 @@ import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import React from 'react';
 import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 
-import AppScreen from '../../components/AppScreen';
+import AppScreen from '../../components/layout/AppScreen';
 import {AuthStackParamList} from '../../navigation/AuthStack';
 
 const WelcomeScreen = () => {

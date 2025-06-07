@@ -1,7 +1,7 @@
 import React from 'react';
 import {StyleSheet, Text} from 'react-native';
 
-import AppScreen from '../../../components/AppScreen';
+import AppScreen from '../../../components/layout/AppScreen';
 
 const ReportScreen = () => {
   return (

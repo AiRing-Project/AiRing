@@ -8,7 +8,7 @@ import {
   ViewStyle,
 } from 'react-native';
 
-import IcChevronRight from '../assets/icons/ic-chevron-right.svg';
+import IcChevronRight from '../../assets/icons/ic-chevron-right.svg';
 
 interface ListItemProps {
   label: string | React.ReactNode;
