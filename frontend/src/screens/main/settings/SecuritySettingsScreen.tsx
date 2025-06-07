@@ -4,10 +4,10 @@ import React, {useCallback, useState} from 'react';
 import {View} from 'react-native';
 
 import {RootStackParamList} from '../../../../App';
-import AppScreen from '../../../components/AppScreen';
-import Header from '../../../components/Header';
-import ListItem from '../../../components/ListItem';
-import Switch from '../../../components/Switch';
+import ListItem from '../../../components/common/ListItem';
+import Switch from '../../../components/common/Switch';
+import AppScreen from '../../../components/layout/AppScreen';
+import Header from '../../../components/layout/Header';
 import {
   getAppLockPassword,
   removeAppLockPassword,

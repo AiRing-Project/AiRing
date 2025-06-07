@@ -299,9 +299,9 @@ const ScrollPicker = React.forwardRef(
           showsVerticalScrollIndicator={false}
           nestedScrollEnabled
           onMomentumScrollBegin={() => onMomentumScrollBegin()}
-          onMomentumScrollEnd={(e: any) => onMomentumScrollEnd(e)}
+          onMomentumScrollEnd={onMomentumScrollEnd}
           onScrollBeginDrag={() => onScrollBeginDrag()}
-          onScrollEndDrag={(e: any) => onScrollEndDrag(e)}
+          onScrollEndDrag={onScrollEndDrag}
           {...props}>
           {header}
           {dataList.map((d, idx) => renderItemInternal(d, idx))}

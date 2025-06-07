@@ -7,10 +7,10 @@ import {RootStackParamList} from '../../../../App';
 import CallIcon from '../../../assets/icons/ic-call.svg';
 import VibrateIcon from '../../../assets/icons/ic-vibrate.svg';
 import VoiceIcon from '../../../assets/icons/ic-voice.svg';
-import AppScreen from '../../../components/AppScreen';
-import Header from '../../../components/Header';
-import Switch from '../../../components/Switch';
-import TimePicker from '../../../components/TimePicker';
+import Switch from '../../../components/common/Switch';
+import AppScreen from '../../../components/layout/AppScreen';
+import Header from '../../../components/layout/Header';
+import TimePicker from '../../../components/picker/TimePicker';
 
 const DAYS = ['월', '화', '수', '목', '금', '토', '일'];
 

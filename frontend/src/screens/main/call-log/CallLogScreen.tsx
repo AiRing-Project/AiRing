@@ -16,8 +16,8 @@ import InfoCircle from '../../../assets/icons/ic-info-circle.svg';
 import PhoneIncoming from '../../../assets/icons/ic-phone-incoming.svg';
 import PhoneOutgoing from '../../../assets/icons/ic-phone-outgoing.svg';
 import IcSearch from '../../../assets/icons/ic-search.svg';
-import AppScreen from '../../../components/AppScreen';
-import MonthYearPicker from '../../../components/MonthYearPicker';
+import AppScreen from '../../../components/layout/AppScreen';
+import MonthYearPicker from '../../../components/picker/MonthYearPicker';
 import {formatSectionDate, formatTime} from '../../../utils/date';
 
 type CallType = 'incoming' | 'outgoing';

@@ -1,7 +1,7 @@
 import React from 'react';
 import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 
-import IcChevronLeft from '../assets/icons/ic-chevron-left.svg';
+import IcChevronLeft from '../../assets/icons/ic-chevron-left.svg';
 
 interface HeaderProps {
   title: string;
