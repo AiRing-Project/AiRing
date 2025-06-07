@@ -15,6 +15,15 @@ const MINUTES = Array.from({length: 60}, (_, i) => i); // 0~59
 const ITEM_HEIGHT = 70;
 const VISIBLE_ITEM_COUNT = 3;
 
+// Converts 12-hour format hour and ampm ("오전"/"오후") to 24-hour format hour
+function to24HourFormat(hour: number, ampm: string): number {
+  if (ampm === '오후') {
+    return hour === 12 ? 12 : hour + 12;
+  } else {
+    return hour === 12 ? 0 : hour;
+  }
+}
+
 const TimePicker: React.FC<TimePickerProps> = ({value, onChange}) => {
   // Date에서 오전/오후, 시, 분 추출
   const hour24 = value.getHours();
@@ -23,26 +32,14 @@ const TimePicker: React.FC<TimePickerProps> = ({value, onChange}) => {
   const minute = value.getMinutes();
 
   const handleAmpmChange = (ampmValue: string) => {
-    let newHour = hour12 % 12;
-    if (ampmValue === '오후') {
-      newHour += 12;
-    }
-    if (ampmValue === '오전' && newHour === 12) {
-      newHour = 0;
-    }
+    const newHour = to24HourFormat(hour12, ampmValue);
     const newDate = new Date(value);
     newDate.setHours(newHour);
     onChange(newDate);
   };
 
   const handleHourChange = (hourValue: number) => {
-    let newHour = hourValue % 12;
-    if (ampm === '오후') {
-      newHour += 12;
-    }
-    if (ampm === '오전' && newHour === 12) {
-      newHour = 0;
-    }
+    const newHour = to24HourFormat(hourValue, ampm);
     const newDate = new Date(value);
     newDate.setHours(newHour);
     onChange(newDate);
