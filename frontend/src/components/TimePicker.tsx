@@ -91,6 +91,7 @@ const TimePicker: React.FC<TimePickerProps> = ({value, onChange}) => {
           activeItemTextStyle={styles.activeNumberText}
           itemHeight={ITEM_HEIGHT}
           visibleItemCount={VISIBLE_ITEM_COUNT}
+          infinite
           onValueChange={item =>
             handleHourChange(item as (typeof HOURS)[number])
           }
@@ -111,6 +112,7 @@ const TimePicker: React.FC<TimePickerProps> = ({value, onChange}) => {
           itemHeight={ITEM_HEIGHT}
           visibleItemCount={VISIBLE_ITEM_COUNT}
           zeroPadLength={2}
+          infinite
           onValueChange={item =>
             handleMinuteChange(item as (typeof MINUTES)[number])
           }
