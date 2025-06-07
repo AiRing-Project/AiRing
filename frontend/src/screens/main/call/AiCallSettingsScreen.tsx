@@ -55,6 +55,7 @@ interface OptionItemProps {
   subLabel: string;
   toggled?: boolean;
   onPress: () => void;
+  onToggle?: () => void;
   showToggle?: boolean;
 }
 
@@ -64,13 +65,14 @@ function OptionItem({
   subLabel,
   toggled,
   onPress,
+  onToggle,
   showToggle = true,
 }: OptionItemProps) {
   return (
     <TouchableOpacity
       style={styles.optionItem}
       onPress={onPress}
-      disabled={showToggle}>
+      activeOpacity={0.7}>
       <View style={styles.optionIconLabel}>
         {icon}
         <View style={styles.optionLabelContainer}>
@@ -83,7 +85,7 @@ function OptionItem({
       </View>
       {showToggle &&
         (toggled !== undefined ? (
-          <Switch value={!!toggled} onValueChange={onPress} />
+          <Switch value={!!toggled} onValueChange={onToggle ?? (() => {})} />
         ) : null)}
     </TouchableOpacity>
   );
@@ -108,7 +110,10 @@ function OptionsCard({selectedOptions, onToggleOption}: OptionsCardProps) {
         label="진동"
         subLabel="Basic call"
         toggled={selectedOptions.includes('vibrate')}
-        onPress={() => onToggleOption('vibrate')}
+        onPress={() => {
+          /* 리스트 이동 등 추후 구현 */
+        }}
+        onToggle={() => onToggleOption('vibrate')}
       />
       <OptionItem
         icon={
@@ -121,7 +126,10 @@ function OptionsCard({selectedOptions, onToggleOption}: OptionsCardProps) {
         label="다시 전화"
         subLabel="10분 후"
         toggled={selectedOptions.includes('call')}
-        onPress={() => onToggleOption('call')}
+        onPress={() => {
+          /* 리스트 이동 등 추후 구현 */
+        }}
+        onToggle={() => onToggleOption('call')}
       />
       <OptionItem
         icon={
@@ -133,7 +141,9 @@ function OptionsCard({selectedOptions, onToggleOption}: OptionsCardProps) {
         }
         label="AI 음성"
         subLabel="Sol"
-        onPress={() => onToggleOption('voice')}
+        onPress={() => {
+          /* 리스트 이동 등 추후 구현 */
+        }}
         showToggle={false}
       />
     </View>
