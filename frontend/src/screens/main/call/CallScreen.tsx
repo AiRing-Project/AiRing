@@ -75,7 +75,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  callSlideButton: {},
+  callSlideButton: {
+    boxShadow: '0 0 12px 0 #fff',
+  },
   callAnswerButton: {
     backgroundColor: '#00cc6b',
     height: 70,
