@@ -5,12 +5,11 @@ import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 
 import {RootStackParamList} from '../../../../App';
 import CallIcon from '../../../assets/icons/ic-call.svg';
-import ToggleOffIcon from '../../../assets/icons/ic-toggle-off.svg';
-import ToggleOnIcon from '../../../assets/icons/ic-toggle-on.svg';
 import VibrateIcon from '../../../assets/icons/ic-vibrate.svg';
 import VoiceIcon from '../../../assets/icons/ic-voice.svg';
 import AppScreen from '../../../components/AppScreen';
 import Header from '../../../components/Header';
+import Switch from '../../../components/Switch';
 
 const DAYS = ['월', '화', '수', '목', '금', '토', '일'];
 
@@ -97,7 +96,10 @@ function OptionItem({
   showToggle?: boolean;
 }) {
   return (
-    <TouchableOpacity style={styles.optionItem} onPress={onPress}>
+    <TouchableOpacity
+      style={styles.optionItem}
+      onPress={onPress}
+      disabled={showToggle}>
       <View style={styles.optionIconLabel}>
         {icon}
         <View style={styles.optionLabelContainer}>
@@ -110,11 +112,7 @@ function OptionItem({
       </View>
       {showToggle &&
         (toggled !== undefined ? (
-          toggled ? (
-            <ToggleOnIcon width={48} height={48} />
-          ) : (
-            <ToggleOffIcon width={48} height={48} />
-          )
+          <Switch value={!!toggled} onValueChange={onPress} />
         ) : null)}
     </TouchableOpacity>
   );
