@@ -29,7 +29,7 @@ const THRESHOLD = SLIDE_RANGE * 0.5;
 const DECLINE_COLOR = '#f53e40';
 const ACCEPT_COLOR = '#00cc6b';
 
-const CallScreen = () => {
+const IncomingCallScreen = () => {
   const [response, setResponse] = useState<'decline' | 'accept' | null>(null);
   const pan = useRef(new Animated.Value(0)).current;
   const boxOpacity = pan.interpolate({
@@ -71,7 +71,7 @@ const CallScreen = () => {
             useNativeDriver: false,
           }).start(() => {
             setResponse('accept');
-            console.log('수락');
+            navigation.navigate('CallActive');
           });
         } else {
           setResponse(null);
@@ -180,4 +180,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default CallScreen;
+export default IncomingCallScreen;

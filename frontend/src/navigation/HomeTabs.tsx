@@ -187,7 +187,7 @@ const HomeTabs = () => {
               style={styles.modalButton}
               onPress={() => {
                 setModalVisible(false);
-                navigation.navigate('Call');
+                navigation.navigate('CallActive');
               }}>
               <Text style={styles.modalButtonText}>통화하기</Text>
             </TouchableOpacity>

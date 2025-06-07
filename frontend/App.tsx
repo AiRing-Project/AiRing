@@ -15,7 +15,8 @@ import AuthStack from './src/navigation/AuthStack';
 import HomeTabs from './src/navigation/HomeTabs';
 import AppLockScreen from './src/screens/AppLockScreen';
 import AiCallSettingsScreen from './src/screens/main/call/AiCallSettingsScreen';
-import CallScreen from './src/screens/main/call/CallScreen';
+import CallActiveScreen from './src/screens/main/call/CallActiveScreen';
+import IncomingCallScreen from './src/screens/main/call/IncomingCallScreen';
 import CallLogDetailScreen from './src/screens/main/call-log/CallLogDetailScreen';
 import ResetPasswordScreen from './src/screens/main/settings/ResetPasswordScreen';
 import SecuritySettingsScreen from './src/screens/main/settings/SecuritySettingsScreen';
@@ -32,7 +33,8 @@ export type RootStackParamList = {
 
   // Call Modal 내부 화면
   AiCallSettings: undefined;
-  Call: undefined;
+  IncomingCall: undefined;
+  CallActive: undefined;
 
   // Call Log Tab 내부 화면
   CallLogDetailScreen: {
@@ -86,7 +88,14 @@ const App = () => {
                     name="AiCallSettings"
                     component={AiCallSettingsScreen}
                   />
-                  <Stack.Screen name="Call" component={CallScreen} />
+                  <Stack.Screen
+                    name="IncomingCall"
+                    component={IncomingCallScreen}
+                  />
+                  <Stack.Screen
+                    name="CallActive"
+                    component={CallActiveScreen}
+                  />
 
                   {/* Call Log Tab 내부 화면 */}
                   <Stack.Screen
