@@ -48,7 +48,7 @@ async function fetchAndSetUser(set: (state: Partial<AuthState>) => void) {
 
 export const useAuthStore = create<AuthState>()(
   persist(
-    set => ({
+    (set, get) => ({
       isLoading: true,
       isLoggedIn: false,
       user: {email: '', username: ''},
@@ -67,7 +67,7 @@ export const useAuthStore = create<AuthState>()(
           });
           return;
         }
-        const token = useAuthStore.getState().accessToken;
+        const token = get().accessToken;
         if (isTokenValid(token)) {
           await fetchAndSetUser(set);
           return;
