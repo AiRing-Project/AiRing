@@ -5,6 +5,7 @@ import {Calendar, LocaleConfig} from 'react-native-calendars';
 
 import IcChevronLeft from '../../../assets/icons/ic-chevron-left.svg';
 import IcEmotionEmpty from '../../../assets/icons/ic-emotion-empty.svg';
+import EmotionIcon from '../../../components/common/EmotionIcon';
 import HorizontalDivider from '../../../components/common/HorizontalDivider';
 import ListItem from '../../../components/common/ListItem';
 import AppScreen from '../../../components/layout/AppScreen';
@@ -67,11 +68,35 @@ const diaryData = [
     hasReply: true,
   },
   {
+    date: '2025-05-02',
+    id: 106,
+    title: '아침 산책',
+    emotion: ['calm'],
+    tag: ['health', 'morning'],
+    hasReply: false,
+  },
+  {
     date: '2025-05-03',
     id: 102,
     title: '점심 데이트',
     emotion: ['joy'],
     tag: ['food', 'friend'],
+    hasReply: false,
+  },
+  {
+    date: '2025-05-04',
+    id: 107,
+    title: '가족 모임',
+    emotion: ['thoughtful', 'joy'],
+    tag: ['family'],
+    hasReply: true,
+  },
+  {
+    date: '2025-05-05',
+    id: 108,
+    title: '어린이날',
+    emotion: ['joy'],
+    tag: ['holiday', 'family'],
     hasReply: false,
   },
   {
@@ -82,6 +107,79 @@ const diaryData = [
     tag: ['hobby'],
     hasReply: true,
   },
+  {
+    date: '2025-05-10',
+    id: 109,
+    title: '운동 후 피곤함',
+    emotion: ['tired'],
+    tag: ['health', 'exercise'],
+    hasReply: false,
+  },
+  {
+    date: '2025-05-12',
+    id: 110,
+    title: '업무 스트레스',
+    emotion: ['anger', 'thoughtful'],
+    tag: ['work', 'stress'],
+    hasReply: false,
+  },
+  {
+    date: '2025-05-15',
+    id: 111,
+    title: '친구와 갈등',
+    emotion: ['anger'],
+    tag: ['friend', 'conflict'],
+    hasReply: true,
+  },
+  {
+    date: '2025-05-18',
+    id: 112,
+    title: '카페에서 휴식',
+    emotion: ['calm'],
+    tag: ['cafe', 'rest'],
+    hasReply: false,
+  },
+  {
+    date: '2025-05-20',
+    id: 113,
+    title: '새로운 취미 시작',
+    emotion: ['anticipation'],
+    tag: ['hobby', 'new'],
+    hasReply: true,
+  },
+  {
+    date: '2025-05-22',
+    id: 114,
+    title: '비 오는 날',
+    emotion: ['thoughtful'],
+    tag: ['weather', 'rain'],
+    hasReply: false,
+  },
+  {
+    date: '2025-05-25',
+    id: 115,
+    title: '맛집 탐방',
+    emotion: ['joy'],
+    tag: ['food', 'trip'],
+    hasReply: true,
+  },
+  {
+    date: '2025-05-28',
+    id: 116,
+    title: '야근',
+    emotion: ['anger', 'tired'],
+    tag: ['work', 'night'],
+    hasReply: false,
+  },
+  {
+    date: '2025-05-30',
+    id: 117,
+    title: '산책하며 생각 정리',
+    emotion: ['thoughtful', 'calm'],
+    tag: ['health', 'walk'],
+    hasReply: true,
+  },
+  // 6월 데이터 예시
   {
     date: '2025-06-02',
     id: 104,
@@ -108,6 +206,8 @@ const emotionColorMap: Record<string, string> = {
   thoughtful: '#A259FF', // 보라
   anger: '#ff6d6d', // 빨강
 };
+
+const DAY_BOX_SIZE = 35;
 
 const CalendarScreen = () => {
   const todayString = getDateString();
@@ -170,7 +270,6 @@ const CalendarScreen = () => {
       styles.dayBox,
       isToday && styles.dayBoxSelected,
       state === 'disabled' && styles.dayBoxDisabled,
-      emotionColor && {backgroundColor: emotionColor},
     ].filter(Boolean);
     const textStyle = [
       styles.dayText,
@@ -189,7 +288,14 @@ const CalendarScreen = () => {
           {showCircle && <View style={styles.dayCircle} />}
           <Text style={textStyle}>{date.day}</Text>
         </View>
-        <View style={boxStyle} />
+        {emotionColor ? (
+          <EmotionIcon
+            size={DAY_BOX_SIZE}
+            colors={[emotionColor, emotionColor]}
+          />
+        ) : (
+          <View style={boxStyle} />
+        )}
       </TouchableOpacity>
     );
   };
@@ -324,8 +430,8 @@ const styles = StyleSheet.create({
     marginLeft: 12,
   },
   dayBox: {
-    width: 36,
-    height: 35,
+    width: DAY_BOX_SIZE,
+    height: DAY_BOX_SIZE,
     borderRadius: 5,
     backgroundColor: 'rgba(0,0,0,0.11)',
     alignItems: 'center',
@@ -333,8 +439,8 @@ const styles = StyleSheet.create({
     position: 'relative',
   },
   dayBoxSelected: {
-    width: 36,
-    height: 35,
+    width: DAY_BOX_SIZE,
+    height: DAY_BOX_SIZE,
     borderRadius: 5,
     backgroundColor: 'rgba(0,0,0,0.11)',
     borderColor: '#222',
