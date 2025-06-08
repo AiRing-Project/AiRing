@@ -1,35 +1,25 @@
 import {RouteProp, useNavigation, useRoute} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import React, {useState} from 'react';
-import {StyleSheet, Text, View} from 'react-native';
+import {StyleSheet, View} from 'react-native';
 
 import {RootStackParamList} from '../../../../App';
 import ListItem from '../../../components/common/ListItem';
 import AppScreen from '../../../components/layout/AppScreen';
 import Header from '../../../components/layout/Header';
-import {VOICE_LIST} from '../../../store/aiCallSettingsStore';
+import {VIBRATE_LIST} from '../../../store/aiCallSettingsStore';
 
-interface AiVoiceItemProps {
+interface VibrateItemProps {
   label: string;
-  description: string;
   onPress: () => void;
   isSelected: boolean;
 }
 
-const AiVoiceItem = ({
-  label,
-  description,
-  onPress,
-  isSelected,
-}: AiVoiceItemProps) => {
+const VibrateItem = ({label, onPress, isSelected}: VibrateItemProps) => {
   return (
     <ListItem
       label={label}
-      rightIcon={
-        <Text style={isSelected ? styles.selectedText : styles.text}>
-          {description}
-        </Text>
-      }
+      rightIcon={<></>}
       onPress={onPress}
       containerStyle={isSelected ? styles.selectedContainer : undefined}
       labelStyle={isSelected ? styles.selectedText : undefined}
@@ -37,35 +27,33 @@ const AiVoiceItem = ({
   );
 };
 
-const AiVoiceScreen = () => {
+const VibrateScreen = () => {
   const navigation =
     useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-  const route = useRoute<RouteProp<RootStackParamList, 'AiVoice'>>();
-  const {voice} = route.params;
-  const [selectedVoice, setSelectedVoice] = useState(voice);
+  const route = useRoute<RouteProp<RootStackParamList, 'Vibrate'>>();
+  const {vibrate} = route.params;
+  const [selectedVibrate, setSelectedVibrate] = useState(vibrate);
 
   const handleSelect = (v: string) => {
-    setSelectedVoice(v);
+    setSelectedVibrate(v);
   };
 
   return (
     <AppScreen>
       <Header
-        title="AI 음성"
+        title="진동"
         onBackPress={() =>
-          navigation.popTo('AiCallSettings', {voice: selectedVoice})
+          navigation.popTo('AiCallSettings', {vibrate: selectedVibrate})
         }
         marginBottom={40}
       />
-
       <View style={{gap: 10}}>
-        {VOICE_LIST.map(item => (
-          <AiVoiceItem
-            key={item.label}
-            label={item.label}
-            description={item.description}
-            isSelected={selectedVoice === item.label}
-            onPress={() => handleSelect(item.label)}
+        {VIBRATE_LIST.map(item => (
+          <VibrateItem
+            key={item}
+            label={item}
+            isSelected={selectedVibrate === item}
+            onPress={() => handleSelect(item)}
           />
         ))}
       </View>
@@ -87,4 +75,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default AiVoiceScreen;
+export default VibrateScreen;

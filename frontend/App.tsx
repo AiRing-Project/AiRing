@@ -19,9 +19,11 @@ import CallActiveScreen from './src/screens/main/call/CallActiveScreen';
 import IncomingCallScreen from './src/screens/main/call/IncomingCallScreen';
 import CallLogDetailScreen from './src/screens/main/call-log/CallLogDetailScreen';
 import AiVoiceScreen from './src/screens/main/settings/AiVoiceScreen';
+import CallBackScreen from './src/screens/main/settings/CallBackScreen';
 import ResetPasswordScreen from './src/screens/main/settings/ResetPasswordScreen';
 import SecuritySettingsScreen from './src/screens/main/settings/SecuritySettingsScreen';
 import SetAppLockPasswordScreen from './src/screens/main/settings/SetAppLockPasswordScreen';
+import VibrateScreen from './src/screens/main/settings/VibrateScreen';
 import SplashScreen from './src/screens/SplashScreen';
 import {useAppLockStore} from './src/store/appLockStore';
 import {useAuthStore} from './src/store/authStore';
@@ -34,7 +36,9 @@ export type RootStackParamList = {
 
   // Call Modal 내부 화면
   AiCallSettings: {
-    voice: string;
+    vibrate?: string;
+    callBack?: string;
+    voice?: string;
   };
   IncomingCall: undefined;
   CallActive: undefined;
@@ -48,6 +52,12 @@ export type RootStackParamList = {
   SecuritySettings: undefined;
   ResetPassword: undefined;
   SetAppLockPassword: undefined;
+  Vibrate: {
+    vibrate: string;
+  };
+  CallBack: {
+    callBack: string;
+  };
   AiVoice: {
     voice: string;
   };
@@ -122,6 +132,8 @@ const App = () => {
                     name="SetAppLockPassword"
                     component={SetAppLockPasswordScreen}
                   />
+                  <Stack.Screen name="Vibrate" component={VibrateScreen} />
+                  <Stack.Screen name="CallBack" component={CallBackScreen} />
                   <Stack.Screen name="AiVoice" component={AiVoiceScreen} />
                 </>
               )}
