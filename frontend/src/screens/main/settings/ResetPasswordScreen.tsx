@@ -8,11 +8,11 @@ import * as yup from 'yup';
 
 import {RootStackParamList} from '../../../../App';
 import {resetPassword} from '../../../api/authApi';
-import FormButton from '../../../components/common/FormButton';
-import FormInput from '../../../components/common/FormInput';
+import FormButton from '../../../components/form/FormButton';
+import FormInput from '../../../components/form/FormInput';
+import {formStyles} from '../../../components/form/styles';
 import AppScreen from '../../../components/layout/AppScreen';
 import Header from '../../../components/layout/Header';
-import {loginStyles} from '../../auth/LoginScreen';
 
 const schema = yup.object({
   currentPassword: yup.string().required('현재 비밀번호를 입력하세요.'),
@@ -83,8 +83,8 @@ const ResetPasswordScreen = () => {
         onBackPress={() => navigation.goBack()}
         marginBottom={44}
       />
-      <View style={loginStyles.container}>
-        <View style={loginStyles.formContainer}>
+      <View style={formStyles.container}>
+        <View style={formStyles.formContainer}>
           <Controller
             control={control}
             name="currentPassword"

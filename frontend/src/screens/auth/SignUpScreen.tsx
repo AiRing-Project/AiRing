@@ -7,12 +7,12 @@ import {Alert, View} from 'react-native';
 import * as yup from 'yup';
 
 import {signUp} from '../../api/authApi';
-import FormButton from '../../components/common/FormButton';
-import FormInput from '../../components/common/FormInput';
+import FormButton from '../../components/form/FormButton';
+import FormInput from '../../components/form/FormInput';
+import {formStyles} from '../../components/form/styles';
 import AppScreen from '../../components/layout/AppScreen';
 import Header from '../../components/layout/Header';
 import type {AuthStackParamList} from '../../navigation/AuthStack';
-import {loginStyles} from './LoginScreen';
 
 const schema = yup.object({
   email: yup
@@ -96,8 +96,8 @@ const SignUpScreen = () => {
         onBackPress={() => navigation.goBack()}
         marginBottom={44}
       />
-      <View style={loginStyles.container}>
-        <View style={loginStyles.formContainer}>
+      <View style={formStyles.container}>
+        <View style={formStyles.formContainer}>
           <Controller
             control={control}
             name="username"

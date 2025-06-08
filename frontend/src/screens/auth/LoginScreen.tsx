@@ -3,12 +3,13 @@ import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import React, {useState} from 'react';
 import {Controller, useForm} from 'react-hook-form';
-import {Alert, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import {Alert, Text, TouchableOpacity, View} from 'react-native';
 import * as yup from 'yup';
 
 import {getUserInfo, login} from '../../api/authApi';
-import FormButton from '../../components/common/FormButton';
-import FormInput from '../../components/common/FormInput';
+import FormButton from '../../components/form/FormButton';
+import FormInput from '../../components/form/FormInput';
+import {formStyles} from '../../components/form/styles';
 import AppScreen from '../../components/layout/AppScreen';
 import Header from '../../components/layout/Header';
 import type {AuthStackParamList} from '../../navigation/AuthStack';
@@ -88,8 +89,8 @@ const LoginScreen = () => {
         onBackPress={() => navigation.goBack()}
         marginBottom={44}
       />
-      <View style={loginStyles.container}>
-        <View style={loginStyles.formContainer}>
+      <View style={formStyles.container}>
+        <View style={formStyles.formContainer}>
           <Controller
             control={control}
             name="email"
@@ -137,45 +138,15 @@ const LoginScreen = () => {
           loading={loading}
           disabled={loading}
         />
-        <View style={loginStyles.signupContainer}>
-          <Text style={loginStyles.signupText}>아직 계정이 없으신가요? </Text>
+        <View style={formStyles.bottomContainer}>
+          <Text style={formStyles.bottomText}>아직 계정이 없으신가요? </Text>
           <TouchableOpacity onPress={() => navigation.navigate('SignUp')}>
-            <Text style={loginStyles.signupLink}>회원가입</Text>
+            <Text style={formStyles.bottomLink}>회원가입</Text>
           </TouchableOpacity>
         </View>
       </View>
     </AppScreen>
   );
 };
-
-export const loginStyles = StyleSheet.create({
-  container: {
-    gap: 30,
-  },
-  title: {
-    fontSize: 28,
-    marginBottom: 32,
-    fontWeight: 'bold',
-  },
-  formContainer: {
-    gap: 15,
-  },
-  signupContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    gap: 10,
-  },
-  signupText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#999',
-  },
-  signupLink: {
-    fontSize: 14,
-    textDecorationLine: 'underline',
-    fontWeight: '600',
-    color: '#5d8fc5',
-  },
-});
 
 export default LoginScreen;
