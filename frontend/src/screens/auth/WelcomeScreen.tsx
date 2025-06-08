@@ -1,10 +1,19 @@
 import {useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import React from 'react';
-import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import {
+  Dimensions,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 
+import WordMarkLogo from '../../assets/logos/logo-wordmark.svg';
 import AppScreen from '../../components/layout/AppScreen';
 import {AuthStackParamList} from '../../navigation/AuthStack';
+
+const {height: SCREEN_HEIGHT} = Dimensions.get('window');
 
 const WelcomeScreen = () => {
   const navigation =
@@ -13,9 +22,9 @@ const WelcomeScreen = () => {
   return (
     <AppScreen style={styles.container}>
       <View style={styles.centerBox}>
-        <Text style={styles.logoText}>AiRing</Text>
+        <WordMarkLogo />
+        <Text style={styles.welcomeText}>AI와의 통화로, 감정을 기록해요</Text>
       </View>
-      <Text style={styles.welcomeText}>아이링에 오신 것을 환영해요 :)</Text>
       <TouchableOpacity
         style={styles.startButton}
         onPress={() => navigation.navigate('Login')}
@@ -29,15 +38,13 @@ const WelcomeScreen = () => {
 const styles = StyleSheet.create({
   container: {
     alignItems: 'center',
+    paddingHorizontal: 30,
   },
   centerBox: {
-    width: 300,
-    height: 130,
-    backgroundColor: '#D9D9D9',
-    borderRadius: 20,
+    marginTop: SCREEN_HEIGHT * 0.2,
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 225,
+    gap: 18,
   },
   logoText: {
     fontSize: 48,
@@ -47,15 +54,14 @@ const styles = StyleSheet.create({
     letterSpacing: 2,
   },
   welcomeText: {
-    marginTop: 20,
-    fontSize: 20,
-    color: '#232323',
+    fontSize: 14,
+    color: 'rgba(35, 35, 35, 0.84)',
     textAlign: 'center',
     fontWeight: '600',
   },
   startButton: {
     position: 'absolute',
-    bottom: 100,
+    bottom: SCREEN_HEIGHT * 0.2,
     left: 28,
     right: 28,
     backgroundColor: '#232323',
