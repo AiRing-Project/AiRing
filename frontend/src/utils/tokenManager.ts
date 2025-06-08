@@ -1,12 +1,12 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Keychain from 'react-native-keychain';
 
 import {reissueToken} from '../api/authApi';
+import {useAuthStore} from '../store/authStore';
 
 const REFRESH_TOKEN_SERVICE = 'AiRingRefreshToken';
 
 export async function saveTokens(accessToken: string, refreshToken?: string) {
-  await AsyncStorage.setItem('accessToken', accessToken);
+  useAuthStore.getState().setAccessToken(accessToken);
   if (refreshToken) {
     await Keychain.setGenericPassword('refreshToken', refreshToken, {
       service: REFRESH_TOKEN_SERVICE,
@@ -15,12 +15,8 @@ export async function saveTokens(accessToken: string, refreshToken?: string) {
 }
 
 export async function removeTokens() {
-  await AsyncStorage.removeItem('accessToken');
+  useAuthStore.getState().setAccessToken(null);
   await Keychain.resetGenericPassword({service: REFRESH_TOKEN_SERVICE});
-}
-
-export async function getAccessToken(): Promise<string | null> {
-  return AsyncStorage.getItem('accessToken');
 }
 
 export async function getRefreshToken(): Promise<string | null> {

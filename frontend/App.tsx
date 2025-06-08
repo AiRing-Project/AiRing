@@ -20,6 +20,9 @@ import IncomingCallScreen from './src/screens/main/call/IncomingCallScreen';
 import CallLogDetailScreen from './src/screens/main/call-log/CallLogDetailScreen';
 import ResetPasswordScreen from './src/screens/main/settings/ResetPasswordScreen';
 import SecuritySettingsScreen from './src/screens/main/settings/SecuritySettingsScreen';
+import SelectCallBackScreen from './src/screens/main/settings/SelectCallBackScreen';
+import SelectVibrateScreen from './src/screens/main/settings/SelectVibrateScreen';
+import SelectVoiceScreen from './src/screens/main/settings/SelectVoiceScreen';
 import SetAppLockPasswordScreen from './src/screens/main/settings/SetAppLockPasswordScreen';
 import SplashScreen from './src/screens/SplashScreen';
 import {useAppLockStore} from './src/store/appLockStore';
@@ -32,7 +35,11 @@ export type RootStackParamList = {
   Home: undefined;
 
   // Call Modal 내부 화면
-  AiCallSettings: undefined;
+  AiCallSettings: {
+    vibrate?: string;
+    callBack?: string;
+    voice?: string;
+  };
   IncomingCall: undefined;
   CallActive: undefined;
 
@@ -45,6 +52,15 @@ export type RootStackParamList = {
   SecuritySettings: undefined;
   ResetPassword: undefined;
   SetAppLockPassword: undefined;
+  SelectVibrate: {
+    vibrate: string;
+  };
+  SelectCallBack: {
+    callBack: string;
+  };
+  SelectVoice: {
+    voice: string;
+  };
 };
 
 enableScreens();
@@ -115,6 +131,18 @@ const App = () => {
                   <Stack.Screen
                     name="SetAppLockPassword"
                     component={SetAppLockPasswordScreen}
+                  />
+                  <Stack.Screen
+                    name="SelectVibrate"
+                    component={SelectVibrateScreen}
+                  />
+                  <Stack.Screen
+                    name="SelectCallBack"
+                    component={SelectCallBackScreen}
+                  />
+                  <Stack.Screen
+                    name="SelectVoice"
+                    component={SelectVoiceScreen}
                   />
                 </>
               )}

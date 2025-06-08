@@ -3,7 +3,7 @@ import axios from 'axios';
 import {Alert} from 'react-native';
 
 import {useAuthStore} from '../store/authStore';
-import {getAccessToken, tryRefreshToken} from '../utils/tokenManager';
+import {tryRefreshToken} from '../utils/tokenManager';
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -12,7 +12,7 @@ const api = axios.create({
 
 // 요청 시 access token 자동 삽입
 api.interceptors.request.use(async config => {
-  const accessToken = await getAccessToken();
+  const accessToken = useAuthStore.getState().accessToken;
   if (accessToken) {
     config.headers.Authorization = `Bearer ${accessToken}`;
   }
@@ -32,7 +32,7 @@ api.interceptors.response.use(
         const ok = await tryRefreshToken();
         if (ok) {
           // 새 accessToken으로 원래 요청 재시도
-          const newAccessToken = await getAccessToken();
+          const newAccessToken = useAuthStore.getState().accessToken;
           originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
           return api(originalRequest);
         } else {
