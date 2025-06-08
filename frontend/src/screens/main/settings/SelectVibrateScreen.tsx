@@ -27,16 +27,14 @@ const VibrateItem = ({label, onPress, isSelected}: VibrateItemProps) => {
   );
 };
 
-const VibrateScreen = () => {
+const SelectVibrateScreen = () => {
   const navigation =
     useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-  const route = useRoute<RouteProp<RootStackParamList, 'Vibrate'>>();
-  const {vibrate} = route.params;
-  const [selectedVibrate, setSelectedVibrate] = useState(vibrate);
+  const route = useRoute<RouteProp<RootStackParamList, 'SelectVibrate'>>();
+  const {vibrate: preVibrate} = route.params;
+  const [selectedVibrate, setSelectedVibrate] = useState(preVibrate);
 
-  const handleSelect = (v: string) => {
-    setSelectedVibrate(v);
-  };
+  const handleSelect = (vibrate: string) => setSelectedVibrate(vibrate);
 
   return (
     <AppScreen>
@@ -75,4 +73,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default VibrateScreen;
+export default SelectVibrateScreen;

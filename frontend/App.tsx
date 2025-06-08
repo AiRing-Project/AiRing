@@ -18,12 +18,12 @@ import AiCallSettingsScreen from './src/screens/main/call/AiCallSettingsScreen';
 import CallActiveScreen from './src/screens/main/call/CallActiveScreen';
 import IncomingCallScreen from './src/screens/main/call/IncomingCallScreen';
 import CallLogDetailScreen from './src/screens/main/call-log/CallLogDetailScreen';
-import AiVoiceScreen from './src/screens/main/settings/AiVoiceScreen';
-import CallBackScreen from './src/screens/main/settings/CallBackScreen';
 import ResetPasswordScreen from './src/screens/main/settings/ResetPasswordScreen';
 import SecuritySettingsScreen from './src/screens/main/settings/SecuritySettingsScreen';
+import SelectCallBackScreen from './src/screens/main/settings/SelectCallBackScreen';
+import SelectVibrateScreen from './src/screens/main/settings/SelectVibrateScreen';
+import SelectVoiceScreen from './src/screens/main/settings/SelectVoiceScreen';
 import SetAppLockPasswordScreen from './src/screens/main/settings/SetAppLockPasswordScreen';
-import VibrateScreen from './src/screens/main/settings/VibrateScreen';
 import SplashScreen from './src/screens/SplashScreen';
 import {useAppLockStore} from './src/store/appLockStore';
 import {useAuthStore} from './src/store/authStore';
@@ -52,13 +52,13 @@ export type RootStackParamList = {
   SecuritySettings: undefined;
   ResetPassword: undefined;
   SetAppLockPassword: undefined;
-  Vibrate: {
+  SelectVibrate: {
     vibrate: string;
   };
-  CallBack: {
+  SelectCallBack: {
     callBack: string;
   };
-  AiVoice: {
+  SelectVoice: {
     voice: string;
   };
 };
@@ -132,9 +132,18 @@ const App = () => {
                     name="SetAppLockPassword"
                     component={SetAppLockPasswordScreen}
                   />
-                  <Stack.Screen name="Vibrate" component={VibrateScreen} />
-                  <Stack.Screen name="CallBack" component={CallBackScreen} />
-                  <Stack.Screen name="AiVoice" component={AiVoiceScreen} />
+                  <Stack.Screen
+                    name="SelectVibrate"
+                    component={SelectVibrateScreen}
+                  />
+                  <Stack.Screen
+                    name="SelectCallBack"
+                    component={SelectCallBackScreen}
+                  />
+                  <Stack.Screen
+                    name="SelectVoice"
+                    component={SelectVoiceScreen}
+                  />
                 </>
               )}
             </>

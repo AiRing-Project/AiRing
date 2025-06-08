@@ -227,7 +227,7 @@ const AiCallSettingsScreen = () => {
           subLabel={vibrate.value}
           toggled={vibrate.enabled}
           onPress={() =>
-            navigation.navigate('Vibrate', {vibrate: vibrate.value})
+            navigation.navigate('SelectVibrate', {vibrate: vibrate.value})
           }
           onToggle={toggleVibrate}
           hasToggle
@@ -244,7 +244,7 @@ const AiCallSettingsScreen = () => {
           subLabel={callBack.value}
           toggled={callBack.enabled}
           onPress={() =>
-            navigation.navigate('CallBack', {callBack: callBack.value})
+            navigation.navigate('SelectCallBack', {callBack: callBack.value})
           }
           onToggle={toggleCallBack}
           hasToggle
@@ -253,7 +253,7 @@ const AiCallSettingsScreen = () => {
           icon={<VoiceIcon width={24} height={24} color={'#000'} />}
           label="AI 음성"
           subLabel={voice}
-          onPress={() => navigation.navigate('AiVoice', {voice})}
+          onPress={() => navigation.navigate('SelectVoice', {voice})}
         />
       </View>
       <BottomButtonRow
