@@ -70,7 +70,6 @@ const ResetPasswordScreen = () => {
         msg = e.response.data.message;
       }
       Alert.alert('비밀번호 변경 실패', msg);
-      reset();
     } finally {
       setLoading(false);
     }

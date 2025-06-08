@@ -70,11 +70,7 @@ const SignUpScreen = () => {
         username: data.username,
         password: data.password,
       });
-      Alert.alert(
-        '회원가입 완료',
-        `${data.username}님, 반가워요! 이제 로그인해 주세요.`,
-      );
-      navigation.popTo('Login');
+      navigation.navigate('SignUpComplete', {username: data.username});
     } catch (e: any) {
       let alertMessage = '회원가입에 실패했습니다. 잠시 후 다시 시도해 주세요.';
       const status = e?.response?.status;
