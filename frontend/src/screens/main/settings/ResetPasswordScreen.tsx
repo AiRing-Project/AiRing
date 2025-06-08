@@ -3,12 +3,13 @@ import {useNavigation} from '@react-navigation/native';
 import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import React, {useState} from 'react';
 import {Controller, useForm} from 'react-hook-form';
-import {Alert, TextInput, View} from 'react-native';
+import {Alert, View} from 'react-native';
 import * as yup from 'yup';
 
 import {RootStackParamList} from '../../../../App';
 import {resetPassword} from '../../../api/authApi';
 import FormButton from '../../../components/common/FormButton';
+import FormInput from '../../../components/common/FormInput';
 import AppScreen from '../../../components/layout/AppScreen';
 import Header from '../../../components/layout/Header';
 import {loginStyles} from '../../auth/LoginScreen';
@@ -88,16 +89,12 @@ const ResetPasswordScreen = () => {
             control={control}
             name="currentPassword"
             render={({field: {onChange, onBlur, value}}) => (
-              <TextInput
-                style={[
-                  loginStyles.input,
-                  errors.currentPassword &&
-                    (errors.currentPassword.type !== 'required' ||
-                      isSubmitted) &&
-                    loginStyles.errorInput,
-                ]}
+              <FormInput
                 placeholder="기존 비밀번호"
-                placeholderTextColor={'rgba(0, 0, 0, 0.25)'}
+                isError={
+                  errors.currentPassword &&
+                  (errors.currentPassword.type !== 'required' || isSubmitted)
+                }
                 secureTextEntry
                 autoComplete="current-password"
                 textContentType="password"
@@ -111,15 +108,12 @@ const ResetPasswordScreen = () => {
             control={control}
             name="newPassword"
             render={({field: {onChange, onBlur, value}}) => (
-              <TextInput
-                style={[
-                  loginStyles.input,
-                  errors.newPassword &&
-                    (errors.newPassword.type !== 'required' || isSubmitted) &&
-                    loginStyles.errorInput,
-                ]}
+              <FormInput
                 placeholder="신규 비밀번호(영문, 숫자 포함 8자리 이상)"
-                placeholderTextColor={'rgba(0, 0, 0, 0.25)'}
+                isError={
+                  errors.newPassword &&
+                  (errors.newPassword.type !== 'required' || isSubmitted)
+                }
                 secureTextEntry
                 autoComplete="new-password"
                 textContentType="newPassword"
@@ -133,16 +127,12 @@ const ResetPasswordScreen = () => {
             control={control}
             name="newPasswordConfirm"
             render={({field: {onChange, onBlur, value}}) => (
-              <TextInput
-                style={[
-                  loginStyles.input,
-                  errors.newPasswordConfirm &&
-                    (errors.newPasswordConfirm.type !== 'required' ||
-                      isSubmitted) &&
-                    loginStyles.errorInput,
-                ]}
+              <FormInput
                 placeholder="신규 비밀번호 확인"
-                placeholderTextColor={'rgba(0, 0, 0, 0.25)'}
+                isError={
+                  errors.newPasswordConfirm &&
+                  (errors.newPasswordConfirm.type !== 'required' || isSubmitted)
+                }
                 secureTextEntry
                 autoComplete="new-password"
                 textContentType="newPassword"

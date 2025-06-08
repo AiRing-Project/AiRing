@@ -3,18 +3,12 @@ import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import React, {useState} from 'react';
 import {Controller, useForm} from 'react-hook-form';
-import {
-  Alert,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import {Alert, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import * as yup from 'yup';
 
 import {getUserInfo, login} from '../../api/authApi';
 import FormButton from '../../components/common/FormButton';
+import FormInput from '../../components/common/FormInput';
 import AppScreen from '../../components/layout/AppScreen';
 import Header from '../../components/layout/Header';
 import type {AuthStackParamList} from '../../navigation/AuthStack';
@@ -35,7 +29,6 @@ const schema = yup.object({
     .required('비밀번호를 입력하세요.'),
 });
 
-// 폼 데이터 타입 분리
 interface LoginFormData {
   email: string;
   password: string;
@@ -46,8 +39,6 @@ const LoginScreen = () => {
     useNavigation<NativeStackNavigationProp<AuthStackParamList, 'Login'>>();
   const {setLoggedIn, setUser} = useAuthStore();
   const [loading, setLoading] = useState<boolean>(false);
-  const [emailFocused, setEmailFocused] = useState<boolean>(false);
-  const [passwordFocused, setPasswordFocused] = useState<boolean>(false);
 
   const {
     control,
@@ -103,28 +94,19 @@ const LoginScreen = () => {
             control={control}
             name="email"
             render={({field: {onChange, onBlur, value}}) => (
-              <TextInput
-                style={[
-                  loginStyles.input,
+              <FormInput
+                placeholder="이메일"
+                focusedPlaceholder="이메일 형식으로 입력해주세요"
+                isError={
                   errors.email &&
-                    (errors.email.type !== 'required' || isSubmitted) &&
-                    loginStyles.errorInput,
-                ]}
-                placeholder={
-                  emailFocused ? '이메일 형식으로 입력해주세요' : '이메일'
+                  (errors.email.type !== 'required' || isSubmitted)
                 }
-                placeholderTextColor={'rgba(0, 0, 0, 0.25)'}
-                autoCapitalize="none"
                 keyboardType="email-address"
                 autoComplete="email"
                 textContentType="username"
                 value={value}
                 onChangeText={onChange}
-                onFocus={() => setEmailFocused(true)}
-                onBlur={() => {
-                  setEmailFocused(false);
-                  onBlur();
-                }}
+                onBlur={onBlur}
               />
             )}
           />
@@ -132,29 +114,19 @@ const LoginScreen = () => {
             control={control}
             name="password"
             render={({field: {onChange, onBlur, value}}) => (
-              <TextInput
-                style={[
-                  loginStyles.input,
+              <FormInput
+                placeholder="비밀번호"
+                focusedPlaceholder="숫자, 영문 포함 8자리 이상 입력해주세요"
+                isError={
                   errors.password &&
-                    (errors.password.type !== 'required' || isSubmitted) &&
-                    loginStyles.errorInput,
-                ]}
-                placeholder={
-                  passwordFocused
-                    ? '숫자, 영문 포함 8자리 이상 입력해주세요'
-                    : '비밀번호'
+                  (errors.password.type !== 'required' || isSubmitted)
                 }
-                placeholderTextColor={'rgba(0, 0, 0, 0.25)'}
                 secureTextEntry
                 autoComplete="password"
                 textContentType="password"
                 value={value}
                 onChangeText={onChange}
-                onFocus={() => setPasswordFocused(true)}
-                onBlur={() => {
-                  setPasswordFocused(false);
-                  onBlur();
-                }}
+                onBlur={onBlur}
               />
             )}
           />
@@ -187,23 +159,6 @@ export const loginStyles = StyleSheet.create({
   },
   formContainer: {
     gap: 15,
-  },
-  input: {
-    borderRadius: 10,
-    backgroundColor: '#fff',
-    borderStyle: 'solid',
-    borderColor: 'rgba(0, 0, 0, 0.25)',
-    borderWidth: 1.5,
-    width: '100%',
-    height: 60,
-    paddingHorizontal: 25,
-    justifyContent: 'center',
-    fontSize: 14,
-    fontWeight: '500',
-    color: '#000',
-  },
-  errorInput: {
-    borderColor: '#ec7575',
   },
   signupContainer: {
     flexDirection: 'row',

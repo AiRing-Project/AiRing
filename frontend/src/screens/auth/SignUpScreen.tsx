@@ -3,11 +3,12 @@ import {useNavigation} from '@react-navigation/native';
 import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import React, {useState} from 'react';
 import {Controller, useForm} from 'react-hook-form';
-import {Alert, TextInput, View} from 'react-native';
+import {Alert, View} from 'react-native';
 import * as yup from 'yup';
 
 import {signUp} from '../../api/authApi';
 import FormButton from '../../components/common/FormButton';
+import FormInput from '../../components/common/FormInput';
 import AppScreen from '../../components/layout/AppScreen';
 import Header from '../../components/layout/Header';
 import type {AuthStackParamList} from '../../navigation/AuthStack';
@@ -51,9 +52,6 @@ const SignUpScreen = () => {
   const navigation =
     useNavigation<NativeStackNavigationProp<AuthStackParamList, 'SignUp'>>();
   const [loading, setLoading] = useState<boolean>(false);
-  const [usernameFocused, setUsernameFocused] = useState<boolean>(false);
-  const [emailFocused, setEmailFocused] = useState<boolean>(false);
-  const [passwordFocused, setPasswordFocused] = useState<boolean>(false);
 
   const {
     control,
@@ -104,25 +102,16 @@ const SignUpScreen = () => {
             control={control}
             name="username"
             render={({field: {onChange, onBlur, value}}) => (
-              <TextInput
-                style={[
-                  loginStyles.input,
+              <FormInput
+                placeholder="이름"
+                focusedPlaceholder="한글, 영어, 숫자만 가능해요"
+                isError={
                   errors.username &&
-                    (errors.username.type !== 'required' || isSubmitted) &&
-                    loginStyles.errorInput,
-                ]}
-                placeholder={
-                  usernameFocused ? '한글, 영어, 숫자만 가능해요' : '이름'
+                  (errors.username.type !== 'required' || isSubmitted)
                 }
-                placeholderTextColor={'rgba(0, 0, 0, 0.25)'}
-                autoCapitalize="none"
                 value={value}
                 onChangeText={onChange}
-                onFocus={() => setUsernameFocused(true)}
-                onBlur={() => {
-                  setUsernameFocused(false);
-                  onBlur();
-                }}
+                onBlur={onBlur}
               />
             )}
           />
@@ -130,28 +119,19 @@ const SignUpScreen = () => {
             control={control}
             name="email"
             render={({field: {onChange, onBlur, value}}) => (
-              <TextInput
-                style={[
-                  loginStyles.input,
+              <FormInput
+                placeholder="이메일"
+                focusedPlaceholder="이메일 형식으로 입력해주세요"
+                isError={
                   errors.email &&
-                    (errors.email.type !== 'required' || isSubmitted) &&
-                    loginStyles.errorInput,
-                ]}
-                placeholder={
-                  emailFocused ? '이메일 형식으로 입력해주세요' : '이메일'
+                  (errors.email.type !== 'required' || isSubmitted)
                 }
-                placeholderTextColor={'rgba(0, 0, 0, 0.25)'}
-                autoCapitalize="none"
                 keyboardType="email-address"
                 autoComplete="email"
                 textContentType="emailAddress"
                 value={value}
                 onChangeText={onChange}
-                onFocus={() => setEmailFocused(true)}
-                onBlur={() => {
-                  setEmailFocused(false);
-                  onBlur();
-                }}
+                onBlur={onBlur}
               />
             )}
           />
@@ -159,29 +139,19 @@ const SignUpScreen = () => {
             control={control}
             name="password"
             render={({field: {onChange, onBlur, value}}) => (
-              <TextInput
-                style={[
-                  loginStyles.input,
+              <FormInput
+                placeholder="비밀번호"
+                focusedPlaceholder="숫자, 영문 포함 8자리 이상 입력해주세요"
+                isError={
                   errors.password &&
-                    (errors.password.type !== 'required' || isSubmitted) &&
-                    loginStyles.errorInput,
-                ]}
-                placeholder={
-                  passwordFocused
-                    ? '숫자, 영문 포함 8자리 이상 입력해주세요'
-                    : '비밀번호'
+                  (errors.password.type !== 'required' || isSubmitted)
                 }
-                placeholderTextColor={'rgba(0, 0, 0, 0.25)'}
                 secureTextEntry
                 autoComplete="new-password"
                 textContentType="newPassword"
                 value={value}
                 onChangeText={onChange}
-                onFocus={() => setPasswordFocused(true)}
-                onBlur={() => {
-                  setPasswordFocused(false);
-                  onBlur();
-                }}
+                onBlur={onBlur}
               />
             )}
           />
@@ -189,16 +159,12 @@ const SignUpScreen = () => {
             control={control}
             name="passwordConfirm"
             render={({field: {onChange, onBlur, value}}) => (
-              <TextInput
-                style={[
-                  loginStyles.input,
-                  errors.passwordConfirm &&
-                    (errors.passwordConfirm.type !== 'required' ||
-                      isSubmitted) &&
-                    loginStyles.errorInput,
-                ]}
+              <FormInput
                 placeholder="비밀번호 확인"
-                placeholderTextColor={'rgba(0, 0, 0, 0.25)'}
+                isError={
+                  errors.passwordConfirm &&
+                  (errors.passwordConfirm.type !== 'required' || isSubmitted)
+                }
                 secureTextEntry
                 autoComplete="new-password"
                 textContentType="newPassword"
