@@ -48,10 +48,10 @@ const SelectCallBackScreen = () => {
       <View style={{gap: 10}}>
         {CALLBACK_LIST.map(item => (
           <CallBackItem
-            key={item}
-            label={item}
-            isSelected={selectedCallBack === item}
-            onPress={() => handleSelect(item)}
+            key={item.label}
+            label={item.label}
+            isSelected={selectedCallBack === item.label}
+            onPress={() => handleSelect(item.label)}
           />
         ))}
       </View>

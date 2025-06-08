@@ -48,10 +48,10 @@ const SelectVibrateScreen = () => {
       <View style={{gap: 10}}>
         {VIBRATE_LIST.map(item => (
           <VibrateItem
-            key={item}
-            label={item}
-            isSelected={selectedVibrate === item}
-            onPress={() => handleSelect(item)}
+            key={item.label}
+            label={item.label}
+            isSelected={selectedVibrate === item.label}
+            onPress={() => handleSelect(item.label)}
           />
         ))}
       </View>
