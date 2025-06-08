@@ -1,21 +1,29 @@
-import {useNavigation} from '@react-navigation/native';
+import {RouteProp, useNavigation, useRoute} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import React from 'react';
 import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 
-import WordMarkLogo from '../../assets/logos/logo-wordmark.svg';
+import CharacterLogo from '../../assets/logos/logo-character.svg';
 import AppScreen from '../../components/layout/AppScreen';
 import {AuthStackParamList} from '../../navigation/AuthStack';
 
-const WelcomeScreen = () => {
+const SignUpCompleteScreen = () => {
   const navigation =
-    useNavigation<NativeStackNavigationProp<AuthStackParamList, 'Welcome'>>();
+    useNavigation<
+      NativeStackNavigationProp<AuthStackParamList, 'SignUpComplete'>
+    >();
+  const route = useRoute<RouteProp<AuthStackParamList, 'SignUpComplete'>>();
 
   return (
     <AppScreen style={styles.container}>
       <View style={styles.centerBox}>
-        <WordMarkLogo />
-        <Text style={styles.welcomeText}>AI와의 통화로, 감정을 기록해요</Text>
+        <Text style={styles.mainText}>회원가입이 완료되었습니다</Text>
+        <Text style={styles.subText}>{`${
+          route.params?.username || '사용자'
+        }님, 반가워요 🙌`}</Text>
+      </View>
+      <View style={styles.logoBox}>
+        <CharacterLogo />
       </View>
       <TouchableOpacity
         style={styles.startButton}
@@ -29,29 +37,39 @@ const WelcomeScreen = () => {
 
 const styles = StyleSheet.create({
   container: {
-    alignItems: 'center',
     paddingHorizontal: 30,
+    paddingTop: 132,
+    paddingBottom: 132,
     justifyContent: 'space-between',
+    alignItems: 'center',
   },
   centerBox: {
-    marginTop: 212,
-    justifyContent: 'center',
     alignItems: 'center',
     gap: 18,
   },
-  welcomeText: {
-    fontSize: 14,
-    color: 'rgba(35, 35, 35, 0.84)',
+  logoBox: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    flex: 0,
+  },
+  mainText: {
+    fontSize: 26,
+    fontWeight: '700',
+    color: '#000',
     textAlign: 'center',
-    fontWeight: '600',
+  },
+  subText: {
+    fontSize: 16,
+    fontWeight: '500',
+    color: '#505050',
+    textAlign: 'center',
   },
   startButton: {
-    width: '100%',
-    backgroundColor: '#232323',
+    backgroundColor: '#000',
     borderRadius: 12,
     paddingVertical: 18,
-    marginBottom: 132,
     alignItems: 'center',
+    width: '100%',
   },
   startButtonText: {
     fontSize: 14,
@@ -61,4 +79,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default WelcomeScreen;
+export default SignUpCompleteScreen;

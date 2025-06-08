@@ -3,19 +3,15 @@ import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import React, {useState} from 'react';
 import {Controller, useForm} from 'react-hook-form';
-import {
-  ActivityIndicator,
-  Alert,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import {Alert, Text, TouchableOpacity, View} from 'react-native';
 import * as yup from 'yup';
 
 import {getUserInfo, login} from '../../api/authApi';
+import FormButton from '../../components/form/FormButton';
+import FormInput from '../../components/form/FormInput';
+import {formStyles} from '../../components/form/styles';
 import AppScreen from '../../components/layout/AppScreen';
+import Header from '../../components/layout/Header';
 import type {AuthStackParamList} from '../../navigation/AuthStack';
 import {useAuthStore} from '../../store/authStore';
 import {saveTokens} from '../../utils/tokenManager';
@@ -25,10 +21,15 @@ const schema = yup.object({
     .string()
     .email('이메일 형식이 올바르지 않습니다.')
     .required('이메일을 입력하세요.'),
-  password: yup.string().required('비밀번호를 입력하세요.'),
+  password: yup
+    .string()
+    .matches(
+      /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/,
+      '숫자, 영문 포함 8자리 이상 입력해주세요',
+    )
+    .required('비밀번호를 입력하세요.'),
 });
 
-// 폼 데이터 타입 분리
 interface LoginFormData {
   email: string;
   password: string;
@@ -82,129 +83,70 @@ const LoginScreen = () => {
   };
 
   return (
-    <AppScreen style={styles.container}>
-      <Text style={styles.title}>로그인</Text>
-      <Controller
-        control={control}
-        name="email"
-        render={({field: {onChange, onBlur, value}}) => (
-          <TextInput
-            style={[
-              styles.input,
-              errors.email &&
-                (errors.email.type !== 'required' || isSubmitted) &&
-                styles.errorInput,
-            ]}
-            placeholder="이메일"
-            autoCapitalize="none"
-            keyboardType="email-address"
-            autoComplete="email"
-            textContentType="username"
-            value={value}
-            onChangeText={onChange}
-            onBlur={onBlur}
-          />
-        )}
+    <AppScreen>
+      <Header
+        title="이메일로 로그인"
+        onBackPress={() => navigation.goBack()}
+        marginBottom={44}
       />
-      <Controller
-        control={control}
-        name="password"
-        render={({field: {onChange, onBlur, value}}) => (
-          <TextInput
-            style={[
-              styles.input,
-              errors.password &&
-                (errors.password.type !== 'required' || isSubmitted) &&
-                styles.errorInput,
-            ]}
-            placeholder="비밀번호"
-            secureTextEntry
-            autoComplete="password"
-            textContentType="password"
-            value={value}
-            onChangeText={onChange}
-            onBlur={onBlur}
+      <View style={formStyles.container}>
+        <View style={formStyles.formContainer}>
+          <Controller
+            control={control}
+            name="email"
+            render={({field: {onChange, onBlur, value}}) => (
+              <FormInput
+                placeholder="이메일"
+                focusedPlaceholder="이메일 형식으로 입력해주세요"
+                isError={
+                  errors.email &&
+                  (errors.email.type !== 'required' || isSubmitted)
+                }
+                keyboardType="email-address"
+                autoComplete="email"
+                textContentType="username"
+                value={value}
+                onChangeText={onChange}
+                onBlur={onBlur}
+              />
+            )}
           />
-        )}
-      />
-      <TouchableOpacity
-        style={[styles.loginButton, loading && styles.disabledButton]}
-        activeOpacity={0.8}
-        onPress={handleSubmit(onSubmit)}
-        disabled={loading}>
-        {loading ? (
-          <ActivityIndicator color="#fff" />
-        ) : (
-          <Text style={styles.loginButtonText}>로그인</Text>
-        )}
-      </TouchableOpacity>
-      <View style={styles.signupContainer}>
-        <Text style={styles.signupText}>아직 계정이 없으신가요? </Text>
-        <TouchableOpacity onPress={() => navigation.navigate('SignUp')}>
-          <Text style={styles.signupLink}>회원가입</Text>
-        </TouchableOpacity>
+          <Controller
+            control={control}
+            name="password"
+            render={({field: {onChange, onBlur, value}}) => (
+              <FormInput
+                placeholder="비밀번호"
+                focusedPlaceholder="숫자, 영문 포함 8자리 이상 입력해주세요"
+                isError={
+                  errors.password &&
+                  (errors.password.type !== 'required' || isSubmitted)
+                }
+                secureTextEntry
+                autoComplete="password"
+                textContentType="password"
+                value={value}
+                onChangeText={onChange}
+                onBlur={onBlur}
+              />
+            )}
+          />
+        </View>
+        <FormButton
+          title="로그인"
+          onPress={handleSubmit(onSubmit)}
+          loading={loading}
+          disabled={loading}
+        />
+        <View style={formStyles.bottomContainer}>
+          <Text style={formStyles.bottomText}>아직 계정이 없으신가요? </Text>
+          <TouchableOpacity onPress={() => navigation.navigate('SignUp')}>
+            <Text style={formStyles.bottomLink}>회원가입</Text>
+          </TouchableOpacity>
+        </View>
       </View>
     </AppScreen>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  title: {
-    fontSize: 28,
-    marginBottom: 32,
-    fontWeight: 'bold',
-  },
-  input: {
-    width: '100%',
-    height: 48,
-    borderColor: '#ccc',
-    borderWidth: 1,
-    borderRadius: 8,
-    paddingHorizontal: 16,
-    marginBottom: 12,
-    fontSize: 16,
-    backgroundColor: '#f9f9f9',
-  },
-  errorInput: {
-    borderColor: '#ec7575',
-  },
-  loginButton: {
-    width: '100%',
-    height: 48,
-    backgroundColor: '#222',
-    borderRadius: 8,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: 12,
-    marginBottom: 12,
-  },
-  loginButtonText: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-  disabledButton: {
-    opacity: 0.6,
-  },
-  signupContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    marginTop: 24,
-  },
-  signupText: {
-    fontSize: 16,
-    color: '#222',
-  },
-  signupLink: {
-    fontSize: 16,
-    color: '#5d8fc5',
-    textDecorationLine: 'underline',
-    fontWeight: 'bold',
-  },
-});
 
 export default LoginScreen;
