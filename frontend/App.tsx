@@ -18,6 +18,7 @@ import AiCallSettingsScreen from './src/screens/main/call/AiCallSettingsScreen';
 import CallActiveScreen from './src/screens/main/call/CallActiveScreen';
 import IncomingCallScreen from './src/screens/main/call/IncomingCallScreen';
 import CallLogDetailScreen from './src/screens/main/call-log/CallLogDetailScreen';
+import AiVoiceScreen from './src/screens/main/settings/AiVoiceScreen';
 import ResetPasswordScreen from './src/screens/main/settings/ResetPasswordScreen';
 import SecuritySettingsScreen from './src/screens/main/settings/SecuritySettingsScreen';
 import SetAppLockPasswordScreen from './src/screens/main/settings/SetAppLockPasswordScreen';
@@ -32,7 +33,9 @@ export type RootStackParamList = {
   Home: undefined;
 
   // Call Modal 내부 화면
-  AiCallSettings: undefined;
+  AiCallSettings: {
+    voice: string;
+  };
   IncomingCall: undefined;
   CallActive: undefined;
 
@@ -45,6 +48,9 @@ export type RootStackParamList = {
   SecuritySettings: undefined;
   ResetPassword: undefined;
   SetAppLockPassword: undefined;
+  AiVoice: {
+    voice: string;
+  };
 };
 
 enableScreens();
@@ -116,6 +122,7 @@ const App = () => {
                     name="SetAppLockPassword"
                     component={SetAppLockPasswordScreen}
                   />
+                  <Stack.Screen name="AiVoice" component={AiVoiceScreen} />
                 </>
               )}
             </>

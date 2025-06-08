@@ -1,6 +1,11 @@
-import {useNavigation} from '@react-navigation/native';
+import {
+  RouteProp,
+  useFocusEffect,
+  useNavigation,
+  useRoute,
+} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import React, {useState} from 'react';
+import React, {useCallback, useState} from 'react';
 import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 
 import {RootStackParamList} from '../../../../App';
@@ -11,11 +16,12 @@ import Switch from '../../../components/common/Switch';
 import AppScreen from '../../../components/layout/AppScreen';
 import Header from '../../../components/layout/Header';
 import TimePicker from '../../../components/picker/TimePicker';
+import {useAiCallSettingsStore} from '../../../store/aiCallSettingsStore';
 
 const DAYS = ['월', '화', '수', '목', '금', '토', '일'];
 
 // 옵션 타입 정의
-type OptionType = 'vibrate' | 'call' | 'voice';
+// type OptionType = 'vibrate' | 'call' | 'voice';
 
 interface RepeatDaysCardProps {
   selectedDays: number[];
@@ -92,11 +98,22 @@ function OptionItem({
 }
 
 interface OptionsCardProps {
-  selectedOptions: OptionType[];
-  onToggleOption: (option: OptionType) => void;
+  vibrate: {enabled: boolean; value: string};
+  call: {enabled: boolean; value: string};
+  voice: string;
+  onToggleVibrate: () => void;
+  onToggleCall: () => void;
+  onPressVoice: () => void;
 }
 
-function OptionsCard({selectedOptions, onToggleOption}: OptionsCardProps) {
+function OptionsCard({
+  vibrate,
+  call,
+  voice,
+  onToggleVibrate,
+  onToggleCall,
+  onPressVoice,
+}: OptionsCardProps) {
   return (
     <View style={styles.optionsContainer}>
       <OptionItem
@@ -104,46 +121,38 @@ function OptionsCard({selectedOptions, onToggleOption}: OptionsCardProps) {
           <VibrateIcon
             width={24}
             height={24}
-            color={selectedOptions.includes('vibrate') ? '#000' : '#888'}
+            color={vibrate.enabled ? '#000' : '#888'}
           />
         }
         label="진동"
-        subLabel="Basic call"
-        toggled={selectedOptions.includes('vibrate')}
+        subLabel={vibrate.value === 'basic' ? 'Basic call' : vibrate.value}
+        toggled={vibrate.enabled}
         onPress={() => {
-          /* 리스트 이동 등 추후 구현 */
+          /* 진동 상세 옵션 선택 등 */
         }}
-        onToggle={() => onToggleOption('vibrate')}
+        onToggle={onToggleVibrate}
       />
       <OptionItem
         icon={
           <CallIcon
             width={24}
             height={24}
-            color={selectedOptions.includes('call') ? '#000' : '#888'}
+            color={call.enabled ? '#000' : '#888'}
           />
         }
         label="다시 전화"
-        subLabel="10분 후"
-        toggled={selectedOptions.includes('call')}
+        subLabel={call.value === '10min' ? '10분 후' : call.value}
+        toggled={call.enabled}
         onPress={() => {
-          /* 리스트 이동 등 추후 구현 */
+          /* 다시 전화 상세 옵션 선택 등 */
         }}
-        onToggle={() => onToggleOption('call')}
+        onToggle={onToggleCall}
       />
       <OptionItem
-        icon={
-          <VoiceIcon
-            width={24}
-            height={24}
-            color={selectedOptions.includes('voice') ? '#000' : '#888'}
-          />
-        }
+        icon={<VoiceIcon width={24} height={24} color={'#000'} />}
         label="AI 음성"
-        subLabel="Sol"
-        onPress={() => {
-          /* 리스트 이동 등 추후 구현 */
-        }}
+        subLabel={voice}
+        onPress={onPressVoice}
         showToggle={false}
       />
     </View>
@@ -171,48 +180,85 @@ function BottomButtonRow({onCancel, onSave}: BottomButtonRowProps) {
 const AiCallSettingsScreen = () => {
   const navigation =
     useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const route = useRoute<RouteProp<RootStackParamList, 'AiCallSettings'>>();
+  const {
+    selectedDays: storeSelectedDays,
+    time: storeTime,
+    vibrate: storeVibrate,
+    call: storeCall,
+    voice: storeVoice,
+    setSelectedDays,
+    setTime,
+    setVibrate,
+    setCall,
+    setVoice,
+  } = useAiCallSettingsStore();
 
-  // TODO: storage 값이 없으면 기본값을 다음과 같이, 있으면 그 값을 사용하도록 수정
-  const [selectedDays, setSelectedDays] = useState<number[]>([
-    0, 1, 2, 3, 4, 5, 6,
-  ]);
-  const [time, setTime] = useState(() => {
+  // 로컬 상태로 관리
+  const [selectedDays, setLocalSelectedDays] =
+    useState<number[]>(storeSelectedDays);
+  const [time, setLocalTime] = useState<string>(storeTime);
+  const [vibrate, setLocalVibrate] = useState(storeVibrate);
+  const [call, setLocalCall] = useState(storeCall);
+  const [voice, setLocalVoice] = useState(storeVoice);
+
+  // navigation param으로 voice가 넘어오면 반영
+  useFocusEffect(
+    React.useCallback(() => {
+      // @ts-ignore (params 타입이 RootStackParamList에 따라 다를 수 있음)
+      if (route.params?.voice) {
+        setLocalVoice(route.params.voice);
+        // param을 초기화(선택)하고 싶으면 아래 코드 사용
+        navigation.setParams({voice: undefined});
+      }
+    }, [route.params?.voice, navigation]),
+  );
+
+  // 요일 토글
+  const toggleDay = (idx: number) => {
+    if (selectedDays.includes(idx)) {
+      setLocalSelectedDays(selectedDays.filter(d => d !== idx));
+    } else {
+      setLocalSelectedDays([...selectedDays, idx]);
+    }
+  };
+
+  // 진동/다시전화 on/off 토글
+  const toggleVibrate = () =>
+    setLocalVibrate({...vibrate, enabled: !vibrate.enabled});
+  const toggleCall = () => setLocalCall({...call, enabled: !call.enabled});
+
+  // 시간 변경
+  const handleTimeChange = (date: Date) => {
+    const hhmm = date.toTimeString().slice(0, 5);
+    setLocalTime(hhmm);
+  };
+
+  // AI 음성 선택 (콜백 없이 값만 param으로 넘김)
+  const handlePressVoice = useCallback(() => {
+    navigation.navigate('AiVoice', {voice});
+  }, [navigation, voice]);
+
+  // 저장 버튼
+  const handleSave = () => {
+    setSelectedDays(selectedDays);
+    setTime(time);
+    setVibrate(vibrate);
+    setCall(call);
+    setVoice(voice);
+    navigation.goBack();
+  };
+
+  // TimePicker에 Date 객체 필요하므로 변환
+  const timeDate = (() => {
+    const [h, m] = time.split(':').map(Number);
     const d = new Date();
-    d.setHours(20);
-    d.setMinutes(0);
+    d.setHours(h);
+    d.setMinutes(m);
     d.setSeconds(0);
     d.setMilliseconds(0);
     return d;
-  });
-  const [selectedOptions, setSelectedOptions] = useState<OptionType[]>([
-    'vibrate',
-    'call',
-  ]);
-
-  const toggleDay = (idx: number) => {
-    setSelectedDays(prev =>
-      prev.includes(idx) ? prev.filter(d => d !== idx) : [...prev, idx],
-    );
-  };
-
-  const toggleOption = (option: OptionType) => {
-    if (option === 'voice') {
-      return;
-    }
-    setSelectedOptions(prev =>
-      prev.includes(option)
-        ? prev.filter(o => o !== option)
-        : [...prev, option],
-    );
-  };
-
-  const handleSave = () => {
-    console.log('시간:', time.getHours(), '시', time.getMinutes(), '분');
-    console.log('요일:', selectedDays); // 0:일, 1:월, ...
-    console.log('진동:', selectedOptions.includes('vibrate'));
-    console.log('다시 전화:', selectedOptions.includes('call'));
-    console.log('AI 음성:', 'Sol');
-  };
+  })();
 
   return (
     <AppScreen style={styles.container}>
@@ -221,11 +267,15 @@ const AiCallSettingsScreen = () => {
         onBackPress={() => navigation.goBack()}
         marginBottom={40}
       />
-      <TimePicker value={time} onChange={setTime} />
+      <TimePicker value={timeDate} onChange={handleTimeChange} />
       <RepeatDaysCard selectedDays={selectedDays} onToggleDay={toggleDay} />
       <OptionsCard
-        selectedOptions={selectedOptions}
-        onToggleOption={toggleOption}
+        vibrate={vibrate}
+        call={call}
+        voice={voice}
+        onToggleVibrate={toggleVibrate}
+        onToggleCall={toggleCall}
+        onPressVoice={handlePressVoice}
       />
       <BottomButtonRow
         onCancel={() => navigation.goBack()}
