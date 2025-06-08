@@ -9,7 +9,7 @@ interface HeaderProps {
   marginBottom?: number;
 }
 
-export const HEADER_HEIGHT = 24;
+export const HEADER_HEIGHT = 28;
 
 const Header = ({title, onBackPress, marginBottom = 0}: HeaderProps) => {
   return (
@@ -39,17 +39,16 @@ const styles = StyleSheet.create({
     padding: 4,
   },
   headerTitle: {
-    fontSize: 18,
-    letterSpacing: 0.2,
+    fontSize: 20,
     fontWeight: '600',
     color: '#000',
-    lineHeight: 20,
+    lineHeight: HEADER_HEIGHT,
     textAlign: 'center',
     alignSelf: 'stretch',
   },
   textFlexBox: {
     textAlign: 'center',
-    lineHeight: 20,
+    lineHeight: HEADER_HEIGHT,
     alignSelf: 'stretch',
   },
 });

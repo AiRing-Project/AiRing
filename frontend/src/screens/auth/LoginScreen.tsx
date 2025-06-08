@@ -16,6 +16,7 @@ import * as yup from 'yup';
 
 import {getUserInfo, login} from '../../api/authApi';
 import AppScreen from '../../components/layout/AppScreen';
+import Header from '../../components/layout/Header';
 import type {AuthStackParamList} from '../../navigation/AuthStack';
 import {useAuthStore} from '../../store/authStore';
 import {saveTokens} from '../../utils/tokenManager';
@@ -25,7 +26,13 @@ const schema = yup.object({
     .string()
     .email('이메일 형식이 올바르지 않습니다.')
     .required('이메일을 입력하세요.'),
-  password: yup.string().required('비밀번호를 입력하세요.'),
+  password: yup
+    .string()
+    .matches(
+      /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/,
+      '숫자, 영문 포함 8자리 이상 입력해주세요',
+    )
+    .required('비밀번호를 입력하세요.'),
 });
 
 // 폼 데이터 타입 분리
@@ -39,6 +46,8 @@ const LoginScreen = () => {
     useNavigation<NativeStackNavigationProp<AuthStackParamList, 'Login'>>();
   const {setLoggedIn, setUser} = useAuthStore();
   const [loading, setLoading] = useState<boolean>(false);
+  const [emailFocused, setEmailFocused] = useState<boolean>(false);
+  const [passwordFocused, setPasswordFocused] = useState<boolean>(false);
 
   const {
     control,
@@ -82,110 +91,151 @@ const LoginScreen = () => {
   };
 
   return (
-    <AppScreen style={styles.container}>
-      <Text style={styles.title}>로그인</Text>
-      <Controller
-        control={control}
-        name="email"
-        render={({field: {onChange, onBlur, value}}) => (
-          <TextInput
-            style={[
-              styles.input,
-              errors.email &&
-                (errors.email.type !== 'required' || isSubmitted) &&
-                styles.errorInput,
-            ]}
-            placeholder="이메일"
-            autoCapitalize="none"
-            keyboardType="email-address"
-            autoComplete="email"
-            textContentType="username"
-            value={value}
-            onChangeText={onChange}
-            onBlur={onBlur}
-          />
-        )}
+    <AppScreen>
+      <Header
+        title="이메일로 로그인"
+        onBackPress={() => navigation.goBack()}
+        marginBottom={44}
       />
-      <Controller
-        control={control}
-        name="password"
-        render={({field: {onChange, onBlur, value}}) => (
-          <TextInput
-            style={[
-              styles.input,
-              errors.password &&
-                (errors.password.type !== 'required' || isSubmitted) &&
-                styles.errorInput,
-            ]}
-            placeholder="비밀번호"
-            secureTextEntry
-            autoComplete="password"
-            textContentType="password"
-            value={value}
-            onChangeText={onChange}
-            onBlur={onBlur}
+      <View style={loginStyles.container}>
+        <View style={loginStyles.formContainer}>
+          <Controller
+            control={control}
+            name="email"
+            render={({field: {onChange, onBlur, value}}) => (
+              <TextInput
+                style={[
+                  loginStyles.input,
+                  errors.email &&
+                    (errors.email.type !== 'required' || isSubmitted) &&
+                    loginStyles.errorInput,
+                ]}
+                placeholder={
+                  emailFocused ? '이메일 형식으로 입력해주세요' : '이메일'
+                }
+                placeholderTextColor={'rgba(0, 0, 0, 0.25)'}
+                autoCapitalize="none"
+                keyboardType="email-address"
+                autoComplete="email"
+                textContentType="username"
+                value={value}
+                onChangeText={onChange}
+                onFocus={() => setEmailFocused(true)}
+                onBlur={() => {
+                  setEmailFocused(false);
+                  onBlur();
+                }}
+              />
+            )}
           />
-        )}
-      />
-      <TouchableOpacity
-        style={[styles.loginButton, loading && styles.disabledButton]}
-        activeOpacity={0.8}
-        onPress={handleSubmit(onSubmit)}
-        disabled={loading}>
-        {loading ? (
-          <ActivityIndicator color="#fff" />
-        ) : (
-          <Text style={styles.loginButtonText}>로그인</Text>
-        )}
-      </TouchableOpacity>
-      <View style={styles.signupContainer}>
-        <Text style={styles.signupText}>아직 계정이 없으신가요? </Text>
-        <TouchableOpacity onPress={() => navigation.navigate('SignUp')}>
-          <Text style={styles.signupLink}>회원가입</Text>
+          <Controller
+            control={control}
+            name="password"
+            render={({field: {onChange, onBlur, value}}) => (
+              <TextInput
+                style={[
+                  loginStyles.input,
+                  errors.password &&
+                    (errors.password.type !== 'required' || isSubmitted) &&
+                    loginStyles.errorInput,
+                ]}
+                placeholder={
+                  passwordFocused
+                    ? '숫자, 영문 포함 8자리 이상 입력해주세요'
+                    : '비밀번호'
+                }
+                placeholderTextColor={'rgba(0, 0, 0, 0.25)'}
+                secureTextEntry
+                autoComplete="password"
+                textContentType="password"
+                value={value}
+                onChangeText={onChange}
+                onFocus={() => setPasswordFocused(true)}
+                onBlur={() => {
+                  setPasswordFocused(false);
+                  onBlur();
+                }}
+              />
+            )}
+          />
+        </View>
+        <TouchableOpacity
+          style={[
+            loginStyles.loginButton,
+            loading && loginStyles.disabledButton,
+          ]}
+          activeOpacity={0.8}
+          onPress={handleSubmit(onSubmit)}
+          disabled={loading}>
+          {loading ? (
+            <ActivityIndicator color="#fff" />
+          ) : (
+            <Text style={loginStyles.loginButtonText}>로그인</Text>
+          )}
         </TouchableOpacity>
+        <View style={loginStyles.signupContainer}>
+          <Text style={loginStyles.signupText}>아직 계정이 없으신가요? </Text>
+          <TouchableOpacity onPress={() => navigation.navigate('SignUp')}>
+            <Text style={loginStyles.signupLink}>회원가입</Text>
+          </TouchableOpacity>
+        </View>
       </View>
     </AppScreen>
   );
 };
 
-const styles = StyleSheet.create({
+export const loginStyles = StyleSheet.create({
   container: {
-    justifyContent: 'center',
-    alignItems: 'center',
+    gap: 30,
   },
   title: {
     fontSize: 28,
     marginBottom: 32,
     fontWeight: 'bold',
   },
+  formContainer: {
+    gap: 15,
+  },
   input: {
+    borderRadius: 10,
+    backgroundColor: '#fff',
+    borderStyle: 'solid',
+    borderColor: 'rgba(0, 0, 0, 0.25)',
+    borderWidth: 1.5,
     width: '100%',
-    height: 48,
-    borderColor: '#ccc',
-    borderWidth: 1,
-    borderRadius: 8,
-    paddingHorizontal: 16,
-    marginBottom: 12,
-    fontSize: 16,
-    backgroundColor: '#f9f9f9',
+    height: 60,
+    paddingHorizontal: 25,
+    justifyContent: 'center',
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#000',
   },
   errorInput: {
     borderColor: '#ec7575',
   },
   loginButton: {
+    shadowColor: 'rgba(0, 0, 0, 0.08)',
+    shadowOffset: {
+      width: 0,
+      height: 0,
+    },
+    shadowRadius: 2,
+    elevation: 2,
+    shadowOpacity: 1,
+    borderRadius: 10,
+    backgroundColor: '#232323',
+    borderStyle: 'solid',
+    borderColor: '#e7e7e7',
+    borderWidth: 1,
     width: '100%',
-    height: 48,
-    backgroundColor: '#222',
-    borderRadius: 8,
+    height: 60,
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 12,
-    marginBottom: 12,
   },
   loginButtonText: {
+    fontSize: 14,
+    fontWeight: '600',
     color: '#fff',
-    fontSize: 18,
-    fontWeight: 'bold',
   },
   disabledButton: {
     opacity: 0.6,
@@ -193,17 +243,18 @@ const styles = StyleSheet.create({
   signupContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
-    marginTop: 24,
+    gap: 10,
   },
   signupText: {
-    fontSize: 16,
-    color: '#222',
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#999',
   },
   signupLink: {
-    fontSize: 16,
-    color: '#5d8fc5',
+    fontSize: 14,
     textDecorationLine: 'underline',
-    fontWeight: 'bold',
+    fontWeight: '600',
+    color: '#5d8fc5',
   },
 });
 

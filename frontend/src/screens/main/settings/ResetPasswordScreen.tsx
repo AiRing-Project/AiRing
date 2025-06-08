@@ -6,21 +6,27 @@ import {Controller, useForm} from 'react-hook-form';
 import {
   ActivityIndicator,
   Alert,
-  StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
+  View,
 } from 'react-native';
 import * as yup from 'yup';
 
 import {RootStackParamList} from '../../../../App';
 import {resetPassword} from '../../../api/authApi';
 import AppScreen from '../../../components/layout/AppScreen';
+import Header from '../../../components/layout/Header';
+import {loginStyles} from '../../auth/LoginScreen';
+
 const schema = yup.object({
   currentPassword: yup.string().required('현재 비밀번호를 입력하세요.'),
   newPassword: yup
     .string()
-    .min(6, '새 비밀번호는 6자 이상이어야 합니다.')
+    .matches(
+      /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/,
+      '숫자, 영문 포함 8자리 이상 입력해주세요',
+    )
     .required('새 비밀번호를 입력하세요.'),
   newPasswordConfirm: yup
     .string()
@@ -75,129 +81,100 @@ const ResetPasswordScreen = () => {
   };
 
   return (
-    <AppScreen style={styles.container}>
-      <Text style={styles.title}>비밀번호 재설정</Text>
-      <Controller
-        control={control}
-        name="currentPassword"
-        render={({field: {onChange, onBlur, value}}) => (
-          <TextInput
-            style={[
-              styles.input,
-              errors.currentPassword &&
-                (errors.currentPassword.type !== 'required' || isSubmitted) &&
-                styles.errorInput,
-            ]}
-            placeholder="현재 비밀번호"
-            secureTextEntry
-            autoComplete="current-password"
-            textContentType="password"
-            value={value}
-            onChangeText={onChange}
-            onBlur={onBlur}
-          />
-        )}
+    <AppScreen>
+      <Header
+        title="비밀번호 변경"
+        onBackPress={() => navigation.goBack()}
+        marginBottom={44}
       />
-      <Controller
-        control={control}
-        name="newPassword"
-        render={({field: {onChange, onBlur, value}}) => (
-          <TextInput
-            style={[
-              styles.input,
-              errors.newPassword &&
-                (errors.newPassword.type !== 'required' || isSubmitted) &&
-                styles.errorInput,
-            ]}
-            placeholder="새 비밀번호"
-            secureTextEntry
-            autoComplete="new-password"
-            textContentType="newPassword"
-            value={value}
-            onChangeText={onChange}
-            onBlur={onBlur}
+      <View style={loginStyles.container}>
+        <View style={loginStyles.formContainer}>
+          <Controller
+            control={control}
+            name="currentPassword"
+            render={({field: {onChange, onBlur, value}}) => (
+              <TextInput
+                style={[
+                  loginStyles.input,
+                  errors.currentPassword &&
+                    (errors.currentPassword.type !== 'required' ||
+                      isSubmitted) &&
+                    loginStyles.errorInput,
+                ]}
+                placeholder="기존 비밀번호"
+                placeholderTextColor={'rgba(0, 0, 0, 0.25)'}
+                secureTextEntry
+                autoComplete="current-password"
+                textContentType="password"
+                value={value}
+                onChangeText={onChange}
+                onBlur={onBlur}
+              />
+            )}
           />
-        )}
-      />
-      <Controller
-        control={control}
-        name="newPasswordConfirm"
-        render={({field: {onChange, onBlur, value}}) => (
-          <TextInput
-            style={[
-              styles.input,
-              errors.newPasswordConfirm &&
-                (errors.newPasswordConfirm.type !== 'required' ||
-                  isSubmitted) &&
-                styles.errorInput,
-            ]}
-            placeholder="새 비밀번호 확인"
-            secureTextEntry
-            autoComplete="new-password"
-            textContentType="newPassword"
-            value={value}
-            onChangeText={onChange}
-            onBlur={onBlur}
+          <Controller
+            control={control}
+            name="newPassword"
+            render={({field: {onChange, onBlur, value}}) => (
+              <TextInput
+                style={[
+                  loginStyles.input,
+                  errors.newPassword &&
+                    (errors.newPassword.type !== 'required' || isSubmitted) &&
+                    loginStyles.errorInput,
+                ]}
+                placeholder="신규 비밀번호(영문, 숫자 포함 8자리 이상)"
+                placeholderTextColor={'rgba(0, 0, 0, 0.25)'}
+                secureTextEntry
+                autoComplete="new-password"
+                textContentType="newPassword"
+                value={value}
+                onChangeText={onChange}
+                onBlur={onBlur}
+              />
+            )}
           />
-        )}
-      />
-      <TouchableOpacity
-        style={[styles.resetButton, loading && styles.disabledButton]}
-        activeOpacity={0.8}
-        onPress={handleSubmit(onSubmit)}
-        disabled={loading}>
-        {loading ? (
-          <ActivityIndicator color="#fff" />
-        ) : (
-          <Text style={styles.resetButtonText}>비밀번호 재설정</Text>
-        )}
-      </TouchableOpacity>
+          <Controller
+            control={control}
+            name="newPasswordConfirm"
+            render={({field: {onChange, onBlur, value}}) => (
+              <TextInput
+                style={[
+                  loginStyles.input,
+                  errors.newPasswordConfirm &&
+                    (errors.newPasswordConfirm.type !== 'required' ||
+                      isSubmitted) &&
+                    loginStyles.errorInput,
+                ]}
+                placeholder="신규 비밀번호 확인"
+                placeholderTextColor={'rgba(0, 0, 0, 0.25)'}
+                secureTextEntry
+                autoComplete="new-password"
+                textContentType="newPassword"
+                value={value}
+                onChangeText={onChange}
+                onBlur={onBlur}
+              />
+            )}
+          />
+        </View>
+        <TouchableOpacity
+          style={[
+            loginStyles.loginButton,
+            loading && loginStyles.disabledButton,
+          ]}
+          activeOpacity={0.8}
+          onPress={handleSubmit(onSubmit)}
+          disabled={loading}>
+          {loading ? (
+            <ActivityIndicator color="#fff" />
+          ) : (
+            <Text style={loginStyles.loginButtonText}>변경하기</Text>
+          )}
+        </TouchableOpacity>
+      </View>
     </AppScreen>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  title: {
-    fontSize: 24,
-    marginBottom: 32,
-    fontWeight: 'bold',
-  },
-  input: {
-    width: '100%',
-    height: 48,
-    borderColor: '#ccc',
-    borderWidth: 1,
-    borderRadius: 8,
-    paddingHorizontal: 16,
-    marginBottom: 12,
-    fontSize: 16,
-    backgroundColor: '#f9f9f9',
-  },
-  errorInput: {
-    borderColor: '#ec7575',
-  },
-  resetButton: {
-    width: '100%',
-    height: 48,
-    backgroundColor: '#222',
-    borderRadius: 8,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: 12,
-    marginBottom: 12,
-  },
-  resetButtonText: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-  disabledButton: {
-    opacity: 0.6,
-  },
-});
 
 export default ResetPasswordScreen;
