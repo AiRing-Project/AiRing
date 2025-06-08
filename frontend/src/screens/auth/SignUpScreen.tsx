@@ -3,17 +3,11 @@ import {useNavigation} from '@react-navigation/native';
 import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import React, {useState} from 'react';
 import {Controller, useForm} from 'react-hook-form';
-import {
-  ActivityIndicator,
-  Alert,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import {Alert, TextInput, View} from 'react-native';
 import * as yup from 'yup';
 
 import {signUp} from '../../api/authApi';
+import FormButton from '../../components/common/FormButton';
 import AppScreen from '../../components/layout/AppScreen';
 import Header from '../../components/layout/Header';
 import type {AuthStackParamList} from '../../navigation/AuthStack';
@@ -215,67 +209,15 @@ const SignUpScreen = () => {
             )}
           />
         </View>
-        <TouchableOpacity
-          style={[
-            loginStyles.loginButton,
-            loading && loginStyles.disabledButton,
-          ]}
-          activeOpacity={0.8}
+        <FormButton
+          title="회원가입"
           onPress={handleSubmit(onSubmit)}
-          disabled={loading}>
-          {loading ? (
-            <ActivityIndicator color="#fff" />
-          ) : (
-            <Text style={loginStyles.loginButtonText}>회원가입</Text>
-          )}
-        </TouchableOpacity>
+          loading={loading}
+          disabled={loading}
+        />
       </View>
     </AppScreen>
   );
 };
-
-// const loginStyles = StyleSheet.create({
-//   container: {
-//     justifyContent: 'center',
-//     alignItems: 'center',
-//   },
-//   title: {
-//     fontSize: 28,
-//     marginBottom: 32,
-//     fontWeight: 'bold',
-//   },
-//   input: {
-//     width: '100%',
-//     height: 48,
-//     borderColor: '#ccc',
-//     borderWidth: 1,
-//     borderRadius: 8,
-//     paddingHorizontal: 16,
-//     marginBottom: 12,
-//     fontSize: 16,
-//     backgroundColor: '#f9f9f9',
-//   },
-//   errorInput: {
-//     borderColor: '#ec7575',
-//   },
-//   signUpButton: {
-//     width: '100%',
-//     height: 48,
-//     backgroundColor: '#222',
-//     borderRadius: 8,
-//     alignItems: 'center',
-//     justifyContent: 'center',
-//     marginTop: 12,
-//     marginBottom: 12,
-//   },
-//   signUpButtonText: {
-//     color: '#fff',
-//     fontSize: 18,
-//     fontWeight: 'bold',
-//   },
-//   disabledButton: {
-//     opacity: 0.6,
-//   },
-// });
 
 export default SignUpScreen;

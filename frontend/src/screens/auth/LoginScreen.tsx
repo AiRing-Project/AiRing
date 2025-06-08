@@ -4,7 +4,6 @@ import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import React, {useState} from 'react';
 import {Controller, useForm} from 'react-hook-form';
 import {
-  ActivityIndicator,
   Alert,
   StyleSheet,
   Text,
@@ -15,6 +14,7 @@ import {
 import * as yup from 'yup';
 
 import {getUserInfo, login} from '../../api/authApi';
+import FormButton from '../../components/common/FormButton';
 import AppScreen from '../../components/layout/AppScreen';
 import Header from '../../components/layout/Header';
 import type {AuthStackParamList} from '../../navigation/AuthStack';
@@ -159,20 +159,12 @@ const LoginScreen = () => {
             )}
           />
         </View>
-        <TouchableOpacity
-          style={[
-            loginStyles.loginButton,
-            loading && loginStyles.disabledButton,
-          ]}
-          activeOpacity={0.8}
+        <FormButton
+          title="로그인"
           onPress={handleSubmit(onSubmit)}
-          disabled={loading}>
-          {loading ? (
-            <ActivityIndicator color="#fff" />
-          ) : (
-            <Text style={loginStyles.loginButtonText}>로그인</Text>
-          )}
-        </TouchableOpacity>
+          loading={loading}
+          disabled={loading}
+        />
         <View style={loginStyles.signupContainer}>
           <Text style={loginStyles.signupText}>아직 계정이 없으신가요? </Text>
           <TouchableOpacity onPress={() => navigation.navigate('SignUp')}>
@@ -212,33 +204,6 @@ export const loginStyles = StyleSheet.create({
   },
   errorInput: {
     borderColor: '#ec7575',
-  },
-  loginButton: {
-    shadowColor: 'rgba(0, 0, 0, 0.08)',
-    shadowOffset: {
-      width: 0,
-      height: 0,
-    },
-    shadowRadius: 2,
-    elevation: 2,
-    shadowOpacity: 1,
-    borderRadius: 10,
-    backgroundColor: '#232323',
-    borderStyle: 'solid',
-    borderColor: '#e7e7e7',
-    borderWidth: 1,
-    width: '100%',
-    height: 60,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  loginButtonText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#fff',
-  },
-  disabledButton: {
-    opacity: 0.6,
   },
   signupContainer: {
     flexDirection: 'row',

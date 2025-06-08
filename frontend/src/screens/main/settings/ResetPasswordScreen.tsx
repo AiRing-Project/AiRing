@@ -3,18 +3,12 @@ import {useNavigation} from '@react-navigation/native';
 import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import React, {useState} from 'react';
 import {Controller, useForm} from 'react-hook-form';
-import {
-  ActivityIndicator,
-  Alert,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import {Alert, TextInput, View} from 'react-native';
 import * as yup from 'yup';
 
 import {RootStackParamList} from '../../../../App';
 import {resetPassword} from '../../../api/authApi';
+import FormButton from '../../../components/common/FormButton';
 import AppScreen from '../../../components/layout/AppScreen';
 import Header from '../../../components/layout/Header';
 import {loginStyles} from '../../auth/LoginScreen';
@@ -75,6 +69,7 @@ const ResetPasswordScreen = () => {
         msg = e.response.data.message;
       }
       Alert.alert('비밀번호 변경 실패', msg);
+      reset();
     } finally {
       setLoading(false);
     }
@@ -158,20 +153,12 @@ const ResetPasswordScreen = () => {
             )}
           />
         </View>
-        <TouchableOpacity
-          style={[
-            loginStyles.loginButton,
-            loading && loginStyles.disabledButton,
-          ]}
-          activeOpacity={0.8}
+        <FormButton
+          title="변경하기"
           onPress={handleSubmit(onSubmit)}
-          disabled={loading}>
-          {loading ? (
-            <ActivityIndicator color="#fff" />
-          ) : (
-            <Text style={loginStyles.loginButtonText}>변경하기</Text>
-          )}
-        </TouchableOpacity>
+          loading={loading}
+          disabled={loading}
+        />
       </View>
     </AppScreen>
   );
