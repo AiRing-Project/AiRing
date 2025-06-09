@@ -5,9 +5,13 @@
  * @format
  */
 
-import {NavigationContainer} from '@react-navigation/native';
+import {
+  NavigationContainer,
+  NavigationContainerRef,
+} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
-import React, {useEffect} from 'react';
+import React, {useEffect, useRef} from 'react';
+import {Linking} from 'react-native';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 import {enableScreens} from 'react-native-screens';
 
@@ -75,6 +79,8 @@ const App = () => {
     checkAppLock,
   } = useAppLockStore();
 
+  const navigationRef = useRef<NavigationContainerRef<any>>(null);
+
   useEffect(() => {
     checkAuth();
   }, [checkAuth]);
@@ -83,13 +89,33 @@ const App = () => {
     checkAppLock();
   }, [isLoggedIn, checkAppLock]);
 
+  // 딥링크 이벤트 구독: airing://incoming-call 수신 시 IncomingCallScreen으로 이동
+  useEffect(() => {
+    const handleDeepLink = (event: {url: string}) => {
+      const url = event.url;
+      if (url && url.startsWith('airing://incoming-call')) {
+        navigationRef.current?.navigate('IncomingCall');
+      }
+    };
+    const subscription = Linking.addEventListener('url', handleDeepLink);
+    // 앱이 cold start로 딥링크로 실행된 경우도 처리
+    Linking.getInitialURL().then(url => {
+      if (url && url.startsWith('airing://incoming-call')) {
+        navigationRef.current?.navigate('IncomingCall');
+      }
+    });
+    return () => {
+      subscription.remove();
+    };
+  }, []);
+
   if (isAuthLoading || isAppLockLoading) {
     return <SplashScreen />;
   }
 
   return (
     <SafeAreaProvider>
-      <NavigationContainer>
+      <NavigationContainer ref={navigationRef}>
         <Stack.Navigator screenOptions={{headerShown: false}}>
           {isLoggedIn ? (
             <>
