@@ -1,6 +1,6 @@
 import {RouteProp, useNavigation, useRoute} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {StyleSheet, Text, View} from 'react-native';
 
 import {RootStackParamList} from '../../../../App';
@@ -45,6 +45,20 @@ const SelectVoiceScreen = () => {
   const [selectedVoice, setSelectedVoice] = useState(preVoice);
 
   const handleSelect = (voice: string) => setSelectedVoice(voice);
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('beforeRemove', e => {
+      if (
+        e.data.action.type === 'POP_TO_TOP' ||
+        e.data.action.type === 'POP' ||
+        e.data.action.type === 'GO_BACK'
+      ) {
+        e.preventDefault();
+        navigation.popTo('AiCallSettings', {voice: selectedVoice});
+      }
+    });
+    return unsubscribe;
+  }, [navigation, selectedVoice]);
 
   return (
     <AppScreen>

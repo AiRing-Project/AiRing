@@ -1,6 +1,6 @@
 import {RouteProp, useNavigation, useRoute} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {StyleSheet, View} from 'react-native';
 
 import {RootStackParamList} from '../../../../App';
@@ -35,6 +35,21 @@ const SelectCallBackScreen = () => {
   const [selectedCallBack, setSelectedCallBack] = useState(preCallBack);
 
   const handleSelect = (callBack: string) => setSelectedCallBack(callBack);
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('beforeRemove', e => {
+      // 헤더 뒤로가기(onBackPress)에서 이미 popTo를 호출한 경우는 무시
+      if (
+        e.data.action.type === 'POP_TO_TOP' ||
+        e.data.action.type === 'POP' ||
+        e.data.action.type === 'GO_BACK'
+      ) {
+        e.preventDefault();
+        navigation.popTo('AiCallSettings', {callBack: selectedCallBack});
+      }
+    });
+    return unsubscribe;
+  }, [navigation, selectedCallBack]);
 
   return (
     <AppScreen>
