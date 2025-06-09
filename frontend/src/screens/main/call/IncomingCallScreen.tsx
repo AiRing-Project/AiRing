@@ -8,6 +8,7 @@ import {
   PanResponder,
   StyleSheet,
   Text,
+  TouchableOpacity,
   View,
 } from 'react-native';
 
@@ -40,6 +41,10 @@ const IncomingCallScreen = () => {
 
   const navigation =
     useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+
+  const handleCallBack = async () => {
+    console.log('handleCallBack');
+  };
 
   const panResponder = useRef(
     PanResponder.create({
@@ -92,37 +97,47 @@ const IncomingCallScreen = () => {
       <View style={styles.textContainer}>
         <Text style={styles.title}>AIRING</Text>
         {/* TODO: 실제 데이터로 교체 */}
-        <Text style={styles.reservation}>5월 7일 18:00 예약</Text>
+        <Text style={styles.reservationText}>5월 7일 18:00 예약</Text>
       </View>
-      <View style={styles.buttonContainer}>
-        <View
-          style={[
-            styles.callDeclineButton,
-            response === 'decline' && {
-              boxShadow: `0 0 12px 0 ${DECLINE_COLOR}`,
-            },
-          ]}>
-          <IcCallDecline />
-        </View>
-        <Animated.View
-          style={[{transform: [{translateX: pan}]}]}
-          {...panResponder.panHandlers}>
-          <Animated.View style={{opacity: boxOpacity}}>
-            <EmojiBox
-              size={BUTTON_SIZE}
-              backgroundColor="#fff"
-              eyesColor="#000"
-              showEyes={true}
-              style={{boxShadow: '0 0 12px 0 #fff'}}
-            />
+      <View style={styles.interactionContainer}>
+        <TouchableOpacity
+          style={styles.callBackButton}
+          onPress={handleCallBack}>
+          {/* TODO: 실제 데이터로 교체 */}
+          <Text style={styles.reservationText}>10분 후 다시 전화</Text>
+        </TouchableOpacity>
+        <View style={styles.buttonContainer}>
+          <View
+            style={[
+              styles.callDeclineButton,
+              response === 'decline' && {
+                boxShadow: `0 0 12px 0 ${DECLINE_COLOR}`,
+              },
+            ]}>
+            <IcCallDecline />
+          </View>
+          <Animated.View
+            style={[{transform: [{translateX: pan}]}]}
+            {...panResponder.panHandlers}>
+            <Animated.View style={{opacity: boxOpacity}}>
+              <EmojiBox
+                size={BUTTON_SIZE}
+                backgroundColor="#fff"
+                eyesColor="#000"
+                showEyes={true}
+                style={{boxShadow: '0 0 12px 0 #fff'}}
+              />
+            </Animated.View>
           </Animated.View>
-        </Animated.View>
-        <View
-          style={[
-            styles.callAnswerButton,
-            response === 'accept' && {boxShadow: `0 0 12px 0 ${ACCEPT_COLOR}`},
-          ]}>
-          <IcCallAnswer />
+          <View
+            style={[
+              styles.callAnswerButton,
+              response === 'accept' && {
+                boxShadow: `0 0 12px 0 ${ACCEPT_COLOR}`,
+              },
+            ]}>
+            <IcCallAnswer />
+          </View>
         </View>
       </View>
     </AppScreen>
@@ -144,10 +159,23 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: '#fff',
   },
-  reservation: {
+  reservationText: {
     fontSize: 16,
     fontWeight: '600',
     color: '#A7A7A7',
+  },
+  callBackButton: {
+    backgroundColor: '#232323',
+    borderRadius: 99,
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    marginHorizontal: 'auto',
+    alignItems: 'center',
+  },
+  interactionContainer: {
+    marginTop: 'auto',
+    marginBottom: SCREEN_HEIGHT * 0.1,
+    gap: 20,
   },
   buttonContainer: {
     borderRadius: 10,
@@ -159,8 +187,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginTop: 'auto',
-    marginBottom: SCREEN_HEIGHT * 0.1,
   },
   callDeclineButton: {
     backgroundColor: DECLINE_COLOR,

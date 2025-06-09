@@ -101,3 +101,32 @@ export const formatDuration = (sec: number) => {
   const s = (sec % 60).toString().padStart(2, '0');
   return `${m}:${s}`;
 };
+
+/**
+ * HH:mm 형식의 시간 문자열을 받아, 현재 시각 기준으로 해당 시간까지 남은 ms를 반환
+ * @param time HH:mm 형식 (예: '09:30')
+ * @returns 남은 ms (음수 불가, 내일로 넘김)
+ */
+export const calcDelayMs = (time: string): number => {
+  const [h, m] = time.split(':').map(Number);
+  const now = new Date();
+  const target = new Date();
+  target.setHours(h, m, 0, 0);
+  if (target <= now) {
+    target.setDate(target.getDate() + 1);
+  }
+  return target.getTime() - now.getTime();
+};
+
+/**
+ * 현재 시각 기준 n분 뒤의 HH:mm 문자열 반환
+ * @param n 분 단위
+ * @returns HH:mm 형식 문자열
+ */
+export const getTimeAfterMinutes = (n: number): string => {
+  const now = new Date();
+  now.setMinutes(now.getMinutes() + n);
+  const hh = now.getHours().toString().padStart(2, '0');
+  const mm = now.getMinutes().toString().padStart(2, '0');
+  return `${hh}:${mm}`;
+};
