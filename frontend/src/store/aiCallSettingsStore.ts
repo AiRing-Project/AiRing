@@ -42,6 +42,10 @@ export interface AiCallSettingsState {
   setVibrate: (vibrate: {enabled: boolean; value: string}) => void;
   setCallBack: (callBack: {enabled: boolean; value: string}) => void;
   setVoice: (voice: string) => void;
+
+  // 알람 등록 여부 -> 앱 첫 실행 시 알람 등록
+  isAlarmRegistered: boolean;
+  setAlarmRegistered: (value: boolean) => void;
 }
 
 const defaultTime = (() => {
@@ -66,6 +70,9 @@ export const useAiCallSettingsStore = create<AiCallSettingsState>()(
       setVibrate: vibrate => set({vibrate}),
       setCallBack: callBack => set({callBack}),
       setVoice: voice => set({voice}),
+
+      isAlarmRegistered: false,
+      setAlarmRegistered: value => set({isAlarmRegistered: value}),
     }),
     {
       name: 'ai-call-settings-store',
@@ -76,6 +83,8 @@ export const useAiCallSettingsStore = create<AiCallSettingsState>()(
         vibrate: state.vibrate,
         callBack: state.callBack,
         voice: state.voice,
+
+        isAlarmRegistered: state.isAlarmRegistered,
       }),
     },
   ),
