@@ -17,6 +17,7 @@ import AppScreen from '../../../components/layout/AppScreen';
 import Header from '../../../components/layout/Header';
 import TimePicker from '../../../components/picker/TimePicker';
 import {useAiCallSettingsStore} from '../../../store/aiCallSettingsStore';
+import {updateScheduledAlarms} from '../../../utils/alarmManager';
 
 const DAYS = ['월', '화', '수', '목', '금', '토', '일'];
 
@@ -185,12 +186,15 @@ const AiCallSettingsScreen = () => {
   };
 
   // 저장 버튼
-  const handleSave = () => {
+  const handleSave = async () => {
+    // 스토어 업데이트
     setSelectedDays(selectedDays);
     setTime(time);
     setVibrate(vibrate);
     setCallBack(callBack);
     setVoice(voice);
+    // 알람 업데이트
+    await updateScheduledAlarms();
     navigation.goBack();
   };
 
