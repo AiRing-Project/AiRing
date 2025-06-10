@@ -31,23 +31,26 @@ function RepeatDaysCard({selectedDays, onToggleDay}: RepeatDaysCardProps) {
     <View style={styles.repeatContainer}>
       <Text style={styles.repeatTitle}>반복</Text>
       <View style={styles.daysContainer}>
-        {DAYS.map((d, i) => (
-          <TouchableOpacity
-            key={d}
-            style={[
-              styles.dayBtn,
-              selectedDays.includes(i) && styles.dayBtnActive,
-            ]}
-            onPress={() => onToggleDay(i)}>
-            <Text
+        {DAYS.map((d, i) => {
+          const realIdx = (i + 1) % 7;
+          return (
+            <TouchableOpacity
+              key={d}
               style={[
-                styles.dayText,
-                selectedDays.includes(i) && styles.dayTextActive,
-              ]}>
-              {d}
-            </Text>
-          </TouchableOpacity>
-        ))}
+                styles.dayBtn,
+                selectedDays.includes(realIdx) && styles.dayBtnActive,
+              ]}
+              onPress={() => onToggleDay(realIdx)}>
+              <Text
+                style={[
+                  styles.dayText,
+                  selectedDays.includes(realIdx) && styles.dayTextActive,
+                ]}>
+                {d}
+              </Text>
+            </TouchableOpacity>
+          );
+        })}
       </View>
     </View>
   );
