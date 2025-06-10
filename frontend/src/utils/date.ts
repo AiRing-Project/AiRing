@@ -130,3 +130,45 @@ export const getTimeAfterMinutes = (n: number): string => {
   const mm = now.getMinutes().toString().padStart(2, '0');
   return `${hh}:${mm}`;
 };
+
+/**
+ * 주어진 시간과 요일에 가장 가까운 미래의 Date 객체를 반환합니다.
+ * @param hour       0~23 사이의 시 (24시간 기준)
+ * @param minute     0~59 사이의 분
+ * @param dayOfWeek  0(일요일)~6(토요일)
+ * @returns {Date}  가장 가까운 미래의 Date 객체
+ */
+export const getNextDate = (
+  hour: number,
+  minute: number,
+  dayOfWeek: number,
+): Date => {
+  const now = new Date();
+
+  // 오늘의 날짜에 목표 시간으로 세팅한 Date 객체 생성
+  const target = new Date(
+    now.getFullYear(),
+    now.getMonth(),
+    now.getDate(),
+    hour,
+    minute,
+    0,
+    0,
+  );
+
+  const today = now.getDay(); // 0~6
+  // 목표 요일까지 남은 일수 (mod 7)
+  let daysUntil = (dayOfWeek - today + 7) % 7;
+
+  // 같은 요일이면, 목표 시간이 이미 지났을 때는 7일 뒤로
+  if (daysUntil === 0 && target <= now) {
+    daysUntil = 7;
+  }
+
+  // 남은 일수만큼 더해주면 최종 목표 날짜 완성
+  if (daysUntil > 0) {
+    target.setDate(target.getDate() + daysUntil);
+  }
+
+  return target;
+};
