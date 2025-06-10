@@ -4,8 +4,8 @@ import {createJSONStorage, persist} from 'zustand/middleware';
 
 // Vibrate 옵션: label + 실제 패턴
 export const VIBRATE_LIST = [
-  {label: 'Basic', pattern: [0, 500, 200, 500]},
-  {label: 'HeartBeat', pattern: [0, 100, 100, 300, 100, 700]},
+  {label: 'Basic', pattern: [1, 500, 200, 500]},
+  {label: 'HeartBeat', pattern: [1, 100, 100, 300, 100, 700]},
 ];
 
 // CallBack 옵션: label + 분 단위 value
@@ -30,13 +30,13 @@ export interface AiCallSettingsState {
   time: string; // 'HH:mm' 형식
   vibrate: {
     enabled: boolean;
-    value: string; // label (예: 'Basic')
+    value: (typeof VIBRATE_LIST)[number]['label'];
   };
   callBack: {
     enabled: boolean;
-    value: string; // label (예: '10분 후')
+    value: (typeof CALLBACK_LIST)[number]['label'];
   };
-  voice: string; // label (예: 'Sol')
+  voice: (typeof VOICE_LIST)[number]['label'];
   setSelectedDays: (days: number[]) => void;
   setTime: (time: string) => void;
   setVibrate: (vibrate: {enabled: boolean; value: string}) => void;
