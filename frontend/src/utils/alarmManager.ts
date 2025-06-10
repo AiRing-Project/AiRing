@@ -79,8 +79,8 @@ export async function scheduleAlarm(
   await notifee.createTriggerNotification(
     {
       id,
-      title: 'AiRing Incoming Call',
-      body: `예약된 AI 통화 알림 (${formattedTime})`,
+      title: 'AiRing에게 전화가 왔어요!',
+      body: `예약된 전화 알림 (${formattedTime})`,
       data: {
         link: 'airing://incoming-call',
       },
@@ -96,13 +96,13 @@ export async function scheduleAlarm(
         colorized: true,
         actions: [
           {
-            title: '거절',
+            title: '❌ 거절',
             pressAction: {
               id: 'decline', // dismiss와 동일
             },
           },
           {
-            title: '열기',
+            title: '✅ 열기',
             pressAction: {
               id: 'accept', // 일반 알림 클릭과 동일
               launchActivity: 'default',
@@ -113,7 +113,6 @@ export async function scheduleAlarm(
     },
     trigger,
   );
-  console.log('scheduleAlarm');
 }
 
 /**
