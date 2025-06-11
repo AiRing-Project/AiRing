@@ -25,7 +25,7 @@ const EmotionIcon = ({
       style={StyleSheet.absoluteFill}>
       <Defs>
         <RadialGradient id="grad" cx="41%" cy="40%" r="61%" fx="41%" fy="40%">
-          <Stop offset="0%" stopColor={colors[0]} stopOpacity={0.5} />
+          <Stop offset="0%" stopColor={colors[0]} stopOpacity={0.6} />
           <Stop offset="100%" stopColor={colors[1]} stopOpacity={1} />
         </RadialGradient>
       </Defs>
