@@ -63,7 +63,7 @@ const diaryData = [
     date: '2025-05-01',
     id: 101,
     title: '출장 준비',
-    emotion: ['anticipation', 'joy'],
+    emotion: ['흥분', '자신하는'],
     tag: ['work', 'trip'],
     hasReply: true,
   },
@@ -71,7 +71,7 @@ const diaryData = [
     date: '2025-05-02',
     id: 106,
     title: '아침 산책',
-    emotion: ['calm'],
+    emotion: ['편안한', '자신하는'],
     tag: ['health', 'morning'],
     hasReply: false,
   },
@@ -79,7 +79,7 @@ const diaryData = [
     date: '2025-05-03',
     id: 102,
     title: '점심 데이트',
-    emotion: ['joy'],
+    emotion: ['만족스러운', '기쁨'],
     tag: ['food', 'friend'],
     hasReply: false,
   },
@@ -87,7 +87,7 @@ const diaryData = [
     date: '2025-05-04',
     id: 107,
     title: '가족 모임',
-    emotion: ['thoughtful', 'joy'],
+    emotion: ['감사하는', '편안한'],
     tag: ['family'],
     hasReply: true,
   },
@@ -95,7 +95,7 @@ const diaryData = [
     date: '2025-05-05',
     id: 108,
     title: '어린이날',
-    emotion: ['joy'],
+    emotion: ['기쁨', '만족스러운'],
     tag: ['holiday', 'family'],
     hasReply: false,
   },
@@ -103,7 +103,7 @@ const diaryData = [
     date: '2025-05-07',
     id: 103,
     title: '책 읽기',
-    emotion: ['calm', 'thoughtful'],
+    emotion: ['편안한', '자신하는'],
     tag: ['hobby'],
     hasReply: true,
   },
@@ -111,7 +111,7 @@ const diaryData = [
     date: '2025-05-10',
     id: 109,
     title: '운동 후 피곤함',
-    emotion: ['tired'],
+    emotion: ['불안', '우울한'],
     tag: ['health', 'exercise'],
     hasReply: false,
   },
@@ -119,7 +119,7 @@ const diaryData = [
     date: '2025-05-12',
     id: 110,
     title: '업무 스트레스',
-    emotion: ['anger', 'thoughtful'],
+    emotion: ['스트레스 받는', '분노'],
     tag: ['work', 'stress'],
     hasReply: false,
   },
@@ -127,7 +127,7 @@ const diaryData = [
     date: '2025-05-15',
     id: 111,
     title: '친구와 갈등',
-    emotion: ['anger'],
+    emotion: ['당황', '스트레스 받는'],
     tag: ['friend', 'conflict'],
     hasReply: true,
   },
@@ -135,7 +135,7 @@ const diaryData = [
     date: '2025-05-18',
     id: 112,
     title: '카페에서 휴식',
-    emotion: ['calm'],
+    emotion: ['편안한', '자신하는'],
     tag: ['cafe', 'rest'],
     hasReply: false,
   },
@@ -143,7 +143,7 @@ const diaryData = [
     date: '2025-05-20',
     id: 113,
     title: '새로운 취미 시작',
-    emotion: ['anticipation'],
+    emotion: ['자신하는', '흥분'],
     tag: ['hobby', 'new'],
     hasReply: true,
   },
@@ -151,7 +151,7 @@ const diaryData = [
     date: '2025-05-22',
     id: 114,
     title: '비 오는 날',
-    emotion: ['thoughtful'],
+    emotion: ['우울한', '불안'],
     tag: ['weather', 'rain'],
     hasReply: false,
   },
@@ -159,7 +159,7 @@ const diaryData = [
     date: '2025-05-25',
     id: 115,
     title: '맛집 탐방',
-    emotion: ['joy'],
+    emotion: ['기쁨', '만족스러운'],
     tag: ['food', 'trip'],
     hasReply: true,
   },
@@ -167,7 +167,7 @@ const diaryData = [
     date: '2025-05-28',
     id: 116,
     title: '야근',
-    emotion: ['anger', 'tired'],
+    emotion: ['슬픔', '스트레스 받는'],
     tag: ['work', 'night'],
     hasReply: false,
   },
@@ -175,7 +175,7 @@ const diaryData = [
     date: '2025-05-30',
     id: 117,
     title: '산책하며 생각 정리',
-    emotion: ['thoughtful', 'calm'],
+    emotion: ['자신하는', '편안한'],
     tag: ['health', 'walk'],
     hasReply: true,
   },
@@ -184,7 +184,7 @@ const diaryData = [
     date: '2025-06-02',
     id: 104,
     title: '생각이 많은 날',
-    emotion: ['thoughtful'],
+    emotion: ['외로운', '우울한'],
     tag: ['stress', 'tired'],
     hasReply: false,
   },
@@ -192,19 +192,40 @@ const diaryData = [
     date: '2025-06-03',
     id: 105,
     title: '오늘 일기',
-    emotion: ['anger'],
+    emotion: ['분노', '스트레스 받는'],
     tag: ['stress', 'tired'],
+    hasReply: false,
+  },
+  {
+    date: '2025-06-05',
+    id: 199,
+    title: '오늘 일기',
+    emotion: ['그저 그런'],
+    tag: ['fine'],
     hasReply: false,
   },
 ];
 
-// 감정별 색상 매핑(임의 지정)
-const emotionColorMap: Record<string, string> = {
-  joy: '#FFD600', // 노랑
-  calm: '#3A7BFF', // 파랑
-  anticipation: '#7ED957', // 연두
-  thoughtful: '#A259FF', // 보라
-  anger: '#ff6d6d', // 빨강
+const emotionColorMap: Record<string, string[]> = {
+  // 긍정
+  기쁨: ['#FFC327', '#FEA319'],
+  감사하는: ['#FF8921', '#FF7700'],
+  만족스러운: ['#07C472', '#00AC79'],
+  편안한: ['#6DD84E', '#00D02A'],
+  자신하는: ['#FF7781', '#FD626E'],
+  흥분: ['#FF8FBA', '#FF5F9D'],
+
+  // 부정
+  분노: ['#FE5586', '#F7484B'],
+  슬픔: ['#6BADFF', '#3A89FF'],
+  우울한: ['#A592F0', '#5079F2'],
+  불안: ['#6086D1', '#2C5CBC'],
+  '스트레스 받는': ['#AB8263', '#9E7558'],
+  외로운: ['#A0C3C7', '#308EAB'],
+  당황: ['#C5A1E1', '#833CA2'],
+
+  // 중립
+  '그저 그런': ['#838FAB', '#838FAB'],
 };
 
 const DAY_BOX_SIZE = 35;
@@ -289,10 +310,7 @@ const CalendarScreen = () => {
           <Text style={textStyle}>{date.day}</Text>
         </View>
         {emotionColor ? (
-          <EmotionIcon
-            size={DAY_BOX_SIZE}
-            colors={[emotionColor, emotionColor]}
-          />
+          <EmotionIcon size={DAY_BOX_SIZE} colors={emotionColor} />
         ) : (
           <View style={boxStyle} />
         )}
