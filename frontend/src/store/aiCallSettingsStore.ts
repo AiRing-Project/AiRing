@@ -90,9 +90,14 @@ export const useAiCallSettingsStore = create<AiCallSettingsState>()(
       }),
       onRehydrateStorage: () => async state => {
         if (!state?.isAlarmRegistered) {
-          console.log('registerAlarmOnce');
-          await updateScheduledAlarms();
           state?.setAlarmRegistered(true);
+          try {
+            console.log('[Alarm] register once after rehydrate');
+            await updateScheduledAlarms();
+          } catch (err) {
+            console.error('[Alarm] failed to register scheduled alarms', err);
+            state?.setAlarmRegistered(false); // 롤백 -> 다음 부팅 때 재시도
+          }
         }
       },
     },
