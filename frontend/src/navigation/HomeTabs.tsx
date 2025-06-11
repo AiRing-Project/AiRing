@@ -179,7 +179,7 @@ const HomeTabs = () => {
               style={styles.modalButton}
               onPress={() => {
                 setModalVisible(false);
-                navigation.navigate('AiCallSettings');
+                navigation.navigate('AiCallSettings', {});
               }}>
               <Text style={styles.modalButtonText}>AI 전화 예약</Text>
             </TouchableOpacity>

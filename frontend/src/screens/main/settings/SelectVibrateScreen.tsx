@@ -1,6 +1,6 @@
 import {RouteProp, useNavigation, useRoute} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {StyleSheet, View} from 'react-native';
 
 import {RootStackParamList} from '../../../../App';
@@ -36,6 +36,20 @@ const SelectVibrateScreen = () => {
 
   const handleSelect = (vibrate: string) => setSelectedVibrate(vibrate);
 
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('beforeRemove', e => {
+      if (
+        e.data.action.type === 'POP_TO_TOP' ||
+        e.data.action.type === 'POP' ||
+        e.data.action.type === 'GO_BACK'
+      ) {
+        e.preventDefault();
+        navigation.popTo('AiCallSettings', {vibrate: selectedVibrate});
+      }
+    });
+    return unsubscribe;
+  }, [navigation, selectedVibrate]);
+
   return (
     <AppScreen>
       <Header
@@ -48,10 +62,10 @@ const SelectVibrateScreen = () => {
       <View style={{gap: 10}}>
         {VIBRATE_LIST.map(item => (
           <VibrateItem
-            key={item}
-            label={item}
-            isSelected={selectedVibrate === item}
-            onPress={() => handleSelect(item)}
+            key={item.label}
+            label={item.label}
+            isSelected={selectedVibrate === item.label}
+            onPress={() => handleSelect(item.label)}
           />
         ))}
       </View>

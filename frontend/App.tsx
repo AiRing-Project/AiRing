@@ -5,12 +5,21 @@
  * @format
  */
 
-import {NavigationContainer} from '@react-navigation/native';
+import notifee from '@notifee/react-native';
+import {
+  LinkingOptions,
+  NavigationContainer,
+  NavigationContainerRef,
+} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
-import React, {useEffect} from 'react';
+import React, {useEffect, useRef} from 'react';
+import {Linking} from 'react-native';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 import {enableScreens} from 'react-native-screens';
 
+import useNotifeeEvents from './src/hooks/useNotifeeEvents';
+import useNotificationPermissions from './src/hooks/useNotificationPermissions';
+import useVibrationChannels from './src/hooks/useVibrationChannels';
 import AuthStack from './src/navigation/AuthStack';
 import HomeTabs from './src/navigation/HomeTabs';
 import AppLockScreen from './src/screens/AppLockScreen';
@@ -25,8 +34,10 @@ import SelectVibrateScreen from './src/screens/main/settings/SelectVibrateScreen
 import SelectVoiceScreen from './src/screens/main/settings/SelectVoiceScreen';
 import SetAppLockPasswordScreen from './src/screens/main/settings/SetAppLockPasswordScreen';
 import SplashScreen from './src/screens/SplashScreen';
+import {useAiCallSettingsStore} from './src/store/aiCallSettingsStore';
 import {useAppLockStore} from './src/store/appLockStore';
 import {useAuthStore} from './src/store/authStore';
+import {updateScheduledAlarms} from './src/utils/alarmManager';
 
 export type RootStackParamList = {
   Auth: undefined;
@@ -67,6 +78,29 @@ enableScreens();
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
+const linking: LinkingOptions<RootStackParamList> = {
+  prefixes: ['airing://'],
+  // override initial URL resolution:
+  async getInitialURL(): Promise<string | null | undefined> {
+    // 1) Did Notifee launch us?
+    const initialNotification = await notifee.getInitialNotification();
+    console.log('App lauched from killed state', initialNotification);
+    if (initialNotification) {
+      const link = initialNotification.notification.data?.link;
+      if (link) {
+        return link as string;
+      }
+    }
+    // 2) Fallback to usual deep-link or cold URL
+    return Linking.getInitialURL();
+  },
+  config: {
+    screens: {
+      IncomingCall: 'incoming-call',
+    },
+  },
+};
+
 const App = () => {
   const {isLoading: isAuthLoading, isLoggedIn, checkAuth} = useAuthStore();
   const {
@@ -74,6 +108,24 @@ const App = () => {
     isLocked,
     checkAppLock,
   } = useAppLockStore();
+
+  const navigationRef = useRef<NavigationContainerRef<any>>(null);
+
+  const {isAlarmRegistered, setAlarmRegistered} = useAiCallSettingsStore();
+
+  useNotificationPermissions();
+  useNotifeeEvents(navigationRef);
+  useVibrationChannels();
+
+  useEffect(() => {
+    async function registerAlarmOnce() {
+      if (!isAlarmRegistered) {
+        await updateScheduledAlarms();
+        setAlarmRegistered(true);
+      }
+    }
+    registerAlarmOnce();
+  }, [isAlarmRegistered, setAlarmRegistered]);
 
   useEffect(() => {
     checkAuth();
@@ -89,7 +141,7 @@ const App = () => {
 
   return (
     <SafeAreaProvider>
-      <NavigationContainer>
+      <NavigationContainer linking={linking} ref={navigationRef}>
         <Stack.Navigator screenOptions={{headerShown: false}}>
           {isLoggedIn ? (
             <>
