@@ -34,10 +34,8 @@ import SelectVibrateScreen from './src/screens/main/settings/SelectVibrateScreen
 import SelectVoiceScreen from './src/screens/main/settings/SelectVoiceScreen';
 import SetAppLockPasswordScreen from './src/screens/main/settings/SetAppLockPasswordScreen';
 import SplashScreen from './src/screens/SplashScreen';
-import {useAiCallSettingsStore} from './src/store/aiCallSettingsStore';
 import {useAppLockStore} from './src/store/appLockStore';
 import {useAuthStore} from './src/store/authStore';
-import {updateScheduledAlarms} from './src/utils/alarmManager';
 
 export type RootStackParamList = {
   Auth: undefined;
@@ -111,21 +109,9 @@ const App = () => {
 
   const navigationRef = useRef<NavigationContainerRef<any>>(null);
 
-  const {isAlarmRegistered, setAlarmRegistered} = useAiCallSettingsStore();
-
   useNotificationPermissions();
   useNotifeeEvents(navigationRef);
   useVibrationChannels();
-
-  useEffect(() => {
-    async function registerAlarmOnce() {
-      if (!isAlarmRegistered) {
-        await updateScheduledAlarms();
-        setAlarmRegistered(true);
-      }
-    }
-    registerAlarmOnce();
-  }, [isAlarmRegistered, setAlarmRegistered]);
 
   useEffect(() => {
     checkAuth();

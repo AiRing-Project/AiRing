@@ -2,6 +2,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import {create} from 'zustand';
 import {createJSONStorage, persist} from 'zustand/middleware';
 
+import {updateScheduledAlarms} from '../utils/alarmManager';
+
 // Vibrate 옵션: label + 실제 패턴
 export const VIBRATE_LIST = [
   {label: 'Basic', pattern: [1, 500, 200, 500]},
@@ -86,6 +88,13 @@ export const useAiCallSettingsStore = create<AiCallSettingsState>()(
 
         isAlarmRegistered: state.isAlarmRegistered,
       }),
+      onRehydrateStorage: () => async state => {
+        if (!state?.isAlarmRegistered) {
+          console.log('registerAlarmOnce');
+          await updateScheduledAlarms();
+          state?.setAlarmRegistered(true);
+        }
+      },
     },
   ),
 );
