@@ -8,10 +8,7 @@ import notifee, {
   TriggerType,
 } from '@notifee/react-native';
 
-import {
-  ACCEPT_COLOR,
-  DECLINE_COLOR,
-} from '../screens/main/call/IncomingCallScreen';
+import {ACCEPT_COLOR, DECLINE_COLOR} from '../constants/colors';
 import {
   useAiCallSettingsStore,
   VIBRATE_LIST,

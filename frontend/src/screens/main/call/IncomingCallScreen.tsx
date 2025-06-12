@@ -17,6 +17,7 @@ import IcCallAnswer from '../../../assets/icons/ic-call-answer.svg';
 import IcCallDecline from '../../../assets/icons/ic-call-decline.svg';
 import EmojiBox from '../../../components/common/EmojiBox';
 import AppScreen from '../../../components/layout/AppScreen';
+import {ACCEPT_COLOR, DECLINE_COLOR} from '../../../constants/colors';
 import {
   CALLBACK_LIST,
   useAiCallSettingsStore,
@@ -31,9 +32,6 @@ const BUTTON_CONTAINER_WIDTH = SCREEN_WIDTH - 2 * CONTAINER_HORIZONTAL_PADDING;
 const SLIDE_RANGE =
   BUTTON_CONTAINER_WIDTH / 2 - BUTTON_SIZE / 2 - BUTTON_CONTAINER_PADDING;
 const THRESHOLD = SLIDE_RANGE * 0.5;
-
-export const DECLINE_COLOR = '#f53e40';
-export const ACCEPT_COLOR = '#00cc6b';
 
 const IncomingCallScreen = () => {
   const [response, setResponse] = useState<'decline' | 'accept' | null>(null);
