@@ -32,8 +32,8 @@ const SLIDE_RANGE =
   BUTTON_CONTAINER_WIDTH / 2 - BUTTON_SIZE / 2 - BUTTON_CONTAINER_PADDING;
 const THRESHOLD = SLIDE_RANGE * 0.5;
 
-const DECLINE_COLOR = '#f53e40';
-const ACCEPT_COLOR = '#00cc6b';
+export const DECLINE_COLOR = '#f53e40';
+export const ACCEPT_COLOR = '#00cc6b';
 
 const IncomingCallScreen = () => {
   const [response, setResponse] = useState<'decline' | 'accept' | null>(null);
