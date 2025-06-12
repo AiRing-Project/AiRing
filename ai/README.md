@@ -4,7 +4,7 @@
 
 # AiRing AI
 
-Python 및 FastAPI 기반으로 구축된 AI 서버입니다.
+Python 및 FastAPI 기반으로 구축된 AI 백엔드 서버입니다.
 
 ## 기술 스택
 
@@ -73,21 +73,15 @@ pip install -r requirements.txt
 -   [Google AI Studio](https://aistudio.google.com/app/apikey)에서 API 키를 생성할 수 있습니다.
 -   생성한 키를 `.env` 파일에 입력하세요.
 
-## [애플리케이션 실행](https://fastapi.tiangolo.com/ko/#_7)
+## 애플리케이션 실행
 
--   기본
+-   개발 서버 실행
     ```bash
-    # 개발 서버 실행
-    uvicorn main:app --reload
+    fastapi dev
     ```
--   with fastapi-cli
+-   프로덕션 환경
     ```bash
-    # 개발 서버 실행
-    fastapi dev main.py
-    ```
-    ```bash
-    # 프로덕션 환경
-    fastapi run main.py
+    fastapi run
     ```
 
 ## 프로젝트 폴더 구조
@@ -118,3 +112,12 @@ ai/
         ├── __init__.py
         └── ...           # 예: auth.py, diary.py 등
 ```
+
+### Naming Convention
+
+| 구분                               | 형식                      |
+| ---------------------------------- | ------------------------- |
+| 파일/모듈/패키지, 함수·변수·메서드 | snake_case                |
+| 클래스                             | PascalCase                |
+| 상수                               | ALL_CAPS_WITH_UNDERSCORES |
+| JSON 응답                          | camelCase                 |
