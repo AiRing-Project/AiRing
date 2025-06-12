@@ -1,71 +1,135 @@
-# Get_started_LiveAPI
+<p align="center">
+  <a href="https://fastapi.tiangolo.com/ko/" target="blank"><img src="https://github.com/fastapi/fastapi/blob/master/docs/en/docs/img/logo-margin/logo-teal.svg" alt="FastAPI Logo" /></a>
+</p>
 
-## 프로젝트 소개
+# AiRing AI
 
-Google Gemini API를 활용한 음성 기반 대화형 일기 도우미입니다.  
-사용자가 마이크로 답변하면 AI가 자연스럽고 친근하게 대화를 이어가며, 일기 작성에 도움이 되는 질문을 해줍니다.
+Python 및 FastAPI 기반으로 구축된 AI 백엔드 서버입니다.
 
----
+## 기술 스택
+
+-   Python
+-   FastAPI
 
 ## 설치 방법
 
-1. **필수 라이브러리 설치**
+### 1. 가상환경 구축
+
+-   가상환경 생성
+    ```bash
+    python -m venv .venv
+    ```
+    -   `.venv`이라는 폴더가 생성됨
+-   가상환경 활성화
+    -   Windows PowerShell
+        ```bash
+        .venv\Scripts\Activate.ps1
+        ```
+    -   Windows Bash, Git Bash
+        ```bash
+        source .venv/Scripts/activate
+        ```
+    -   Linux, macOS
+        ```bash
+        source .venv/bin/activate
+        ```
+-   활성화 확인
+    ```bash
+    where python
+    ```
+    또는
+    ```bash
+    where pip
+    ```
+    `(.venv)`이라고 떠야 함
+-   가상환경 비활성화
+    ```bash
+    deactivate
+    ```
+-   가상환경 내 패키지 리스트
+    ```bash
+    pip freeze
+    ```
+-   requirements.txt 생성
+    ```bash
+    pip freeze > requirements.txt
+    ```
+-   가상환경 삭제
+    -   `.venv` 폴더 삭제
+
+### 2. 필수 라이브러리 설치
 
 ```bash
 pip install -r requirements.txt
 ```
 
-2. **.env 파일 생성**
+### 3. `.env` 파일 생성
 
-- 프로젝트 루트(최상위 폴더)에 `.env` 파일을 만듭니다.
-- 아래와 같이 API 키를 입력하세요.
+-   프로젝트 루트에 `.env` 파일을 만듭니다.
+-   아래와 같이 API 키를 입력하세요.
 
-  ```bash
-  GOOGLE_API_KEY=여기에_본인의_API_KEY_입력
-  ```
+    ```bash
+    GEMINI_API_KEY=your-api-key
+    ```
 
-3. **Google API Key 발급 방법**
+### 4. Google API Key 발급 방법
 
-- [Google AI Studio](https://aistudio.google.com/app/apikey)에서 API 키를 생성할 수 있습니다.
-- 생성한 키를 `.env` 파일에 입력하세요.
+-   [Google AI Studio](https://aistudio.google.com/app/apikey)에서 API 키를 생성할 수 있습니다.
+-   생성한 키를 `.env` 파일에 입력하세요.
 
----
+## 애플리케이션 실행
 
-## 실행 방법
+-   개발 서버 실행
+    ```bash
+    fastapi dev
+    ```
+-   프로덕션 환경
+    ```bash
+    fastapi run
+    ```
 
-```bash
-python Get_started_LiveAPI.py
+## 프로젝트 폴더 구조
+
+```
+ai/
+├── .venv/                # Python 가상환경 폴더 (패키지, 실행환경 등)
+├── .env                  # 환경변수 파일 (API 키 등, 직접 생성 필요)
+├── .gitignore            # Git에서 무시할 파일/폴더 목록
+├── requirements.txt      # Python 패키지 의존성 목록
+├── README.md             # 프로젝트 설명서
+├── notebooks/            # Jupyter Notebook(학습/실험/분석) 코드 모음
+├── data/                 # (옵션) 데이터셋 저장 폴더
+└── app/                  # 실제 FastAPI 및 서비스 코드
+    ├── __init__.py       # 패키지 초기화 파일 (비어있어도 무방)
+    ├── main.py           # FastAPI 앱 실행 진입점
+    │
+    ├── core/             # 핵심 설정 및 유틸리티 모듈
+    │   └── config.py     # 환경설정, Settings 클래스 등
+    │
+    ├── routes/           # FastAPI 라우터(엔드포인트) 모음
+    │   ├── __init__.py
+    │   └── ...           # 예: auth.py, diary.py 등 엔드포인트별 파일
+    │
+    ├── services/         # 비즈니스 로직, 외부 API 연동 등 서비스 계층
+    │   ├── __init__.py
+    │   └── ...           # 예: auth.py, diary.py 등
+    │
+    ├── schemas/          # Pydantic 데이터 모델(요청/응답 스키마) 정의
+    │   ├── __init__.py
+    │   └── ...           # 예: auth.py, diary.py 등
+    │
+    └── models/           # AI 모델 가중치, 모델 정의 코드, 토크나이저 등
+        ├── my_model.pt   # (예시) PyTorch 모델 가중치 파일
+        ├── tokenizer.json# (예시) 토크나이저 파일
+        ├── model_def.py  # (예시) 모델 구조/로딩/추론 코드
+        └── ...
 ```
 
-- 실행 전 마이크가 정상적으로 연결되어 있는지 확인하세요.
-- 첫 실행 시 마이크 접근 권한을 허용해야 할 수 있습니다.
-- **에코(울림) 및 잡음을 방지하기 위해 헤드폰(이어폰) 사용을 권장합니다.**
-- **프로그램 실행을 종료하려면 터미널에서 `Ctrl + C`를 누르세요.**
+### Naming Convention
 
----
-
-## 파일 구조 예시
-
-```bash
-프로젝트_폴더/
-├── Get_started_LiveAPI.py
-├── requirements.txt
-├── .env
-└── README.md
-```
-
----
-
-## 주의사항
-
-- `.env` 파일에는 API 키 등 민감 정보만 입력하세요.
-- `.env` 파일은 절대 깃허브 등 공개 저장소에 올리지 마세요.
-- API 키가 노출된 경우, 즉시 키를 폐기하고 새로 발급받으세요.
-
----
-
-## 문의
-
-- 사용 중 문제가 발생하면 이슈를 등록하거나, 관리자에게 문의해 주세요.
-
----
+| 구분                               | 형식                      |
+| ---------------------------------- | ------------------------- |
+| 파일/모듈/패키지, 함수·변수·메서드 | snake_case                |
+| 클래스                             | PascalCase                |
+| 상수                               | ALL_CAPS_WITH_UNDERSCORES |
+| JSON 응답                          | camelCase                 |
