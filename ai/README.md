@@ -21,13 +21,17 @@ Python 및 FastAPI 기반으로 구축된 AI 백엔드 서버입니다.
     ```
     -   `.venv`이라는 폴더가 생성됨
 -   가상환경 활성화
-    -   Windows
+    -   Windows PowerShell
         ```bash
-        .venv\Scripts\activate
+        .venv\Scripts\Activate.ps1
         ```
-    -   Mac, Linux
+    -   Windows Bash, Git Bash
         ```bash
         source .venv/Scripts/activate
+        ```
+    -   Linux, macOS
+        ```bash
+        source .venv/bin/activate
         ```
 -   활성화 확인
     ```bash
