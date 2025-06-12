@@ -11,4 +11,4 @@ router = APIRouter(prefix="/auth", tags=["auth"])
 def issue_ephemeral_token(
     settings: Settings = Depends(get_settings),
 ) -> IssueEphemeralTokenResponse:
-    return {"ephemeral_token": create_ephemeral_token(settings.GEMINI_API_KEY)}
+    return {"ephemeralToken": create_ephemeral_token(settings.GEMINI_API_KEY)}
