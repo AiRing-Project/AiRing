@@ -8,6 +8,7 @@ import notifee, {
   TriggerType,
 } from '@notifee/react-native';
 
+import {ACCEPT_COLOR, DECLINE_COLOR} from '../constants/colors';
 import {
   useAiCallSettingsStore,
   VIBRATE_LIST,
@@ -79,13 +80,14 @@ export async function scheduleAlarm(
   await notifee.createTriggerNotification(
     {
       id,
-      title: 'AiRing에게 전화가 왔어요!',
+      title: '<b>📞 AiRing에게 전화가 왔어요!</b>',
       body: `예약된 전화 알림 (${formattedTime})`,
       data: {
         link: 'airing://incoming-call',
       },
       android: {
         channelId,
+        color: '#000000',
         category: AndroidCategory.CALL,
         importance: AndroidImportance.HIGH,
         visibility: AndroidVisibility.PUBLIC,
@@ -96,15 +98,15 @@ export async function scheduleAlarm(
         colorized: true,
         actions: [
           {
-            title: '❌ 거절',
+            title: `<p style="color: ${DECLINE_COLOR};">❌ 거절</p>`,
             pressAction: {
-              id: 'decline', // dismiss와 동일
+              id: 'decline', // dismiss와 동일한 동작
             },
           },
           {
-            title: '✅ 열기',
+            title: `<p style="color: ${ACCEPT_COLOR};">✅ 열기</p>`,
             pressAction: {
-              id: 'accept', // 일반 알림 클릭과 동일
+              id: 'accept', // 일반 알림 클릭과 동일한 동작
               launchActivity: 'default',
             },
           },
