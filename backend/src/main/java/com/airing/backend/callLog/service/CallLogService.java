@@ -60,6 +60,9 @@ public class CallLogService {
     public CallLogDetailResponse getCallLogDetail(Long userId, Long callLogId) {
         CallLog callLog = callLogRepository.findById(callLogId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "통화 기록을 찾을 수 없습니다."));
+        if (!callLog.getUserId().equals(userId)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "해당 통화 기록에 대한 접근 권한이 없습니다.");
+        }
 
         List<Message> messages = callLog.getRawTranscript();
         if (messages == null || messages.isEmpty()) {
@@ -97,6 +100,10 @@ public class CallLogService {
     public void recordCallLogMessages(Long userId, Long callLogId, List<Message> messages) {
         CallLog callLog = callLogRepository.findById(callLogId)
                 .orElseThrow(() -> new IllegalArgumentException("CallLog not found: " + callLogId));
+        if (!callLog.getUserId().equals(userId)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "해당 통화 기록에 대한 접근 권한이 없습니다.");
+        }
+
         List<Message> transcript = callLog.getRawTranscript();
         if (transcript == null) {
             transcript = new java.util.ArrayList<>();
@@ -109,8 +116,11 @@ public class CallLogService {
 
     public void endCallLog(Long userId, Long callLogId) {
         CallLog callLog = callLogRepository.findById(callLogId)
-        .orElseThrow(() -> new IllegalArgumentException("CallLog not found: " + callLogId));
-        
+            .orElseThrow(() -> new IllegalArgumentException("CallLog not found: " + callLogId));
+        if (!callLog.getUserId().equals(userId)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "해당 통화 기록에 대한 접근 권한이 없습니다.");
+        }
+
         callLog.setDuration((int) Duration.between(callLog.getStartedAt(), OffsetDateTime.now()).toSeconds());
         callLogRepository.save(callLog);
         // TODO: 일기 요약, 감정 분석 등 트리거 처리 예정
