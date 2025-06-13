@@ -9,16 +9,22 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClientException;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import com.airing.backend.callLog.dto.CallLogDetailResponse;
-import com.airing.backend.callLog.dto.CallLogEventRequest;
+import com.airing.backend.callLog.dto.CallLogInitRequest;
+import com.airing.backend.callLog.dto.CallLogInitResponse;
 import com.airing.backend.callLog.dto.CallLogLatestResponse;
 import com.airing.backend.callLog.dto.CallLogMonthlyResponse;
 import com.airing.backend.callLog.entity.CallLog;
 import com.airing.backend.callLog.repository.CallLogRepository;
+import com.airing.backend.common.model.Message;
 
 import lombok.RequiredArgsConstructor;
 
@@ -26,7 +32,12 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class CallLogService {
 
+    private static final String EPHEMERAL_TOKEN_PATH = "/api/auth/ephemeral-token";
+    private static final int MAX_RETRIES = 3;
+    private static final long INITIAL_RETRY_DELAY_MS = 500;
+
     private final CallLogRepository callLogRepository;
+    private final RestTemplate restTemplate;
 
     public CallLogLatestResponse getLatestCallLog(Long userId) {
         CallLog callLog = callLogRepository.findTopByUserIdOrderByStartedAtDesc(userId)
@@ -49,23 +60,50 @@ public class CallLogService {
         CallLog callLog = callLogRepository.findById(callLogId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "통화 기록을 찾을 수 없습니다."));
 
-        List<CallLogEventRequest.Message> transcript = callLog.getRawTranscript();
-        if (transcript == null || transcript.isEmpty()) {
+        List<Message> messages = callLog.getRawTranscript();
+        if (messages == null || messages.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.NO_CONTENT, "rawTranscript가 없습니다.");
         }
-
-        List<CallLogDetailResponse.Message> messages = transcript.stream()
-                .map(msg -> CallLogDetailResponse.Message.builder()
-                        .from(msg.getFrom())
-                        .message(msg.getMessage())
-                        .build())
-                .collect(Collectors.toList());
 
         return CallLogDetailResponse.builder()
                 .id(callLogId)
                 .startedAt(callLog.getStartedAt())
                 .messages(messages)
                 .build();
+    }
+
+    @Value("${ai.server.url}")
+    private String aiServerUrl;
+
+    public CallLogInitResponse initCallLog(Long userId, CallLogInitRequest request) {
+        String ephemeralToken = getEphemeralTokenWithRetry();
+
+        // Create CallLog entry only if API call succeeds
+        CallLog callLog = CallLog.builder()
+                .userId(userId)
+                .startedAt(OffsetDateTime.now())
+                .callType(request.getCallType())
+                .build();
+
+        CallLog savedCallLog = callLogRepository.save(callLog);
+
+        return CallLogInitResponse.builder()
+                .ephemeralToken(ephemeralToken)
+                .callLogId(savedCallLog.getId())
+                .build();
+    }
+
+    public void recordCallLogMessages(Long userId, Long callLogId, List<Message> messages) {
+        CallLog callLog = callLogRepository.findById(callLogId)
+                .orElseThrow(() -> new IllegalArgumentException("CallLog not found: " + callLogId));
+        List<Message> transcript = callLog.getRawTranscript();
+        if (transcript == null) {
+            transcript = new java.util.ArrayList<>();
+        }
+
+        transcript.addAll(messages);
+        callLog.setRawTranscript(transcript);
+        callLogRepository.save(callLog);
     }
 
     public List<CallLogMonthlyResponse> getMonthlyCallLog(Long userId, YearMonth yearMonth) {
@@ -91,4 +129,41 @@ public class CallLogService {
                 .sorted(Comparator.comparing(CallLogMonthlyResponse::getDate).reversed())
                 .collect(Collectors.toList());
     }
+
+    private String getEphemeralTokenWithRetry() {
+        int attempts = 0;
+        Exception lastException = null;
+
+        while (attempts < MAX_RETRIES) {
+            try {
+                String url = UriComponentsBuilder.fromUriString(aiServerUrl)
+                        .path(EPHEMERAL_TOKEN_PATH)
+                        .build()
+                        .toUriString();
+
+                return restTemplate.postForObject(
+                        url,
+                        null,
+                        EphemeralTokenResponse.class
+                ).ephemeralToken();
+
+            } catch (RestClientException e) {
+                lastException = e;
+                attempts++;
+
+                if (attempts < MAX_RETRIES) {
+                    try {
+                        Thread.sleep(INITIAL_RETRY_DELAY_MS * (1L << attempts));
+                    } catch (InterruptedException ie) {
+                        Thread.currentThread().interrupt();
+                        throw new RuntimeException("Retry interrupted", ie);
+                    }
+                }
+            }
+        }
+
+        throw new RuntimeException("Failed to get ephemeral token after " + MAX_RETRIES + " attempts", lastException);
+    }
+
+    private record EphemeralTokenResponse(String ephemeralToken) {}
 }
