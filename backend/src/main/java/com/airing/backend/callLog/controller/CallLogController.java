@@ -30,14 +30,6 @@ public class CallLogController {
 
     private final CallLogService callLogService;
 
-    @PostMapping("/events")
-    public void saveCallEvent(
-            @AuthenticationPrincipal(expression = "id") Long userId,
-            @RequestBody @Valid CallLogEventRequest request) {
-
-        callLogService.saveCallEvent(userId, request);
-    }
-
     @GetMapping("/latest")
     public CallLogLatestResponse getLatestCallLog(
             @AuthenticationPrincipal(expression = "id") Long userId) {

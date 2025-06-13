@@ -28,17 +28,6 @@ public class CallLogService {
 
     private final CallLogRepository callLogRepository;
 
-    public void saveCallEvent(Long userId, CallLogEventRequest request) {
-        CallLog callLog = CallLog.builder()
-                .userId(userId)
-                .startedAt(request.getStartedAt())
-                .callType(request.getCallType())
-                .rawTranscript(request.getRawTranscript())
-                .build();
-
-        callLogRepository.save(callLog);
-    }
-
     public CallLogLatestResponse getLatestCallLog(Long userId) {
         CallLog callLog = callLogRepository.findTopByUserIdOrderByStartedAtDesc(userId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "최근 통화 기록이 없습니다."));
