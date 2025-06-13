@@ -1,12 +1,22 @@
 package com.airing.backend.callLog.entity;
 
+import java.time.OffsetDateTime;
+import java.util.List;
+
+import com.airing.backend.callLog.dto.CallLogEventRequest.Message;
+import com.airing.backend.common.converter.JsonConverter;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import lombok.*;
-
-import java.time.OffsetDateTime;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Getter
@@ -28,5 +38,7 @@ public class CallLog {
 
     private int duration;
 
-    private String rawTranscript;
+    @Column(columnDefinition = "jsonb")
+    @Convert(converter = JsonConverter.class)
+    private List<Message> rawTranscript;
 }
