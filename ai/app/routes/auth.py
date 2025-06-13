@@ -1,8 +1,7 @@
+from core.config import Settings, get_settings
 from fastapi import APIRouter, Depends
-
-from ..core.config import Settings, get_settings
-from ..schemas.auth import IssueEphemeralTokenResponse
-from ..services.auth import create_ephemeral_token
+from schemas.auth import IssueEphemeralTokenResponse
+from services.auth import create_ephemeral_token
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 

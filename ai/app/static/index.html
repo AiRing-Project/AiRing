@@ -1,0 +1,131 @@
+<!-- https://fastapi.tiangolo.com/tutorial/static-files/ 참고 -->
+<!DOCTYPE html>
+<html lang="ko">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link
+            rel="stylesheet"
+            as="style"
+            crossorigin
+            href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css"
+        />
+        <title>AiRing - Welcome</title>
+        <style>
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+
+            body {
+                font-family: "Pretendard", -apple-system, BlinkMacSystemFont,
+                    system-ui, Roboto, sans-serif;
+                background: linear-gradient(135deg, #f5f7fa 0%, #c3e2cc 100%);
+                min-height: 100vh;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                padding: 20px;
+            }
+
+            .container {
+                background: white;
+                padding: 40px;
+                border-radius: 20px;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+                text-align: center;
+                max-width: 600px;
+                width: 100%;
+            }
+
+            .logo {
+                font-size: 2.5rem;
+                font-weight: 700;
+                color: #333;
+                margin-bottom: 20px;
+            }
+
+            .description {
+                color: #666;
+                margin-bottom: 30px;
+                line-height: 1.6;
+            }
+
+            .tech-stack {
+                margin-top: 20px;
+                padding: 20px;
+                background: #f8f9fa;
+                border-radius: 10px;
+                text-align: center;
+            }
+
+            .tech-stack h3 {
+                color: #333;
+                margin-bottom: 15px;
+                font-size: 1.1rem;
+            }
+
+            .tech-stack ul {
+                list-style: none;
+                color: #666;
+                font-size: 0.9rem;
+                display: inline-block;
+                text-align: left;
+            }
+
+            .tech-stack li {
+                margin-bottom: 5px;
+                display: flex;
+                align-items: center;
+            }
+
+            .tech-stack li::before {
+                content: "•";
+                color: #05998b;
+                font-weight: bold;
+                margin-right: 8px;
+            }
+
+            .links {
+                margin-top: 30px;
+            }
+
+            .link-button {
+                display: inline-block;
+                padding: 10px 20px;
+                background: #05998b;
+                color: white;
+                text-decoration: none;
+                border-radius: 6px;
+                font-size: 0.9rem;
+                transition: all 0.3s ease;
+            }
+
+            .link-button:hover {
+                background: #05998b;
+                transform: translateY(-2px);
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="logo">AiRing</div>
+            <p class="description">
+                안녕하세요! AiRing 서버에 오신 것을 환영합니다.
+            </p>
+            <div class="tech-stack">
+                <h3>기술 스택</h3>
+                <ul>
+                    <li>Python3</li>
+                    <li>FastAPI</li>
+                    <li>PyTorch</li>
+                    <li>Hugging Face</li>
+                </ul>
+            </div>
+            <div class="links">
+                <a href="/docs" class="link-button">📄 API 문서 보기</a>
+            </div>
+        </div>
+    </body>
+</html>
