@@ -85,13 +85,16 @@ pip install -r requirements.txt
 
 ## 애플리케이션 실행
 
+> [!IMPORTANT]
+> 반드시 `app` 폴더 기준 **절대 경로**로 import
+
 -   개발 서버 실행
     ```bash
-    fastapi dev
+    uvicorn main:app --reload
     ```
--   프로덕션 환경
+-   프로덕션 환경 테스트
     ```bash
-    fastapi run
+    uvicorn main:app
     ```
 
 ## 프로젝트 폴더 구조
