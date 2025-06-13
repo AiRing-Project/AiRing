@@ -1,12 +1,14 @@
 package com.airing.backend.callLog.dto;
 
+import java.time.OffsetDateTime;
+import java.util.List;
+
+import com.airing.backend.common.model.Message;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.time.OffsetDateTime;
-import java.util.List;
 
 @Getter
 @AllArgsConstructor
@@ -17,13 +19,4 @@ public class CallLogDetailResponse {
     private Long id;
     private OffsetDateTime startedAt;
     private List<Message> messages;
-
-    @Getter
-    @AllArgsConstructor
-    @NoArgsConstructor
-    @Builder
-    public static class Message {
-        private String from;
-        private String message;
-    }
 }
