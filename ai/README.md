@@ -8,8 +8,10 @@ Python 및 FastAPI 기반으로 구축된 AI 백엔드 서버입니다.
 
 ## 기술 스택
 
--   Python
+-   Python3
 -   FastAPI
+-   PyTorch
+-   Hugging Face
 
 ## 설치 방법
 
