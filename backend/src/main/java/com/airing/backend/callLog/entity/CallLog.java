@@ -3,8 +3,8 @@ package com.airing.backend.callLog.entity;
 import java.time.OffsetDateTime;
 import java.util.List;
 
-import com.airing.backend.callLog.dto.CallLogEventRequest.Message;
 import com.airing.backend.common.converter.JsonConverter;
+import com.airing.backend.common.model.Message;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
