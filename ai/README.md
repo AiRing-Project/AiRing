@@ -13,13 +13,19 @@ Python 및 FastAPI 기반으로 구축된 AI 백엔드 서버입니다.
 
 ## 설치 방법
 
+### 0. 프로젝트 폴더로 이동
+
+```bash
+cd app
+```
+
 ### 1. 가상환경 구축
 
 -   가상환경 생성
     ```bash
     python -m venv .venv
     ```
-    -   `.venv`이라는 폴더가 생성됨
+    -   `app` 폴더 하위에 `.venv`이라는 폴더가 생성됨
 -   가상환경 활성화
     -   Windows PowerShell
         ```bash
@@ -92,36 +98,37 @@ pip install -r requirements.txt
 
 ```
 ai/
-├── .venv/                # Python 가상환경 폴더 (패키지, 실행환경 등)
-├── .env                  # 환경변수 파일 (API 키 등, 직접 생성 필요)
-├── .gitignore            # Git에서 무시할 파일/폴더 목록
-├── requirements.txt      # Python 패키지 의존성 목록
-├── README.md             # 프로젝트 설명서
-├── notebooks/            # Jupyter Notebook(학습/실험/분석) 코드 모음
-├── data/                 # (옵션) 데이터셋 저장 폴더
-└── app/                  # 실제 FastAPI 및 서비스 코드
-    ├── __init__.py       # 패키지 초기화 파일 (비어있어도 무방)
-    ├── main.py           # FastAPI 앱 실행 진입점
+├── .gitignore                # Git에서 무시할 파일/폴더 목록
+├── README.md                 # 프로젝트 설명서
+├── notebooks/                # Colab(학습/실험/분석) 코드 모음
+├── data/                     # (옵션) 데이터셋 저장 폴더
+└── app/                      # 실제 FastAPI 및 서비스 코드
+    ├── .venv/                # Python 가상환경 폴더 (패키지, 실행환경 등)
+    ├── .env                  # 환경변수 파일 (API 키 등, 직접 생성 필요)
+    ├── requirements.txt      # Python 패키지 의존성 목록
+    ├── __init__.py           # 패키지 초기화 파일 (비어있어도 무방)
+    ├── main.py               # FastAPI 앱 실행 진입점
     │
-    ├── core/             # 핵심 설정 및 유틸리티 모듈
-    │   └── config.py     # 환경설정, Settings 클래스 등
+    ├── core/                 # 핵심 설정 및 유틸리티 모듈
+    │   └── config.py         # 환경설정, Settings 클래스 등
     │
-    ├── routes/           # FastAPI 라우터(엔드포인트) 모음
+    ├── routes/               # FastAPI 라우터(엔드포인트) 모음
     │   ├── __init__.py
-    │   └── ...           # 예: auth.py, diary.py 등 엔드포인트별 파일
+    │   └── ...               # 예: auth.py, diary.py 등 엔드포인트별 파일
     │
-    ├── services/         # 비즈니스 로직, 외부 API 연동 등 서비스 계층
+    ├── services/             # 비즈니스 로직, 외부 API 연동 등 서비스 계층
     │   ├── __init__.py
-    │   └── ...           # 예: auth.py, diary.py 등
+    │   └── ...               # 예: auth.py, diary.py 등
     │
-    ├── schemas/          # Pydantic 데이터 모델(요청/응답 스키마) 정의
+    ├── schemas/              # Pydantic 데이터 모델(요청/응답 스키마) 정의
     │   ├── __init__.py
-    │   └── ...           # 예: auth.py, diary.py 등
+    │   └── ...               # 예: auth.py, diary.py 등
     │
-    └── models/           # AI 모델 가중치, 모델 정의 코드, 토크나이저 등
-        ├── my_model.pt   # (예시) PyTorch 모델 가중치 파일
-        ├── tokenizer.json# (예시) 토크나이저 파일
-        ├── model_def.py  # (예시) 모델 구조/로딩/추론 코드
+    └── models/               # AI 모델 가중치, 모델 정의 코드, 토크나이저 등
+        ├── __init__.py
+        ├── my_model.pt       # (예시) PyTorch 모델 가중치 파일
+        ├── tokenizer.json    # (예시) 토크나이저 파일
+        ├── model_def.py      # (예시) 모델 구조/로딩/추론 코드
         └── ...
 ```
 
