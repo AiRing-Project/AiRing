@@ -64,6 +64,14 @@ public class CallLogController {
         return ResponseEntity.ok().build();
     }
 
+    @PostMapping("/{id}/end")
+    public ResponseEntity<Void> endCallLog(
+            @AuthenticationPrincipal Long userId,
+            @PathVariable("id") @Valid Long callLogId) {
+        callLogService.endCallLog(userId, callLogId);
+        return ResponseEntity.ok().build();
+    }
+
     @GetMapping
     public List<CallLogMonthlyResponse> getMonthlyCallLog(
             @RequestParam("yearMonth") String yearMonthStr,

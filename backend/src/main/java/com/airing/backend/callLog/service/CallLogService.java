@@ -1,5 +1,6 @@
 package com.airing.backend.callLog.service;
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.time.YearMonth;
@@ -104,6 +105,15 @@ public class CallLogService {
         transcript.addAll(messages);
         callLog.setRawTranscript(transcript);
         callLogRepository.save(callLog);
+    }
+
+    public void endCallLog(Long userId, Long callLogId) {
+        CallLog callLog = callLogRepository.findById(callLogId)
+        .orElseThrow(() -> new IllegalArgumentException("CallLog not found: " + callLogId));
+        
+        callLog.setDuration((int) Duration.between(callLog.getStartedAt(), OffsetDateTime.now()).toSeconds());
+        callLogRepository.save(callLog);
+        // TODO: 일기 요약, 감정 분석 등 트리거 처리 예정
     }
 
     public List<CallLogMonthlyResponse> getMonthlyCallLog(Long userId, YearMonth yearMonth) {
