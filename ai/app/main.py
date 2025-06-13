@@ -1,6 +1,6 @@
 from fastapi import APIRouter, FastAPI
 
-from .routes import auth
+from routes import auth
 
 app = FastAPI(title="AiRing", description="AiRing AI Server")
 
