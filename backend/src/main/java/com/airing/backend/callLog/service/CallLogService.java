@@ -1,27 +1,26 @@
 package com.airing.backend.callLog.service;
 
+import java.time.LocalDate;
+import java.time.OffsetDateTime;
+import java.time.YearMonth;
+import java.time.ZoneOffset;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
+
 import com.airing.backend.callLog.dto.CallLogDetailResponse;
 import com.airing.backend.callLog.dto.CallLogEventRequest;
 import com.airing.backend.callLog.dto.CallLogLatestResponse;
 import com.airing.backend.callLog.dto.CallLogMonthlyResponse;
 import com.airing.backend.callLog.entity.CallLog;
 import com.airing.backend.callLog.repository.CallLogRepository;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
-import java.time.LocalDate;
-import java.time.OffsetDateTime;
-import java.time.YearMonth;
-import java.time.ZoneOffset;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
@@ -61,22 +60,18 @@ public class CallLogService {
         CallLog callLog = callLogRepository.findById(callLogId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "통화 기록을 찾을 수 없습니다."));
 
-        String transcriptJson = callLog.getRawTranscript();
-        if (transcriptJson == null || transcriptJson.isBlank()) {
+        List<CallLogEventRequest.Message> transcript = callLog.getRawTranscript();
+        if (transcript == null || transcript.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.NO_CONTENT, "rawTranscript가 없습니다.");
         }
 
-        List<CallLogDetailResponse.Message> messages;
+        List<CallLogDetailResponse.Message> messages = transcript.stream()
+                .map(msg -> CallLogDetailResponse.Message.builder()
+                        .from(msg.getFrom())
+                        .message(msg.getMessage())
+                        .build())
+                .collect(Collectors.toList());
 
-        try {
-            messages = new ObjectMapper().readValue(
-                    transcriptJson,
-                    new TypeReference<>() {
-                    }
-            );
-        } catch (Exception e) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "rawTranscript 파싱 실패", e);
-        }
         return CallLogDetailResponse.builder()
                 .id(callLogId)
                 .startedAt(callLog.getStartedAt())
