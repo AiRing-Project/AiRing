@@ -1,16 +1,23 @@
 package com.airing.backend.callSummary.controller;
 
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.airing.backend.callSummary.dto.CallSummaryRequest;
 import com.airing.backend.callSummary.dto.CallSummaryResponse;
 import com.airing.backend.callSummary.service.CallSummaryService;
+
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/call_summary")
+@RequestMapping("/api/call_summary")
 @RequiredArgsConstructor
 public class CallSummaryController {
 
