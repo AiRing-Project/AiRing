@@ -1,11 +1,10 @@
 package com.airing.backend.conversations.service;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import com.airing.backend.callLog.entity.CallLog;
 import com.airing.backend.callLog.repository.CallLogRepository;
@@ -18,6 +17,10 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ConversationService {
 
+    private static final String EPHEMERAL_TOKEN_PATH = "/api/auth/ephemeral-token";
+    private static final int MAX_RETRIES = 3;
+    private static final long INITIAL_RETRY_DELAY_MS = 500;
+
     private final CallLogRepository callLogRepository;
     private final RestTemplate restTemplate;
 
@@ -25,31 +28,57 @@ public class ConversationService {
     private String aiServerUrl;
 
     public ConversationInitResponse initConversation(Long userId, ConversationInitRequest request) {
-        try {
-            // 1. Get ephemeral token from AI server first
-            String ephemeralToken = restTemplate.postForObject(
-                    aiServerUrl + "/api/auth/ephemeral-token",
-                    null,
-                    EphemeralTokenResponse.class
-            ).ephemeralToken();
+        String ephemeralToken = getEphemeralTokenWithRetry();
 
-            // 2. Create CallLog entry only if API call succeeds
-            CallLog callLog = CallLog.builder()
-                    .userId(userId)
-                    .startedAt(request.getStartedAt())
-                    .callType(request.getCallType())
-                    .build();
+        // Create CallLog entry only if API call succeeds
+        CallLog callLog = CallLog.builder()
+                .userId(userId)
+                .startedAt(request.getStartedAt())
+                .callType(request.getCallType())
+                .build();
 
-            CallLog savedCallLog = callLogRepository.save(callLog);
+        CallLog savedCallLog = callLogRepository.save(callLog);
 
-            return ConversationInitResponse.builder()
-                    .ephemeralToken(ephemeralToken)
-                    .conversationId(savedCallLog.getId())
-                    .build();
-        } catch (RestClientException e) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to get ephemeral token", e);
+        return ConversationInitResponse.builder()
+                .ephemeralToken(ephemeralToken)
+                .conversationId(savedCallLog.getId())
+                .build();
+    }
+
+    private String getEphemeralTokenWithRetry() {
+        int attempts = 0;
+        Exception lastException = null;
+
+        while (attempts < MAX_RETRIES) {
+            try {
+                String url = UriComponentsBuilder.fromUriString(aiServerUrl)
+                        .path(EPHEMERAL_TOKEN_PATH)
+                        .build()
+                        .toUriString();
+
+                return restTemplate.postForObject(
+                        url,
+                        null,
+                        EphemeralTokenResponse.class
+                ).ephemeralToken();
+
+            } catch (RestClientException e) {
+                lastException = e;
+                attempts++;
+
+                if (attempts < MAX_RETRIES) {
+                    try {
+                        Thread.sleep(INITIAL_RETRY_DELAY_MS * (1L << attempts));
+                    } catch (InterruptedException ie) {
+                        Thread.currentThread().interrupt();
+                        throw new RuntimeException("Retry interrupted", ie);
+                    }
+                }
+            }
         }
+
+        throw new RuntimeException("Failed to get ephemeral token after " + MAX_RETRIES + " attempts", lastException);
     }
 
     private record EphemeralTokenResponse(String ephemeralToken) {}
-} 
+}
