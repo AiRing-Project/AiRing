@@ -50,14 +50,14 @@ public class CallLogController {
 
     @PostMapping("/init")
     public CallLogInitResponse initCallLog(
-            @AuthenticationPrincipal Long userId,
+            @AuthenticationPrincipal(expression = "id") Long userId,
             @RequestBody CallLogInitRequest request) {
         return callLogService.initCallLog(userId, request);
     }
 
     @PostMapping("/{id}/messages")
     public ResponseEntity<Void> recordCallLogMessages(
-            @AuthenticationPrincipal Long userId,
+            @AuthenticationPrincipal(expression = "id") Long userId,
             @PathVariable("id") @Valid Long callLogId,
             @RequestBody List<Message> messages) {
         callLogService.recordCallLogMessages(userId, callLogId, messages);
@@ -66,7 +66,7 @@ public class CallLogController {
 
     @PostMapping("/{id}/end")
     public ResponseEntity<Void> endCallLog(
-            @AuthenticationPrincipal Long userId,
+            @AuthenticationPrincipal(expression = "id") Long userId,
             @PathVariable("id") @Valid Long callLogId) {
         callLogService.endCallLog(userId, callLogId);
         return ResponseEntity.ok().build();
