@@ -2,14 +2,13 @@ import React from 'react';
 import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 
 import IcChevronLeft from '../../assets/icons/ic-chevron-left.svg';
+import {HEADER_HEIGHT} from '../../constants/layout';
 
 interface HeaderProps {
   title: string;
   onBackPress: () => void;
   marginBottom?: number;
 }
-
-export const HEADER_HEIGHT = 28;
 
 const Header = ({title, onBackPress, marginBottom = 0}: HeaderProps) => {
   return (

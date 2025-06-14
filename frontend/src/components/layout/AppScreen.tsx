@@ -2,6 +2,8 @@ import React from 'react';
 import {ScrollView, StyleSheet} from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
 
+import {DEFAULT_HORIZONTAL} from '../../constants/layout';
+
 interface AppScreenProps {
   children: React.ReactNode;
   scrollable?: boolean;
@@ -9,8 +11,6 @@ interface AppScreenProps {
   contentContainerStyle?: any;
   isTabScreen?: boolean;
 }
-
-const DEFAULT_HORIZONTAL = 20;
 
 const AppScreen = ({
   children,
