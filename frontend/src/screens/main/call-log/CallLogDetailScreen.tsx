@@ -6,12 +6,11 @@ import {ScrollView, StyleSheet, Text, View} from 'react-native';
 import {RootStackParamList} from '../../../../App';
 import AppScreen from '../../../components/layout/AppScreen';
 import Header from '../../../components/layout/Header';
+import type {SpeakerType} from '../../../types/call';
 import {formatKoreanDate, formatTime} from '../../../utils/date';
 
-type speakerType = 'ai' | 'user';
-
 export interface CallMessage {
-  from: speakerType;
+  from: SpeakerType;
   message: string;
 }
 
