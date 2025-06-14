@@ -6,9 +6,9 @@ import {Alert, Dimensions, StyleSheet, Text, View} from 'react-native';
 import {RootStackParamList} from '../../../../App';
 import AppScreen from '../../../components/layout/AppScreen';
 import Header, {HEADER_HEIGHT} from '../../../components/layout/Header';
-import {PASSWORD_LENGTH} from '../../../components/password/constants';
 import NumPad from '../../../components/password/NumPad';
 import PasswordInputArea from '../../../components/password/PasswordInputArea';
+import {PASSWORD_LENGTH} from '../../../constants/password';
 import {setAppLockPassword} from '../../../utils/appLockPasswordManager';
 
 const SCREEN_HEIGHT = Dimensions.get('window').height;
