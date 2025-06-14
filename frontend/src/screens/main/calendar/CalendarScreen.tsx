@@ -10,49 +10,20 @@ import HorizontalDivider from '../../../components/common/HorizontalDivider';
 import ListItem from '../../../components/common/ListItem';
 import AppScreen from '../../../components/layout/AppScreen';
 import MonthYearPicker from '../../../components/picker/MonthYearPicker';
+import {
+  CALENDAR_HEADER_DAYS_LONG,
+  CALENDAR_HEADER_DAYS_SHORT,
+  MONTHS,
+} from '../../../constants/calendar';
 import {useAuthStore} from '../../../store/authStore';
 import {getDateString, isFuture} from '../../../utils/date';
 
 // 한글 요일/월 설정
 LocaleConfig.locales.ko = {
-  monthNames: [
-    '1월',
-    '2월',
-    '3월',
-    '4월',
-    '5월',
-    '6월',
-    '7월',
-    '8월',
-    '9월',
-    '10월',
-    '11월',
-    '12월',
-  ],
-  monthNamesShort: [
-    '1월',
-    '2월',
-    '3월',
-    '4월',
-    '5월',
-    '6월',
-    '7월',
-    '8월',
-    '9월',
-    '10월',
-    '11월',
-    '12월',
-  ],
-  dayNames: [
-    '일요일',
-    '월요일',
-    '화요일',
-    '수요일',
-    '목요일',
-    '금요일',
-    '토요일',
-  ],
-  dayNamesShort: ['일', '월', '화', '수', '목', '금', '토'],
+  monthNames: MONTHS,
+  monthNamesShort: MONTHS,
+  dayNames: CALENDAR_HEADER_DAYS_LONG,
+  dayNamesShort: CALENDAR_HEADER_DAYS_SHORT,
   today: '오늘',
 };
 LocaleConfig.defaultLocale = 'ko';
