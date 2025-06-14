@@ -2,9 +2,9 @@ import React, {useState} from 'react';
 import {Dimensions, StyleSheet, Text, View} from 'react-native';
 
 import AppScreen from '../components/layout/AppScreen';
-import {PASSWORD_LENGTH} from '../components/password/constants';
 import NumPad from '../components/password/NumPad';
 import PasswordInputArea from '../components/password/PasswordInputArea';
+import {PASSWORD_LENGTH} from '../constants/password';
 import {useAppLockStore} from '../store/appLockStore';
 import {useAuthStore} from '../store/authStore';
 

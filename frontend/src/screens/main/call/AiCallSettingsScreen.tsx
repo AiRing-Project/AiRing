@@ -16,10 +16,9 @@ import Switch from '../../../components/common/Switch';
 import AppScreen from '../../../components/layout/AppScreen';
 import Header from '../../../components/layout/Header';
 import TimePicker from '../../../components/picker/TimePicker';
+import {WEEK_DAYS} from '../../../constants/calendar';
 import {useAiCallSettingsStore} from '../../../store/aiCallSettingsStore';
 import {updateScheduledAlarms} from '../../../utils/alarmManager';
-
-const DAYS = ['월', '화', '수', '목', '금', '토', '일'];
 
 interface RepeatDaysCardProps {
   selectedDays: number[];
@@ -31,7 +30,7 @@ function RepeatDaysCard({selectedDays, onToggleDay}: RepeatDaysCardProps) {
     <View style={styles.repeatContainer}>
       <Text style={styles.repeatTitle}>반복</Text>
       <View style={styles.daysContainer}>
-        {DAYS.map((d, i) => {
+        {WEEK_DAYS.map((d, i) => {
           const realIdx = (i + 1) % 7;
           return (
             <TouchableOpacity

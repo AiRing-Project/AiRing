@@ -17,11 +17,10 @@ import IcCallAnswer from '../../../assets/icons/ic-call-answer.svg';
 import IcCallDecline from '../../../assets/icons/ic-call-decline.svg';
 import EmojiBox from '../../../components/common/EmojiBox';
 import AppScreen from '../../../components/layout/AppScreen';
+import {CALLBACK_LIST} from '../../../constants/aiCall';
 import {ACCEPT_COLOR, DECLINE_COLOR} from '../../../constants/colors';
-import {
-  CALLBACK_LIST,
-  useAiCallSettingsStore,
-} from '../../../store/aiCallSettingsStore';
+import {useAiCallSettingsStore} from '../../../store/aiCallSettingsStore';
+import {initAiCall} from '../../../utils/aiCall';
 import {scheduleAlarm} from '../../../utils/alarmManager';
 
 const {height: SCREEN_HEIGHT, width: SCREEN_WIDTH} = Dimensions.get('window');
@@ -53,6 +52,19 @@ const IncomingCallScreen = () => {
     await scheduleAlarm(`callback-${Date.now()}`, date, false);
   };
 
+  const handleAccept = async () => {
+    setResponse('accept');
+    await initAiCall({
+      callType: 'incoming',
+      onSuccess: () => {
+        navigation.navigate('CallActive');
+      },
+      onError: () => {
+        setResponse(null);
+      },
+    });
+  };
+
   const panResponder = useRef(
     PanResponder.create({
       onStartShouldSetPanResponder: () => true,
@@ -78,10 +90,7 @@ const IncomingCallScreen = () => {
             toValue: SLIDE_RANGE,
             duration: 220,
             useNativeDriver: false,
-          }).start(async () => {
-            setResponse('accept');
-            navigation.navigate('CallActive');
-          });
+          }).start(handleAccept);
         } else {
           setResponse(null);
           Animated.timing(pan, {

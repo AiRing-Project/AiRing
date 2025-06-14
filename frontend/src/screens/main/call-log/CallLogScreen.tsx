@@ -18,9 +18,8 @@ import PhoneOutgoing from '../../../assets/icons/ic-phone-outgoing.svg';
 import IcSearch from '../../../assets/icons/ic-search.svg';
 import AppScreen from '../../../components/layout/AppScreen';
 import MonthYearPicker from '../../../components/picker/MonthYearPicker';
+import type {CallType} from '../../../types/call';
 import {formatSectionDate, formatTime} from '../../../utils/date';
-
-type CallType = 'incoming' | 'outgoing';
 
 interface CallLogItem {
   id: number;

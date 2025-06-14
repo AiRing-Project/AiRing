@@ -1,8 +1,8 @@
 import React from 'react';
 import {StyleSheet} from 'react-native';
 
+import {PASSWORD_BOX_STYLE, PasswordBoxStatus} from '../../constants/password';
 import EmojiBox from '../common/EmojiBox';
-import {PASSWORD_BOX_STYLE, PasswordBoxStatus} from './constants';
 
 interface PasswordBoxProps {
   status: PasswordBoxStatus;

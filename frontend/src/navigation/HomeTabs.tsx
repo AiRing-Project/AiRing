@@ -28,6 +28,7 @@ import CalendarScreen from '../screens/main/calendar/CalendarScreen';
 import CallLogScreen from '../screens/main/call-log/CallLogScreen';
 import ReportScreen from '../screens/main/report/ReportScreen';
 import SettingsScreen from '../screens/main/settings/SettingsScreen';
+import {initAiCall} from '../utils/aiCall';
 
 const Tab = createBottomTabNavigator();
 
@@ -129,6 +130,16 @@ const HomeTabs = () => {
   const navigation =
     useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
+  const handleCall = async () => {
+    await initAiCall({
+      callType: 'outgoing',
+      onSuccess: () => {
+        setModalVisible(false);
+        navigation.navigate('CallActive');
+      },
+    });
+  };
+
   const renderTabBar = useCallback(
     (props: BottomTabBarProps) => (
       <CustomTabBar {...props} onCallPress={() => setModalVisible(true)} />
@@ -183,12 +194,7 @@ const HomeTabs = () => {
               }}>
               <Text style={styles.modalButtonText}>AI 전화 예약</Text>
             </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.modalButton}
-              onPress={() => {
-                setModalVisible(false);
-                navigation.navigate('CallActive');
-              }}>
+            <TouchableOpacity style={styles.modalButton} onPress={handleCall}>
               <Text style={styles.modalButtonText}>통화하기</Text>
             </TouchableOpacity>
           </View>
