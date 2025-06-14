@@ -7,7 +7,7 @@ import {RootStackParamList} from '../../../../App';
 import ListItem from '../../../components/common/ListItem';
 import AppScreen from '../../../components/layout/AppScreen';
 import Header from '../../../components/layout/Header';
-import {CALLBACK_LIST} from '../../../store/aiCallSettingsStore';
+import {CALLBACK_LIST} from '../../../constants/aiCall';
 
 interface CallBackItemProps {
   label: string;

@@ -8,11 +8,9 @@ import notifee, {
   TriggerType,
 } from '@notifee/react-native';
 
+import {VIBRATE_LIST} from '../constants/aiCall';
 import {ACCEPT_COLOR, DECLINE_COLOR} from '../constants/colors';
-import {
-  useAiCallSettingsStore,
-  VIBRATE_LIST,
-} from '../store/aiCallSettingsStore';
+import {useAiCallSettingsStore} from '../store/aiCallSettingsStore';
 import {getNextDate} from './date';
 
 /**

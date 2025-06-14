@@ -17,11 +17,9 @@ import IcCallAnswer from '../../../assets/icons/ic-call-answer.svg';
 import IcCallDecline from '../../../assets/icons/ic-call-decline.svg';
 import EmojiBox from '../../../components/common/EmojiBox';
 import AppScreen from '../../../components/layout/AppScreen';
+import {CALLBACK_LIST} from '../../../constants/aiCall';
 import {ACCEPT_COLOR, DECLINE_COLOR} from '../../../constants/colors';
-import {
-  CALLBACK_LIST,
-  useAiCallSettingsStore,
-} from '../../../store/aiCallSettingsStore';
+import {useAiCallSettingsStore} from '../../../store/aiCallSettingsStore';
 import {initAiCall} from '../../../utils/aiCall';
 import {scheduleAlarm} from '../../../utils/alarmManager';
 
