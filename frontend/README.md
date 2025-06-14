@@ -1,102 +1,49 @@
-> [!NOTE]
-> AI 전화 알람 기능을 구현하기 위해서는 native module을 직접 개발해야 하므로 Expo CLI가 아닌 React Native CLI로 앱을 bootstrap했다.
->
-> Windows에서는 아예 iOS 개발이 불가능하고 Apple Developer Program 멤버십에 가입 연 회비 99$라서 Android App만 개발하는 것이 좋을 것 같다.
+<p align="center">
+  <a href="https://reactnative.dev/" target="blank"><img src="https://upload.wikimedia.org/wikipedia/commons/a/a7/React-icon.svg" width="200" alt="React Native Logo" /></a>
+</p>
 
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
+# AiRing Frontend
 
-# Getting Started
+React Native CLI 기반으로 구축된 프론트엔드 모바일 안드로이드 애플리케이션입니다.
 
-> **Note**: Make sure you have completed the [Set Up Your Environment](https://reactnative.dev/docs/set-up-your-environment) guide before proceeding.
+## 참고사항
 
-## Step 1: Start Metro
+- AI 전화 알람 기능을 구현하기 위해서는 native module을 직접 개발해야 하므로 Expo CLI가 아닌 React Native CLI로 앱을 bootstrap
 
-First, you will need to run **Metro**, the JavaScript build tool for React Native.
+- Windows에서는 아예 iOS 개발이 불가능하고 Apple Developer Program 멤버십에 가입 연 회비 99$라서 일단은 Android App만 개발
 
-To start the Metro dev server, run the following command from the root of your React Native project:
+- 화면 개발 시 반드시 [`AppScreen` Component](https://do0ori.notion.site/React-Native-AppScreen-20a8ad35868480f2b1eece146d0fb4f1) 사용
 
-```sh
-# Using npm
-npm start
+## 애플리케이션 실행
 
-# OR using Yarn
-yarn start
-```
+- 의존성 설치
 
-## Step 2: Build and run your app
+  ```bash
+  npm install
+  ```
 
-With Metro running, open a new terminal window/pane from the root of your React Native project, and use one of the following commands to build and run your Android or iOS app:
+- 앱 빌드
 
-### Android
+  ```bash
+  # APK 빌드 (debugging 용)
+  cd android && ./gradlew assembleDebug
 
-```sh
-# Using npm
-npm run android
+  # AAB 빌드 (debugging 용)
+  cd android && ./gradlew bundleDebug
+  ```
 
-# OR using Yarn
-yarn android
-```
+- 개발 서버
 
-### iOS
+  ```bash
+  # Metro server cache 초기화 후 시작
+  npm run android:apply-env-change
 
-For iOS, remember to install CocoaPods dependencies (this only needs to be run on first clone or after updating native deps).
+  # 앱 빌드 및 설치
+  npm run android
 
-The first time you create a new project, run the Ruby bundler to install CocoaPods itself:
+  # 앱 재설치
+  npm run android:reinstall
 
-```sh
-bundle install
-```
-
-Then, and every time you update your native dependencies, run:
-
-```sh
-bundle exec pod install
-```
-
-For more information, please visit [CocoaPods Getting Started guide](https://guides.cocoapods.org/using/getting-started.html).
-
-```sh
-# Using npm
-npm run ios
-
-# OR using Yarn
-yarn ios
-```
-
-If everything is set up correctly, you should see your new app running in the Android Emulator, iOS Simulator, or your connected device.
-
-This is one way to run your app — you can also build it directly from Android Studio or Xcode.
-
-## Step 3: Modify your app
-
-Now that you have successfully run the app, let's make changes!
-
-Open `App.tsx` in your text editor of choice and make some changes. When you save, your app will automatically update and reflect these changes — this is powered by [Fast Refresh](https://reactnative.dev/docs/fast-refresh).
-
-When you want to forcefully reload, for example to reset the state of your app, you can perform a full reload:
-
-- **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Dev Menu**, accessed via <kbd>Ctrl</kbd> + <kbd>M</kbd> (Windows/Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (macOS).
-- **iOS**: Press <kbd>R</kbd> in iOS Simulator.
-
-## Congratulations! :tada:
-
-You've successfully run and modified your React Native App. :partying_face:
-
-### Now what?
-
-- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
-- If you're curious to learn more about React Native, check out the [docs](https://reactnative.dev/docs/getting-started).
-
-# Troubleshooting
-
-If you're having issues getting the above steps to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
-
-# Learn More
-
-To learn more about React Native, take a look at the following resources:
-
-- [React Native Website](https://reactnative.dev) - learn more about React Native.
-- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
-- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
-- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
-- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
+  # 빌드 오류 발생 시 -> 이것도 오류나면 build 폴더를 직접 삭제
+  cd android && ./gradlew clean
+  ```
