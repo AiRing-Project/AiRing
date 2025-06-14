@@ -1,16 +1,9 @@
 import React from 'react';
-import {
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 
 import EllipseIcon from '../../../assets/icons/ic-Ellipse34.svg';
 import EyeIcon from '../../../assets/icons/ic-eye.svg';
 import GroupIcon from '../../../assets/icons/ic-Group.svg';
-import RectYellowIcon from '../../../assets/icons/ic-Rectangleyellow.svg';
 import UnionIcon from '../../../assets/icons/ic-Union.svg';
 import VectorIcon from '../../../assets/icons/ic-Vector.svg';
 import AnalysisText from '../../../components/AnalysisText';
@@ -29,83 +22,69 @@ import Vector8Icon from '../../../components/Vector8Icon';
 
 const ReportScreen = () => {
   return (
-    <AppScreen>
-      {/* 상태바 (시간, 통신 아이콘 등) */}
-      <View style={styles.androidStatusBar}>
-        <Text style={styles.statusBarTime}>12:30</Text>
-        <View style={styles.statusBarIcons}>
-          {/* <Cellular width={18} height={12} /> */}
-          {/* <Wifi width={16} height={12} /> */}
+    <AppScreen scrollable>
+      <View style={styles.headerSection}>
+        <View style={styles.todayAndIconWrapper}>
+          <Text style={styles.todayText}>오늘</Text>
+          <TouchableOpacity style={styles.rightIconButton}>
+            <Vector />
+          </TouchableOpacity>
+        </View>
+        <View style={styles.infoIconRight}>
+          <UnionIcon style={styles.unionIconAbsolute} />
+          <VectorIcon style={styles.vectorIconAbsolute} />
+          <EllipseIcon style={styles.ellipseIconAbsolute} />
+          <GroupIcon style={styles.groupIconAbsolute} />
+          <LIGHT style={styles.lightTextAbsolute} />
         </View>
       </View>
-      <ScrollView
-        contentContainerStyle={styles.scrollViewContent}
-        showsVerticalScrollIndicator={false}>
-        {/* 헤더 섹션 */}
-        <View style={styles.headerSection}>
-          <View style={styles.todayAndIconWrapper}>
-            <Text style={styles.todayText}>오늘</Text>
-            <TouchableOpacity style={styles.rightIconButton}>
-              <Vector />
-            </TouchableOpacity>
-          </View>
-          <View style={styles.infoIconRight}>
-            <UnionIcon style={styles.unionIconAbsolute} />
-            <VectorIcon style={styles.vectorIconAbsolute} />
-            <EllipseIcon style={styles.ellipseIconAbsolute} />
-            <GroupIcon style={styles.groupIconAbsolute} />
-            <LIGHT style={styles.lightTextAbsolute} />
-          </View>
+
+      {/* 평균 감정 섹션 */}
+      <View style={styles.averageEmotionBox}>
+        <Text style={styles.averageEmotionTitle}>평균 감정</Text>
+        <View style={styles.emotionMetricsContainer}>
+          <Text style={styles.emotionMetricText}>편안함 38%</Text>
+          <Text style={styles.emotionMetricText}>즐거움 52%</Text>
         </View>
+        <EyeIcon style={styles.eyeIconAbsolute} />
+      </View>
 
-        {/* 평균 감정 섹션 */}
-        <View style={styles.averageEmotionBox}>
-          <Text style={styles.averageEmotionTitle}>평균 감정</Text>
-          <View style={styles.emotionMetricsContainer}>
-            <Text style={styles.emotionMetricText}>편안함 38%</Text>
-            <Text style={styles.emotionMetricText}>즐거움 52%</Text>
-          </View>
-          <RectYellowIcon style={styles.rectYellowIconStyle} />
-          <EyeIcon style={styles.eyeIconAbsolute} />
+      {/* 감정 변화 그래프 섹션 */}
+      <View style={{marginHorizontal: 20, marginTop: 18}}>
+        <EmotionChart />
+      </View>
+
+      {/* 그래프 분석 박스 -> Rectangle15004로 교체 */}
+      <Rectangle15004
+        style={{
+          marginHorizontal: 20,
+          marginTop: 15,
+          paddingHorizontal: 40,
+          paddingTop: 20,
+        }}>
+        <AnalysisText />
+      </Rectangle15004>
+
+      {/* 새로운 직사각형 추가 */}
+      <Rectangle14955 style={{marginTop: 30}} />
+
+      {/* 회고 일기 추천 섹션 -> Rectangle14999로 재구성 */}
+      <Rectangle14999 style={{marginTop: 20, marginBottom: 62}}>
+        <Text style={styles.diaryRecommendationTitle}>회고 일기 추천</Text>
+        <View style={styles.recommendationMainBoxInside}>
+          <DateText style={{marginTop: 21}} />
+          <Rectangle15000
+            style={{marginTop: 10, marginLeft: -7, marginRight: 8}}>
+            <View style={styles.diaryContentBox}>
+              <DiaryContentText />
+            </View>
+          </Rectangle15000>
+          <TouchableOpacity style={styles.moveToDiaryButton}>
+            <MoveToDiaryText />
+            <Vector8Icon style={styles.vector8IconStyle} />
+          </TouchableOpacity>
         </View>
-
-        {/* 감정 변화 그래프 섹션 */}
-        <View style={{marginHorizontal: 20, marginTop: 18}}>
-          <EmotionChart />
-        </View>
-
-        {/* 그래프 분석 박스 -> Rectangle15004로 교체 */}
-        <Rectangle15004
-          style={{
-            marginHorizontal: 20,
-            marginTop: 15,
-            paddingHorizontal: 40,
-            paddingTop: 20,
-          }}>
-          <AnalysisText />
-        </Rectangle15004>
-
-        {/* 새로운 직사각형 추가 */}
-        <Rectangle14955 style={{marginTop: 30}} />
-
-        {/* 회고 일기 추천 섹션 -> Rectangle14999로 재구성 */}
-        <Rectangle14999 style={{marginTop: 20, marginBottom: 62}}>
-          <Text style={styles.diaryRecommendationTitle}>회고 일기 추천</Text>
-          <View style={styles.recommendationMainBoxInside}>
-            <DateText style={{marginTop: 21}} />
-            <Rectangle15000
-              style={{marginTop: 10, marginLeft: -7, marginRight: 8}}>
-              <View style={styles.diaryContentBox}>
-                <DiaryContentText />
-              </View>
-            </Rectangle15000>
-            <TouchableOpacity style={styles.moveToDiaryButton}>
-              <MoveToDiaryText />
-              <Vector8Icon style={styles.vector8IconStyle} />
-            </TouchableOpacity>
-          </View>
-        </Rectangle14999>
-      </ScrollView>
+      </Rectangle14999>
     </AppScreen>
   );
 };
@@ -152,7 +131,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: 20,
-    marginTop: 48,
     marginBottom: 40,
     position: 'relative',
   },
@@ -239,23 +217,13 @@ const styles = StyleSheet.create({
     color: '#3F3F3F',
     marginRight: 20,
   },
-  rectYellowIconStyle: {
-    position: 'absolute',
-    right: 19, // 25 - (66 - 54) / 2 = 19
-    top: 16, // 22 - (66 - 54) / 2 = 16
-  },
   eyeIconAbsolute: {
     position: 'absolute',
-    right: 43.5, // 19 (rectYellowIconStyle.right) + 6 (inner rect offset) + (54 - 17) / 2 = 43.5
-    top: 43.5, // 16 (rectYellowIconStyle.top) + 6 (inner rect offset) + (54 - 11) / 2 = 43.5
+    right: 43.5,
+    top: 43.5,
   },
 
   // 회고 일기 추천 섹션 스타일 재구성
-  // 기존 diaryRecommendationSection 제거
-  // diaryRecommendationSection: {
-  //   marginHorizontal: 20,
-  //   marginTop: 30,
-  // },
   diaryRecommendationTitle: {
     fontSize: 18,
     fontWeight: '700',
