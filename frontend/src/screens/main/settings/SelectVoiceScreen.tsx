@@ -7,7 +7,7 @@ import {RootStackParamList} from '../../../../App';
 import ListItem from '../../../components/common/ListItem';
 import AppScreen from '../../../components/layout/AppScreen';
 import Header from '../../../components/layout/Header';
-import {VOICE_LIST} from '../../../store/aiCallSettingsStore';
+import {VOICE_LIST} from '../../../constants/aiCall';
 
 interface AiVoiceItemProps {
   label: string;

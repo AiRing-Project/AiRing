@@ -1,7 +1,7 @@
 import React, {useCallback, useMemo} from 'react';
 import {StyleSheet, View} from 'react-native';
 
-import {PASSWORD_LENGTH, PasswordBoxStatus} from './constants';
+import {PASSWORD_LENGTH, PasswordBoxStatus} from '../../constants/password';
 import PasswordBox from './PasswordBox';
 
 interface PasswordInputAreaProps {
