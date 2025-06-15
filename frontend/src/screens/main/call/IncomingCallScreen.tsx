@@ -2,6 +2,7 @@ import {useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import React, {useRef, useState} from 'react';
 import {
+  ActivityIndicator,
   Animated,
   Dimensions,
   Easing,
@@ -46,10 +47,15 @@ const IncomingCallScreen = () => {
   const {callBack} = useAiCallSettingsStore.getState();
 
   const handleCallBack = async (callBackTime: string) => {
-    // 콜백 분을 읽어서 단발성 알람 예약
     const minutes = CALLBACK_LIST.find(c => c.label === callBackTime)!.value;
     const date = new Date(Date.now() + minutes * 60_000);
     await scheduleAlarm(`callback-${Date.now()}`, date, false);
+    navigation.navigate('Home');
+  };
+
+  const handleDecline = async () => {
+    setResponse('decline');
+    navigation.navigate('Home');
   };
 
   const handleAccept = async () => {
@@ -61,6 +67,12 @@ const IncomingCallScreen = () => {
       },
       onError: () => {
         setResponse(null);
+        Animated.timing(pan, {
+          toValue: 0,
+          duration: 500,
+          easing: Easing.out(Easing.exp),
+          useNativeDriver: false,
+        }).start();
       },
     });
   };
@@ -81,10 +93,7 @@ const IncomingCallScreen = () => {
             toValue: -SLIDE_RANGE,
             duration: 220,
             useNativeDriver: false,
-          }).start(async () => {
-            setResponse('decline');
-            navigation.navigate('Home');
-          });
+          }).start(handleDecline);
         } else if (gesture.dx > THRESHOLD) {
           Animated.timing(pan, {
             toValue: SLIDE_RANGE,
@@ -108,16 +117,14 @@ const IncomingCallScreen = () => {
     <AppScreen style={styles.container}>
       <View style={styles.textContainer}>
         <Text style={styles.title}>AIRING</Text>
-        <Text style={styles.reservationText}>{/* TODO: 예약 텍스트 */}</Text>
+        <Text style={styles.subText}>예약된 전화가 왔어요!</Text>
       </View>
       <View style={styles.interactionContainer}>
         {callBack.enabled && (
           <TouchableOpacity
             style={styles.callBackButton}
             onPress={() => handleCallBack(callBack.value)}>
-            <Text style={styles.reservationText}>
-              {callBack.value} 다시 전화
-            </Text>
+            <Text style={styles.subText}>{callBack.value} 다시 전화</Text>
           </TouchableOpacity>
         )}
         <View style={styles.buttonContainer}>
@@ -139,7 +146,7 @@ const IncomingCallScreen = () => {
                 backgroundColor="#fff"
                 eyesColor="#000"
                 showEyes={true}
-                style={{boxShadow: '0 0 12px 0 #fff'}}
+                style={styles.emojiBox}
               />
             </Animated.View>
           </Animated.View>
@@ -154,6 +161,11 @@ const IncomingCallScreen = () => {
           </View>
         </View>
       </View>
+      {response === 'accept' && (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size={80} color="#fff" />
+        </View>
+      )}
     </AppScreen>
   );
 };
@@ -173,7 +185,7 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: '#fff',
   },
-  reservationText: {
+  subText: {
     fontSize: 16,
     fontWeight: '600',
     color: '#A7A7A7',
@@ -217,6 +229,18 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  emojiBox: {boxShadow: '0 0 12px 0 #fff'},
+  loadingContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.2)',
+    zIndex: 10,
   },
 });
 

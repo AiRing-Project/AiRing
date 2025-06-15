@@ -34,6 +34,7 @@ import SelectVibrateScreen from './src/screens/main/settings/SelectVibrateScreen
 import SelectVoiceScreen from './src/screens/main/settings/SelectVoiceScreen';
 import SetAppLockPasswordScreen from './src/screens/main/settings/SetAppLockPasswordScreen';
 import SplashScreen from './src/screens/SplashScreen';
+import {useAiCallSettingsStore} from './src/store/aiCallSettingsStore';
 import {useAppLockStore} from './src/store/appLockStore';
 import {useAuthStore} from './src/store/authStore';
 
@@ -106,6 +107,7 @@ const App = () => {
     isLocked,
     checkAppLock,
   } = useAppLockStore();
+  useAiCallSettingsStore(); // trigger rehydration
 
   const navigationRef = useRef<NavigationContainerRef<any>>(null);
 

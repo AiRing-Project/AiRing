@@ -172,3 +172,18 @@ export const getNextDate = (
 
   return target;
 };
+
+/**
+ * HH:mm 형식의 시간 문자열을 Date 객체로 변환
+ * @param time HH:mm 형식 (예: '09:30')
+ * @returns 오늘 날짜의 해당 시각을 가진 Date 객체
+ */
+export const parseTimeToDate = (time: string): Date => {
+  const [h, m] = time.split(':').map(Number);
+  const d = new Date();
+  d.setHours(h);
+  d.setMinutes(m);
+  d.setSeconds(0);
+  d.setMilliseconds(0);
+  return d;
+};

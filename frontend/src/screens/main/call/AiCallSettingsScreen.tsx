@@ -19,6 +19,7 @@ import TimePicker from '../../../components/picker/TimePicker';
 import {WEEK_DAYS} from '../../../constants/calendar';
 import {useAiCallSettingsStore} from '../../../store/aiCallSettingsStore';
 import {updateScheduledAlarms} from '../../../utils/alarmManager';
+import {parseTimeToDate} from '../../../utils/date';
 
 interface RepeatDaysCardProps {
   selectedDays: number[];
@@ -200,17 +201,6 @@ const AiCallSettingsScreen = () => {
     navigation.goBack();
   };
 
-  // TimePicker에 Date 객체 필요하므로 변환
-  const timeDate = (() => {
-    const [h, m] = time.split(':').map(Number);
-    const d = new Date();
-    d.setHours(h);
-    d.setMinutes(m);
-    d.setSeconds(0);
-    d.setMilliseconds(0);
-    return d;
-  })();
-
   return (
     <AppScreen style={styles.container}>
       <Header
@@ -218,7 +208,7 @@ const AiCallSettingsScreen = () => {
         onBackPress={() => navigation.goBack()}
         marginBottom={40}
       />
-      <TimePicker value={timeDate} onChange={handleTimeChange} />
+      <TimePicker value={parseTimeToDate(time)} onChange={handleTimeChange} />
       <RepeatDaysCard selectedDays={selectedDays} onToggleDay={toggleDay} />
       <View style={styles.optionsContainer}>
         <OptionItem
