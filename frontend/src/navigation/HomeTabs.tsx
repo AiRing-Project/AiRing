@@ -9,6 +9,7 @@ import {useNavigation} from '@react-navigation/native';
 import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import React, {useCallback, useState} from 'react';
 import {
+  ActivityIndicator,
   Modal,
   Pressable,
   StyleSheet,
@@ -127,18 +128,33 @@ function renderTab(
 
 const HomeTabs = () => {
   const [modalVisible, setModalVisible] = useState<boolean>(false);
+  const [isCalling, setIsCalling] = useState<boolean>(false);
   const navigation =
     useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
-  const handleCall = async () => {
+  const handleCall = useCallback(async () => {
+    if (isCalling) {
+      return;
+    }
+    setIsCalling(true);
     await initAiCall({
       callType: 'outgoing',
       onSuccess: () => {
+        setIsCalling(false);
         setModalVisible(false);
         navigation.navigate('CallActive');
       },
+      onError: () => {
+        setIsCalling(false);
+      },
     });
-  };
+  }, [isCalling, navigation]);
+
+  const handleModalClose = useCallback(() => {
+    if (!isCalling) {
+      setModalVisible(false);
+    }
+  }, [isCalling]);
 
   const renderTabBar = useCallback(
     (props: BottomTabBarProps) => (
@@ -181,21 +197,27 @@ const HomeTabs = () => {
         visible={modalVisible}
         transparent
         animationType="fade"
-        onRequestClose={() => setModalVisible(false)}>
-        <Pressable
-          style={styles.modalOverlay}
-          onPress={() => setModalVisible(false)}>
+        onRequestClose={handleModalClose}>
+        <Pressable style={styles.modalOverlay} onPress={handleModalClose}>
           <View style={styles.modalContent}>
             <TouchableOpacity
               style={styles.modalButton}
               onPress={() => {
                 setModalVisible(false);
                 navigation.navigate('AiCallSettings', {});
-              }}>
+              }}
+              disabled={isCalling}>
               <Text style={styles.modalButtonText}>AI 전화 예약</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.modalButton} onPress={handleCall}>
-              <Text style={styles.modalButtonText}>통화하기</Text>
+            <TouchableOpacity
+              style={styles.modalButton}
+              onPress={handleCall}
+              disabled={isCalling}>
+              {isCalling ? (
+                <ActivityIndicator color="#fff" />
+              ) : (
+                <Text style={styles.modalButtonText}>통화하기</Text>
+              )}
             </TouchableOpacity>
           </View>
         </Pressable>
