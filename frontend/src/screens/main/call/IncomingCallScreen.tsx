@@ -2,6 +2,7 @@ import {useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import React, {useRef, useState} from 'react';
 import {
+  ActivityIndicator,
   Animated,
   Dimensions,
   Easing,
@@ -61,6 +62,12 @@ const IncomingCallScreen = () => {
       },
       onError: () => {
         setResponse(null);
+        Animated.timing(pan, {
+          toValue: 0,
+          duration: 500,
+          easing: Easing.out(Easing.exp),
+          useNativeDriver: false,
+        }).start();
       },
     });
   };
@@ -139,7 +146,7 @@ const IncomingCallScreen = () => {
                 backgroundColor="#fff"
                 eyesColor="#000"
                 showEyes={true}
-                style={{boxShadow: '0 0 12px 0 #fff'}}
+                style={styles.emojiBox}
               />
             </Animated.View>
           </Animated.View>
@@ -154,6 +161,11 @@ const IncomingCallScreen = () => {
           </View>
         </View>
       </View>
+      {response === 'accept' && (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size={80} color="#fff" />
+        </View>
+      )}
     </AppScreen>
   );
 };
@@ -217,6 +229,18 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  emojiBox: {boxShadow: '0 0 12px 0 #fff'},
+  loadingContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.2)',
+    zIndex: 10,
   },
 });
 
