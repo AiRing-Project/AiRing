@@ -47,10 +47,15 @@ const IncomingCallScreen = () => {
   const {callBack} = useAiCallSettingsStore.getState();
 
   const handleCallBack = async (callBackTime: string) => {
-    // 콜백 분을 읽어서 단발성 알람 예약
     const minutes = CALLBACK_LIST.find(c => c.label === callBackTime)!.value;
     const date = new Date(Date.now() + minutes * 60_000);
     await scheduleAlarm(`callback-${Date.now()}`, date, false);
+    navigation.navigate('Home');
+  };
+
+  const handleDecline = async () => {
+    setResponse('decline');
+    navigation.navigate('Home');
   };
 
   const handleAccept = async () => {
@@ -88,10 +93,7 @@ const IncomingCallScreen = () => {
             toValue: -SLIDE_RANGE,
             duration: 220,
             useNativeDriver: false,
-          }).start(async () => {
-            setResponse('decline');
-            navigation.navigate('Home');
-          });
+          }).start(handleDecline);
         } else if (gesture.dx > THRESHOLD) {
           Animated.timing(pan, {
             toValue: SLIDE_RANGE,
@@ -115,16 +117,14 @@ const IncomingCallScreen = () => {
     <AppScreen style={styles.container}>
       <View style={styles.textContainer}>
         <Text style={styles.title}>AIRING</Text>
-        <Text style={styles.reservationText}>{/* TODO: 예약 텍스트 */}</Text>
+        <Text style={styles.subText}>예약된 전화가 왔어요!</Text>
       </View>
       <View style={styles.interactionContainer}>
         {callBack.enabled && (
           <TouchableOpacity
             style={styles.callBackButton}
             onPress={() => handleCallBack(callBack.value)}>
-            <Text style={styles.reservationText}>
-              {callBack.value} 다시 전화
-            </Text>
+            <Text style={styles.subText}>{callBack.value} 다시 전화</Text>
           </TouchableOpacity>
         )}
         <View style={styles.buttonContainer}>
@@ -185,7 +185,7 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: '#fff',
   },
-  reservationText: {
+  subText: {
     fontSize: 16,
     fontWeight: '600',
     color: '#A7A7A7',
