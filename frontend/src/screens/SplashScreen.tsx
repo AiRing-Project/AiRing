@@ -28,7 +28,7 @@ const ShakingCharacterLogo = () => {
   const shakeAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    Animated.loop(
+    const animation = Animated.loop(
       Animated.sequence([
         Animated.timing(shakeAnim, {
           toValue: -3,
@@ -51,7 +51,11 @@ const ShakingCharacterLogo = () => {
           useNativeDriver: true,
         }),
       ]),
-    ).start();
+    );
+    animation.start();
+    return () => {
+      animation.stop();
+    };
   }, [shakeAnim]);
 
   const rotate = shakeAnim.interpolate({
