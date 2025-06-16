@@ -27,6 +27,7 @@ import AiCallSettingsScreen from './src/screens/main/call/AiCallSettingsScreen';
 import CallActiveScreen from './src/screens/main/call/CallActiveScreen';
 import IncomingCallScreen from './src/screens/main/call/IncomingCallScreen';
 import CallLogDetailScreen from './src/screens/main/call-log/CallLogDetailScreen';
+import DiaryEntryScreen from './src/screens/main/DiaryEntryScreen';
 import ResetPasswordScreen from './src/screens/main/settings/ResetPasswordScreen';
 import SecuritySettingsScreen from './src/screens/main/settings/SecuritySettingsScreen';
 import SelectCallBackScreen from './src/screens/main/settings/SelectCallBackScreen';
@@ -43,6 +44,7 @@ export type RootStackParamList = {
 
   AppLock: undefined;
   Home: undefined;
+  DiaryEntryScreen: {date: string};
 
   // Call Modal 내부 화면
   AiCallSettings: {
@@ -138,6 +140,10 @@ const App = () => {
               ) : (
                 <>
                   <Stack.Screen name="Home" component={HomeTabs} />
+                  <Stack.Screen
+                    name="DiaryEntryScreen"
+                    component={DiaryEntryScreen}
+                  />
 
                   {/* Call Modal 내부 화면 */}
                   <Stack.Screen

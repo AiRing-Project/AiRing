@@ -1,4 +1,4 @@
-import {useFocusEffect} from '@react-navigation/native';
+import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import React, {useState} from 'react';
 import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import {Calendar, LocaleConfig} from 'react-native-calendars';
@@ -207,6 +207,7 @@ const CalendarScreen = () => {
   const [current, setCurrent] = useState<Date>(new Date());
   const [showMonthPicker, setShowMonthPicker] = useState<boolean>(false);
   const {user} = useAuthStore();
+  const navigation = useNavigation();
 
   useFocusEffect(
     React.useCallback(() => {
@@ -245,7 +246,7 @@ const CalendarScreen = () => {
     console.log('상세', id);
   };
   const handleGoToDiaryWrite = (date: string) => {
-    console.log('작성', date);
+    navigation.navigate('DiaryEntryScreen', {date: date});
   };
 
   const renderDay = ({date, state, marking: _marking}: any) => {
