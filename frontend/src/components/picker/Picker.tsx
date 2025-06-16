@@ -52,7 +52,7 @@ const Picker: React.FC<PickerProps> = ({
         <View style={[styles.dropdown, dropdownStyle]}>
           <FlatList
             data={list}
-            keyExtractor={item => item}
+            keyExtractor={(item, index) => `${item}-${index}`}
             renderItem={({item, index}) => (
               <>
                 <TouchableOpacity
