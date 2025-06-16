@@ -1,8 +1,10 @@
-import {useFocusEffect} from '@react-navigation/native';
+import {useFocusEffect, useNavigation} from '@react-navigation/native';
+import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import React, {useState} from 'react';
 import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import {Calendar, LocaleConfig} from 'react-native-calendars';
 
+import {RootStackParamList} from '../../../../App';
 import EmotionIcon from '../../../components/common/EmotionIcon';
 import HorizontalDivider from '../../../components/common/HorizontalDivider';
 import ListItem from '../../../components/common/ListItem';
@@ -13,6 +15,7 @@ import {
   CALENDAR_HEADER_DAYS_SHORT,
   MONTHS,
 } from '../../../constants/calendar';
+import {EMOTION_COLOR_MAP} from '../../../constants/emotion';
 import {useAuthStore} from '../../../store/authStore';
 import {getDateString, isFuture} from '../../../utils/date';
 
@@ -231,28 +234,6 @@ const diaryData = [
   },
 ];
 
-const emotionColorMap: Record<string, string[]> = {
-  // 긍정
-  기쁜: ['#FFC327', '#FEA319'],
-  감사하는: ['#FF8921', '#FF7700'],
-  만족스러운: ['#07C472', '#00AC79'],
-  편안한: ['#6DD84E', '#00D02A'],
-  자신하는: ['#FF7781', '#FD626E'],
-  흥분: ['#FF8FBA', '#FF5F9D'],
-
-  // 부정
-  분노: ['#FE5586', '#F7484B'],
-  슬픔: ['#6BADFF', '#3A89FF'],
-  우울한: ['#A592F0', '#5079F2'],
-  불안: ['#6086D1', '#2C5CBC'],
-  '스트레스 받는': ['#AB8263', '#9E7558'],
-  외로운: ['#A0C3C7', '#308EAB'],
-  당황: ['#C5A1E1', '#833CA2'],
-
-  // 중립
-  '그저 그런': ['#838FAB', '#838FAB'],
-};
-
 const DAY_BOX_SIZE = 35;
 
 const CalendarScreen = () => {
@@ -261,6 +242,9 @@ const CalendarScreen = () => {
   const [current, setCurrent] = useState<Date>(new Date());
   const [showMonthPicker, setShowMonthPicker] = useState<boolean>(false);
   const {user} = useAuthStore();
+
+  const navigation =
+    useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
   useFocusEffect(
     React.useCallback(() => {
@@ -297,9 +281,11 @@ const CalendarScreen = () => {
 
   const handleGoToDiaryDetail = (id: number) => {
     console.log('상세', id);
+    navigation.navigate('Diary', {id, mode: 'read'});
   };
   const handleGoToDiaryWrite = (date: string) => {
     console.log('작성', date);
+    navigation.navigate('Diary', {mode: 'edit'});
   };
 
   const renderDay = ({date, state, marking: _marking}: any) => {
@@ -310,7 +296,7 @@ const CalendarScreen = () => {
     // 감정 색상(여러 감정이면 첫 번째만 적용)
     const emotionColor =
       selectedDiary && selectedDiary.emotion.length > 0
-        ? emotionColorMap[selectedDiary.emotion[0]]
+        ? EMOTION_COLOR_MAP[selectedDiary.emotion[0]]
         : undefined;
     const boxStyle = [
       styles.dayBox,
@@ -393,7 +379,7 @@ const CalendarScreen = () => {
               onPress={() => handleGoToDiaryDetail(diary.id)}>
               <EmotionIcon
                 size={45}
-                colors={emotionColorMap[diary.emotion[0]]}
+                colors={EMOTION_COLOR_MAP[diary.emotion[0]]}
               />
               {/* eslint-disable-next-line react-native/no-inline-styles */}
               <View style={{flex: 1, gap: 4}}>

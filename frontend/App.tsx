@@ -23,6 +23,7 @@ import useVibrationChannels from './src/hooks/useVibrationChannels';
 import AuthStack from './src/navigation/AuthStack';
 import HomeTabs from './src/navigation/HomeTabs';
 import AppLockScreen from './src/screens/AppLockScreen';
+import DiaryScreen from './src/screens/main/calendar/DiaryScreen';
 import AiCallSettingsScreen from './src/screens/main/call/AiCallSettingsScreen';
 import CallActiveScreen from './src/screens/main/call/CallActiveScreen';
 import IncomingCallScreen from './src/screens/main/call/IncomingCallScreen';
@@ -37,12 +38,19 @@ import SplashScreen from './src/screens/SplashScreen';
 import {useAiCallSettingsStore} from './src/store/aiCallSettingsStore';
 import {useAppLockStore} from './src/store/appLockStore';
 import {useAuthStore} from './src/store/authStore';
+import {Mode} from './src/types/diary';
 
 export type RootStackParamList = {
   Auth: undefined;
 
   AppLock: undefined;
   Home: undefined;
+
+  // Calendar Tab 내부 화면
+  Diary: {
+    id?: number;
+    mode: Mode;
+  };
 
   // Call Modal 내부 화면
   AiCallSettings: {
@@ -138,6 +146,9 @@ const App = () => {
               ) : (
                 <>
                   <Stack.Screen name="Home" component={HomeTabs} />
+
+                  {/* Calendar Tab 내부 화면 */}
+                  <Stack.Screen name="Diary" component={DiaryScreen} />
 
                   {/* Call Modal 내부 화면 */}
                   <Stack.Screen
