@@ -118,11 +118,6 @@ const CallLogDetailScreen = () => {
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    paddingHorizontal: 20,
-  },
   header: {
     position: 'relative',
     justifyContent: 'center',
