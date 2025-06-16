@@ -1,11 +1,11 @@
 import {Alert} from 'react-native';
 
-import {initCallLog} from '../api/authApi';
+import {initCallLog} from '../api/callApi';
 import type {CallType} from '../types/call';
 
 interface InitAiCallParams {
   callType: CallType;
-  onSuccess?: (ephemeralToken: string, conversationId: number) => void;
+  onSuccess?: (ephemeralToken: string, callLogId: number) => void;
   onError?: (e: unknown) => void;
 }
 
@@ -15,10 +15,10 @@ export async function initAiCall({
   onError,
 }: InitAiCallParams) {
   try {
-    const {ephemeralToken, conversationId} = await initCallLog({callType});
+    const {ephemeralToken, callLogId} = await initCallLog({callType});
     // TODO: WebSocket 연결해서 session 시작
     if (onSuccess) {
-      onSuccess(ephemeralToken, conversationId);
+      onSuccess(ephemeralToken, callLogId);
     }
   } catch (e) {
     Alert.alert(

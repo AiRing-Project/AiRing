@@ -1,4 +1,3 @@
-import type {CallType} from '../types/call';
 import api from './axiosInstance';
 import plainApi from './plainAxiosInstance';
 
@@ -24,15 +23,6 @@ export interface ResetPasswordParams {
 export interface UserInfo {
   email: string;
   username: string;
-}
-
-export interface InitCallLogParams {
-  callType: CallType;
-}
-
-export interface InitCallLogResponse {
-  ephemeralToken: string;
-  conversationId: number;
 }
 
 export async function login(data: LoginParams): Promise<TokenResponse> {
@@ -69,12 +59,5 @@ export async function resetPassword(data: ResetPasswordParams): Promise<void> {
 
 export async function getUserInfo(): Promise<UserInfo> {
   const res = await api.get('/auth/me');
-  return res.data;
-}
-
-export async function initCallLog(
-  data: InitCallLogParams,
-): Promise<InitCallLogResponse> {
-  const res = await api.post('/api/call_logs/init', data);
   return res.data;
 }
