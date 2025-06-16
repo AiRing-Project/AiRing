@@ -335,7 +335,11 @@ const CalendarScreen = () => {
           <Text style={textStyle}>{date.day}</Text>
         </View>
         {emotionColor ? (
-          <EmotionIcon size={DAY_BOX_SIZE} colors={emotionColor} />
+          <EmotionIcon
+            size={DAY_BOX_SIZE}
+            colors={emotionColor}
+            outlined={isToday}
+          />
         ) : (
           <View style={boxStyle} />
         )}
@@ -487,7 +491,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     backgroundColor: 'rgba(0,0,0,0.11)',
     borderColor: '#222',
-    borderWidth: 1,
+    borderWidth: 2,
     alignItems: 'center',
     justifyContent: 'flex-start',
     position: 'relative',
