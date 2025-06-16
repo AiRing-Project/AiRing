@@ -3,6 +3,7 @@ import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import React, {useRef, useState} from 'react';
 import {
   ActivityIndicator,
+  Alert,
   Animated,
   Dimensions,
   Easing,
@@ -23,6 +24,10 @@ import {ACCEPT_COLOR, DECLINE_COLOR} from '../../../constants/colors';
 import {useAiCallSettingsStore} from '../../../store/aiCallSettingsStore';
 import {initAiCall} from '../../../utils/aiCall';
 import {scheduleAlarm} from '../../../utils/alarmManager';
+import {
+  GeminiLiveUtils,
+  LiveSessionCallbacks,
+} from '../../../utils/geminiLiveSession';
 
 const {height: SCREEN_HEIGHT, width: SCREEN_WIDTH} = Dimensions.get('window');
 const BUTTON_SIZE = 70;
@@ -35,6 +40,7 @@ const THRESHOLD = SLIDE_RANGE * 0.5;
 
 const IncomingCallScreen = () => {
   const [response, setResponse] = useState<'decline' | 'accept' | null>(null);
+  const [isConnecting, setIsConnecting] = useState(false);
   const pan = useRef(new Animated.Value(0)).current;
   const boxOpacity = pan.interpolate({
     inputRange: [-SLIDE_RANGE, 0, SLIDE_RANGE],
@@ -58,29 +64,96 @@ const IncomingCallScreen = () => {
     navigation.navigate('Home');
   };
 
+  // AI 세션 콜백 핸들러들
+  const handleSessionOpen = () => {
+    setIsConnecting(false);
+  };
+
+  const handleSessionMessage = (message: any) => {
+    // TODO: 메시지 처리 로직 추가 (오디오 재생 등)
+    console.log('📞 AI 대화 메시지:', message);
+  };
+
+  const handleSessionError = () => {
+    setIsConnecting(false);
+    setResponse(null);
+    Alert.alert(
+      '연결 오류',
+      'AI와의 대화 연결에 실패했습니다. 다시 시도해주세요.',
+    );
+  };
+
+  const handleSessionClose = (reason: string) => {
+    console.log('📞 AI 대화 종료:', reason);
+    setIsConnecting(false);
+  };
+
+  // AI 세션 초기화
+  const initializeAiSession = async (ephemeralToken: string) => {
+    const callbacks: LiveSessionCallbacks = {
+      onopen: handleSessionOpen,
+      onmessage: handleSessionMessage,
+      onerror: handleSessionError,
+      onclose: handleSessionClose,
+    };
+
+    await GeminiLiveUtils.connectAndNavigate({
+      ephemeralToken,
+      navigation,
+      callbacks,
+    });
+    console.log('AI 대화 세션 초기화 완료');
+  };
+
+  // 통화 초기화 성공 핸들러
+  const handleCallInitSuccess = async (
+    ephemeralToken: string,
+    _callLogId: number,
+  ) => {
+    try {
+      await initializeAiSession(ephemeralToken);
+    } catch (sessionError) {
+      console.error('AI 세션 초기화 실패:', sessionError);
+      setIsConnecting(false);
+      setResponse(null);
+      Alert.alert(
+        'AI 연결 실패',
+        'AI와의 대화를 시작할 수 없습니다. 네트워크를 확인하고 다시 시도해주세요.',
+      );
+    }
+  };
+
+  // 통화 초기화 실패 핸들러
+  const handleCallInitError = (error: unknown) => {
+    console.error('initAiCall 실패:', error);
+    setIsConnecting(false);
+    setResponse(null);
+    Animated.timing(pan, {
+      toValue: 0,
+      duration: 500,
+      easing: Easing.out(Easing.exp),
+      useNativeDriver: false,
+    }).start();
+  };
+
   const handleAccept = async () => {
     setResponse('accept');
+    setIsConnecting(true);
+
     await initAiCall({
       callType: 'incoming',
-      onSuccess: () => {
-        navigation.navigate('CallActive');
-      },
-      onError: () => {
-        setResponse(null);
-        Animated.timing(pan, {
-          toValue: 0,
-          duration: 500,
-          easing: Easing.out(Easing.exp),
-          useNativeDriver: false,
-        }).start();
-      },
+      onSuccess: handleCallInitSuccess,
+      onError: handleCallInitError,
     });
   };
 
   const panResponder = useRef(
     PanResponder.create({
-      onStartShouldSetPanResponder: () => true,
+      onStartShouldSetPanResponder: () => !isConnecting, // 연결 중일 때는 제스처 비활성화
       onPanResponderMove: (_, gesture) => {
+        if (isConnecting) {
+          return;
+        } // 연결 중일 때는 동작하지 않음
         const clampedDx = Math.max(
           -SLIDE_RANGE,
           Math.min(SLIDE_RANGE, gesture.dx),
@@ -88,6 +161,10 @@ const IncomingCallScreen = () => {
         pan.setValue(clampedDx);
       },
       onPanResponderRelease: (_, gesture) => {
+        if (isConnecting) {
+          return;
+        } // 연결 중일 때는 동작하지 않음
+
         if (gesture.dx < -THRESHOLD) {
           Animated.timing(pan, {
             toValue: -SLIDE_RANGE,
@@ -117,10 +194,12 @@ const IncomingCallScreen = () => {
     <AppScreen style={styles.container}>
       <View style={styles.textContainer}>
         <Text style={styles.title}>AIRING</Text>
-        <Text style={styles.subText}>예약된 전화가 왔어요!</Text>
+        <Text style={styles.subText}>
+          {isConnecting ? 'AI와 연결하는 중...' : '예약된 전화가 왔어요!'}
+        </Text>
       </View>
       <View style={styles.interactionContainer}>
-        {callBack.enabled && (
+        {callBack.enabled && !isConnecting && (
           <TouchableOpacity
             style={styles.callBackButton}
             onPress={() => handleCallBack(callBack.value)}>
@@ -161,7 +240,7 @@ const IncomingCallScreen = () => {
           </View>
         </View>
       </View>
-      {response === 'accept' && (
+      {(response === 'accept' || isConnecting) && (
         <View style={styles.loadingContainer}>
           <ActivityIndicator size={80} color="#fff" />
         </View>
@@ -239,7 +318,7 @@ const styles = StyleSheet.create({
     bottom: 0,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(0,0,0,0.2)',
+    backgroundColor: 'rgba(0,0,0,0.7)',
     zIndex: 10,
   },
 });
