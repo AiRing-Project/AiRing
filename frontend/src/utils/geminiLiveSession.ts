@@ -1,4 +1,4 @@
-import {GoogleGenAI, Modality} from '@google/genai';
+import {GoogleGenAI, Modality} from '@google/genai/web';
 
 import {INSTRUCTION} from '../constants/aiCall';
 import {useAiCallSettingsStore} from '../store/aiCallSettingsStore';
