@@ -1,15 +1,72 @@
-import React from 'react';
-import {ActivityIndicator, StyleSheet, Text} from 'react-native';
+import React, {useEffect, useRef} from 'react';
+import {
+  ActivityIndicator,
+  Animated,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 
+import CharacterLogo from '../assets/logos/logo-character.svg';
+import WordMarkLogo from '../assets/logos/logo-wordmark.svg';
 import AppScreen from '../components/layout/AppScreen';
 
 const SplashScreen = () => {
   return (
     <AppScreen style={styles.container}>
-      <Text style={styles.logo}>AiRing</Text>
-      <ActivityIndicator size="large" color="#5d8fc5" style={styles.spinner} />
-      <Text style={styles.loadingText}>잠시만 기다려주세요...</Text>
+      <ShakingCharacterLogo />
+      <WordMarkLogo />
+      <View style={styles.loadingContainer}>
+        <Text style={styles.subText}>잠시만 기다려주세요...</Text>
+        <ActivityIndicator color="#A7A7A7" />
+      </View>
     </AppScreen>
+  );
+};
+
+const ShakingCharacterLogo = () => {
+  const shakeAnim = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    const animation = Animated.loop(
+      Animated.sequence([
+        Animated.timing(shakeAnim, {
+          toValue: -3,
+          duration: 100,
+          useNativeDriver: true,
+        }),
+        Animated.timing(shakeAnim, {
+          toValue: 3,
+          duration: 100,
+          useNativeDriver: true,
+        }),
+        Animated.timing(shakeAnim, {
+          toValue: -3,
+          duration: 100,
+          useNativeDriver: true,
+        }),
+        Animated.timing(shakeAnim, {
+          toValue: 0,
+          duration: 100,
+          useNativeDriver: true,
+        }),
+      ]),
+    );
+    animation.start();
+    return () => {
+      animation.stop();
+    };
+  }, [shakeAnim]);
+
+  const rotate = shakeAnim.interpolate({
+    inputRange: [-10, 0, 10],
+    outputRange: ['-5deg', '0deg', '5deg'],
+  });
+
+  return (
+    <Animated.View style={{transform: [{rotate}]}}>
+      <CharacterLogo />
+    </Animated.View>
   );
 };
 
@@ -17,20 +74,17 @@ const styles = StyleSheet.create({
   container: {
     alignItems: 'center',
     justifyContent: 'center',
+    gap: 40,
   },
-  logo: {
-    fontSize: 40,
-    fontWeight: 'bold',
-    color: '#5d8fc5',
-    marginBottom: 32,
-    letterSpacing: 2,
+  loadingContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
   },
-  spinner: {
-    marginBottom: 16,
-  },
-  loadingText: {
+  subText: {
     fontSize: 16,
-    color: '#888',
+    fontWeight: '600',
+    color: '#A7A7A7',
   },
 });
 
