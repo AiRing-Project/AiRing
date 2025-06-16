@@ -21,7 +21,7 @@ export const formatTime = (isoString: string) => {
  * @param dateString - ISO 8601 형식의 시간 문자열
  * @returns 한글 요일 문자열
  */
-export const getKoreanDay = (dateString: string) => {
+export const getKoreanDay = (dateString: string | Date) => {
   const days = [
     '일요일',
     '월요일',
@@ -40,7 +40,7 @@ export const getKoreanDay = (dateString: string) => {
  * @param dateString - ISO 8601 형식의 시간 문자열
  * @returns 일요일, 월요일, 화요일, 수요일, 목요일, 금요일, 토요일 형식의 시간 문자열
  */
-export const formatSectionDate = (dateString: string) => {
+export const formatSectionDate = (dateString: string | Date) => {
   const date = new Date(dateString);
   const day = date.getDate();
   const dayOfWeek = getKoreanDay(dateString);
@@ -52,7 +52,7 @@ export const formatSectionDate = (dateString: string) => {
  * @param dateString - ISO 8601 형식의 시간 문자열
  * @returns 2025년 5월 7일
  */
-export const formatKoreanDate = (dateString: string) => {
+export const formatKoreanDate = (dateString: string | Date) => {
   const date = new Date(dateString);
   return `${date.getFullYear()}년 ${date.getMonth() + 1}월 ${date.getDate()}일`;
 };

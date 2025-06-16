@@ -94,7 +94,7 @@ function renderTab(
   const isFocused = state.index === index;
 
   const ICON_MAP: Record<string, React.FC<any>> = {
-    Diary: CalendarIcon,
+    Calendar: CalendarIcon,
     Report: ReportIcon,
     Log: LogIcon,
     Settings: SettingsIcon,
@@ -167,7 +167,7 @@ const HomeTabs = () => {
     <>
       <Tab.Navigator tabBar={renderTabBar} screenOptions={{headerShown: false}}>
         <Tab.Screen
-          name="Diary"
+          name="Calendar"
           component={CalendarScreen}
           options={{tabBarLabel: '캘린더'}}
         />

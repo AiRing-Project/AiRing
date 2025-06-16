@@ -1,10 +1,10 @@
-import {useFocusEffect} from '@react-navigation/native';
+import {useFocusEffect, useNavigation} from '@react-navigation/native';
+import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import React, {useState} from 'react';
 import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import {Calendar, LocaleConfig} from 'react-native-calendars';
 
-import IcChevronLeft from '../../../assets/icons/ic-chevron-left.svg';
-import IcEmotionEmpty from '../../../assets/icons/ic-emotion-empty.svg';
+import {RootStackParamList} from '../../../../App';
 import EmotionIcon from '../../../components/common/EmotionIcon';
 import HorizontalDivider from '../../../components/common/HorizontalDivider';
 import ListItem from '../../../components/common/ListItem';
@@ -15,6 +15,7 @@ import {
   CALENDAR_HEADER_DAYS_SHORT,
   MONTHS,
 } from '../../../constants/calendar';
+import {EMOTION_COLOR_MAP} from '../../../constants/emotion';
 import {useAuthStore} from '../../../store/authStore';
 import {getDateString, isFuture} from '../../../utils/date';
 
@@ -44,15 +45,15 @@ const diaryData = [
     title: '아침 산책',
     emotion: ['편안한', '자신하는'],
     tag: ['health', 'morning'],
-    hasReply: false,
+    hasReply: true,
   },
   {
     date: '2025-05-03',
     id: 102,
     title: '점심 데이트',
-    emotion: ['만족스러운', '기쁨'],
+    emotion: ['만족스러운', '기쁜'],
     tag: ['food', 'friend'],
-    hasReply: false,
+    hasReply: true,
   },
   {
     date: '2025-05-04',
@@ -66,9 +67,9 @@ const diaryData = [
     date: '2025-05-05',
     id: 108,
     title: '어린이날',
-    emotion: ['기쁨', '만족스러운'],
+    emotion: ['기쁜', '만족스러운'],
     tag: ['holiday', 'family'],
-    hasReply: false,
+    hasReply: true,
   },
   {
     date: '2025-05-07',
@@ -84,7 +85,7 @@ const diaryData = [
     title: '운동 후 피곤함',
     emotion: ['불안', '우울한'],
     tag: ['health', 'exercise'],
-    hasReply: false,
+    hasReply: true,
   },
   {
     date: '2025-05-12',
@@ -92,7 +93,7 @@ const diaryData = [
     title: '업무 스트레스',
     emotion: ['스트레스 받는', '분노'],
     tag: ['work', 'stress'],
-    hasReply: false,
+    hasReply: true,
   },
   {
     date: '2025-05-15',
@@ -108,7 +109,7 @@ const diaryData = [
     title: '카페에서 휴식',
     emotion: ['편안한', '자신하는'],
     tag: ['cafe', 'rest'],
-    hasReply: false,
+    hasReply: true,
   },
   {
     date: '2025-05-20',
@@ -124,13 +125,13 @@ const diaryData = [
     title: '비 오는 날',
     emotion: ['우울한', '불안'],
     tag: ['weather', 'rain'],
-    hasReply: false,
+    hasReply: true,
   },
   {
     date: '2025-05-25',
     id: 115,
     title: '맛집 탐방',
-    emotion: ['기쁨', '만족스러운'],
+    emotion: ['기쁜', '만족스러운'],
     tag: ['food', 'trip'],
     hasReply: true,
   },
@@ -140,7 +141,7 @@ const diaryData = [
     title: '야근',
     emotion: ['슬픔', '스트레스 받는'],
     tag: ['work', 'night'],
-    hasReply: false,
+    hasReply: true,
   },
   {
     date: '2025-05-30',
@@ -157,7 +158,7 @@ const diaryData = [
     title: '생각이 많은 날',
     emotion: ['외로운', '우울한'],
     tag: ['stress', 'tired'],
-    hasReply: false,
+    hasReply: true,
   },
   {
     date: '2025-06-03',
@@ -165,7 +166,7 @@ const diaryData = [
     title: '오늘 일기',
     emotion: ['분노', '스트레스 받는'],
     tag: ['stress', 'tired'],
-    hasReply: false,
+    hasReply: true,
   },
   {
     date: '2025-06-05',
@@ -173,31 +174,65 @@ const diaryData = [
     title: '오늘 일기',
     emotion: ['그저 그런'],
     tag: ['fine'],
-    hasReply: false,
+    hasReply: true,
+  },
+  {
+    date: '2025-06-07',
+    id: 200,
+    title: '오늘 일기',
+    emotion: ['흥분'],
+    tag: ['happy'],
+    hasReply: true,
+  },
+  {
+    date: '2025-06-08',
+    id: 201,
+    title: '테니스 치기',
+    emotion: ['기쁜'],
+    tag: ['stress'],
+    hasReply: true,
+  },
+  {
+    date: '2025-06-10',
+    id: 202,
+    title: '친구와 한강에서 피크닉',
+    emotion: ['편안한'],
+    tag: ['relax'],
+    hasReply: true,
+  },
+  {
+    date: '2025-06-11',
+    id: 203,
+    title: '카페에서 공부하기',
+    emotion: ['만족스러운'],
+    tag: ['study'],
+    hasReply: true,
+  },
+  {
+    date: '2025-06-13',
+    id: 204,
+    title: '친구와 갈등',
+    emotion: ['당황'],
+    tag: ['friend'],
+    hasReply: true,
+  },
+  {
+    date: '2025-06-15',
+    id: 205,
+    title: '친구와 갈등',
+    emotion: ['스트레스 받는'],
+    tag: ['friend'],
+    hasReply: true,
+  },
+  {
+    date: '2025-06-16',
+    id: 206,
+    title: '야근',
+    emotion: ['우울한'],
+    tag: ['work'],
+    hasReply: true,
   },
 ];
-
-const emotionColorMap: Record<string, string[]> = {
-  // 긍정
-  기쁨: ['#FFC327', '#FEA319'],
-  감사하는: ['#FF8921', '#FF7700'],
-  만족스러운: ['#07C472', '#00AC79'],
-  편안한: ['#6DD84E', '#00D02A'],
-  자신하는: ['#FF7781', '#FD626E'],
-  흥분: ['#FF8FBA', '#FF5F9D'],
-
-  // 부정
-  분노: ['#FE5586', '#F7484B'],
-  슬픔: ['#6BADFF', '#3A89FF'],
-  우울한: ['#A592F0', '#5079F2'],
-  불안: ['#6086D1', '#2C5CBC'],
-  '스트레스 받는': ['#AB8263', '#9E7558'],
-  외로운: ['#A0C3C7', '#308EAB'],
-  당황: ['#C5A1E1', '#833CA2'],
-
-  // 중립
-  '그저 그런': ['#838FAB', '#838FAB'],
-};
 
 const DAY_BOX_SIZE = 35;
 
@@ -207,6 +242,9 @@ const CalendarScreen = () => {
   const [current, setCurrent] = useState<Date>(new Date());
   const [showMonthPicker, setShowMonthPicker] = useState<boolean>(false);
   const {user} = useAuthStore();
+
+  const navigation =
+    useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
   useFocusEffect(
     React.useCallback(() => {
@@ -243,9 +281,11 @@ const CalendarScreen = () => {
 
   const handleGoToDiaryDetail = (id: number) => {
     console.log('상세', id);
+    navigation.navigate('Diary', {id, mode: 'read'});
   };
   const handleGoToDiaryWrite = (date: string) => {
     console.log('작성', date);
+    navigation.navigate('Diary', {mode: 'edit'});
   };
 
   const renderDay = ({date, state, marking: _marking}: any) => {
@@ -256,7 +296,7 @@ const CalendarScreen = () => {
     // 감정 색상(여러 감정이면 첫 번째만 적용)
     const emotionColor =
       selectedDiary && selectedDiary.emotion.length > 0
-        ? emotionColorMap[selectedDiary.emotion[0]]
+        ? EMOTION_COLOR_MAP[selectedDiary.emotion[0]]
         : undefined;
     const boxStyle = [
       styles.dayBox,
@@ -281,7 +321,11 @@ const CalendarScreen = () => {
           <Text style={textStyle}>{date.day}</Text>
         </View>
         {emotionColor ? (
-          <EmotionIcon size={DAY_BOX_SIZE} colors={emotionColor} />
+          <EmotionIcon
+            size={DAY_BOX_SIZE}
+            colors={emotionColor}
+            outlined={isToday}
+          />
         ) : (
           <View style={boxStyle} />
         )}
@@ -333,32 +377,32 @@ const CalendarScreen = () => {
               style={styles.diaryCard}
               activeOpacity={0.8}
               onPress={() => handleGoToDiaryDetail(diary.id)}>
+              <EmotionIcon
+                size={45}
+                colors={EMOTION_COLOR_MAP[diary.emotion[0]]}
+              />
               {/* eslint-disable-next-line react-native/no-inline-styles */}
-              <View style={{flex: 1}}>
+              <View style={{flex: 1, gap: 4}}>
                 <Text style={styles.diaryTitle}>{diary.title}</Text>
-                <View style={styles.diaryRow}>
-                  <Text style={styles.diaryLabel}>감정: </Text>
-                  <Text style={styles.diaryValue}>
-                    {diary.emotion.join(', ')}
-                  </Text>
-                </View>
-                <View style={styles.diaryRow}>
-                  <Text style={styles.diaryLabel}>태그: </Text>
-                  <Text style={styles.diaryValue}>{diary.tag.join(', ')}</Text>
-                </View>
-                <View style={styles.diaryRow}>
-                  <Text style={styles.diaryLabel}>답장: </Text>
-                  <Text style={styles.diaryValue}>
-                    {diary.hasReply ? 'O' : 'X'}
-                  </Text>
-                </View>
+                <Text style={styles.diaryDate}>{diary.date}</Text>
               </View>
-              <IcChevronLeft style={styles.goDiaryIcon} />
+              {diary.hasReply && (
+                <TouchableOpacity
+                  style={styles.seeReplyBtn}
+                  activeOpacity={0.8}
+                  onPress={e => {
+                    e.stopPropagation();
+                    // handleGoToDiaryDetail(diary.id); TODO: 답장 보기 페이지로
+                  }}>
+                  <Text style={styles.seeReplyBtnText}>답장 보기</Text>
+                </TouchableOpacity>
+              )}
             </TouchableOpacity>
           ) : (
             <ListItem
               containerStyle={styles.diaryWriteBtn}
-              leftIcon={<IcEmotionEmpty width={45} height={45} />}
+              // leftIcon={<IcEmotionEmpty width={45} height={45} />}
+              leftIcon={<EmotionIcon size={45} empty />}
               label={
                 <View style={styles.diaryWriteTextWrap}>
                   <Text
@@ -393,7 +437,7 @@ const CalendarScreen = () => {
                 친구와의 오해 그리고 다툼
               </Text>
             }
-            rightIcon={<IcEmotionEmpty width={45} height={45} />}
+            rightIcon={<EmotionIcon size={45} empty />}
           />
         </View>
       </View>
@@ -433,7 +477,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     backgroundColor: 'rgba(0,0,0,0.11)',
     borderColor: '#222',
-    borderWidth: 1,
+    borderWidth: 2,
     alignItems: 'center',
     justifyContent: 'flex-start',
     position: 'relative',
@@ -501,19 +545,26 @@ const styles = StyleSheet.create({
     color: 'rgba(0, 0, 0, 0.5)',
   },
   diaryCard: {
+    height: 80,
     backgroundColor: '#F8F8F8',
     borderRadius: 10,
-    padding: 25,
+    paddingVertical: 16,
+    paddingHorizontal: 25,
     width: '100%',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    gap: 16,
   },
   diaryTitle: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: '600',
-    color: '#232323',
-    marginBottom: 8,
+    color: '#111',
+  },
+  diaryDate: {
+    fontSize: 12,
+    fontWeight: '500',
+    color: '#b4b4b4',
   },
   diaryRow: {
     flexDirection: 'row',
@@ -571,6 +622,17 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '600',
     color: 'rgba(0, 0, 0, 0.9)',
+  },
+  seeReplyBtn: {
+    backgroundColor: 'rgba(0, 0, 0, 0.08)',
+    borderRadius: 5,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+  },
+  seeReplyBtnText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: 'rgba(0, 0, 0, 0.7)',
   },
 });
 
