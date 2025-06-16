@@ -1,4 +1,6 @@
-export const EMOTION_COLOR_MAP: Record<string, string[]> = {
+import {Emotion} from '../types/emotion';
+
+export const EMOTION_COLOR_MAP: Record<Emotion, [string, string]> = {
   // 긍정
   기쁜: ['#FFC327', '#FEA319'],
   감사하는: ['#FF8921', '#FF7700'],
