@@ -1,5 +1,5 @@
 <p align="center">
-  <a href="https://fastapi.tiangolo.com/ko/" target="blank"><img src="https://avatars.githubusercontent.com/u/130129149" width="200" alt="websockets Logo" /></a>
+  <a href="https://github.com/python-websockets/websockets" target="blank"><img src="https://avatars.githubusercontent.com/u/130129149" width="200" alt="websockets Logo" /></a>
 </p>
 
 # AiRing Proxy
