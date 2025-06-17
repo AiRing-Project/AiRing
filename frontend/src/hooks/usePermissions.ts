@@ -1,8 +1,9 @@
 import notifee, {AndroidNotificationSetting} from '@notifee/react-native';
 import {useEffect} from 'react';
 import {Alert, Linking, PermissionsAndroid, Platform} from 'react-native';
+import {PERMISSIONS, request, RESULTS} from 'react-native-permissions';
 
-const useNotificationPermissions = () => {
+const usePermissions = () => {
   useEffect(() => {
     async function requestPermissions() {
       if (Platform.OS !== 'android') {
@@ -49,10 +50,18 @@ const useNotificationPermissions = () => {
           console.error('Exact Alarm 권한 확인 중 에러:', e);
         }
       }
+
+      // 3) Android 10(API 29)+: RECORD_AUDIO 권한 확인 및 안내
+      if (Platform.OS === 'android') {
+        const result = await request(PERMISSIONS.ANDROID.RECORD_AUDIO);
+        if (result !== RESULTS.GRANTED) {
+          console.warn('마이크 권한이 거부되었습니다.');
+        }
+      }
     }
 
     requestPermissions();
   }, []);
 };
 
-export default useNotificationPermissions;
+export default usePermissions;

@@ -18,7 +18,7 @@ import {SafeAreaProvider} from 'react-native-safe-area-context';
 import {enableScreens} from 'react-native-screens';
 
 import useNotifeeEvents from './src/hooks/useNotifeeEvents';
-import useNotificationPermissions from './src/hooks/useNotificationPermissions';
+import usePermissions from './src/hooks/usePermissions';
 import useVibrationChannels from './src/hooks/useVibrationChannels';
 import AuthStack from './src/navigation/AuthStack';
 import HomeTabs from './src/navigation/HomeTabs';
@@ -119,7 +119,7 @@ const App = () => {
 
   const navigationRef = useRef<NavigationContainerRef<any>>(null);
 
-  useNotificationPermissions();
+  usePermissions();
   useNotifeeEvents(navigationRef);
   useVibrationChannels();
 
