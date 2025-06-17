@@ -1,7 +1,7 @@
 import {WEBSOCKET_URL} from '@env';
 import {useNavigation} from '@react-navigation/native';
 import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import React, {useCallback, useEffect, useRef, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {
   Dimensions,
   StyleSheet,
@@ -20,6 +20,7 @@ import {formatDuration} from '../../../utils/date';
 
 const {height: SCREEN_HEIGHT} = Dimensions.get('window');
 const BUTTON_SIZE = 60;
+const MAX_RECONNECT = 3;
 
 const CallActiveScreen = () => {
   const navigation =
@@ -32,73 +33,78 @@ const CallActiveScreen = () => {
   const [isConnecting, setIsConnecting] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const isRecordingRef = useRef(false);
+  const isCleanupRef = useRef(false);
+  const reconnectAttempts = useRef(0);
   const intervalRef = useRef<NodeJS.Timeout>();
-  const isUnmountedRef = useRef(false);
 
   const {connect, startRecording, stopRecording, disconnect} = useAiCall({
-    onMessage: useCallback((message: {text?: string; audio?: string}) => {
-      if (isUnmountedRef.current) {
+    onMessage: message => {
+      if (isCleanupRef.current) {
         return;
       }
-
       if (message.text) {
         console.log('AI 응답:', message.text);
       }
       if (message.audio) {
         console.log('오디오 재생 시작');
       }
-    }, []),
-    onConnectionStateChange: useCallback(
-      async (state: {connected: boolean}) => {
-        if (isUnmountedRef.current) {
-          return;
-        }
-
-        console.log('연결 상태 변경:', state.connected);
-        setIsConnected(state.connected);
-        setIsConnecting(false);
-
-        if (state.connected && !micMuted) {
+    },
+    onConnectionStateChange: async state => {
+      if (isCleanupRef.current) {
+        return;
+      }
+      setIsConnected(state.connected);
+      setIsConnecting(false);
+      if (state.connected) {
+        if (!micMuted && !isRecordingRef.current) {
           try {
             await startRecording();
-          } catch (error) {
-            console.error('녹음 시작 실패:', error);
+            isRecordingRef.current = true;
+          } catch (e) {
             setError('녹음을 시작할 수 없습니다.');
           }
         }
-      },
-      [micMuted],
-    ),
-    onError: useCallback((error: {error: string}) => {
-      if (isUnmountedRef.current) {
+        reconnectAttempts.current = 0;
+      } else {
+        isRecordingRef.current = false;
+        if (reconnectAttempts.current < MAX_RECONNECT) {
+          reconnectAttempts.current += 1;
+          setTimeout(() => connect(WEBSOCKET_URL), 1000);
+        } else {
+          setError(
+            '서버와의 연결이 반복적으로 끊어집니다. 잠시 후 다시 시도해 주세요.',
+          );
+        }
+      }
+    },
+    onError: error => {
+      if (isCleanupRef.current) {
         return;
       }
-
-      console.error('에러 발생:', error);
-      setError(error.error);
-      setIsConnecting(false);
-    }, []),
+      setError(error.error || '알 수 없는 에러');
+    },
   });
 
   useEffect(() => {
-    const interval = setInterval(() => {
+    isCleanupRef.current = false;
+    setIsConnecting(true);
+    connect(WEBSOCKET_URL);
+    intervalRef.current = setInterval(() => {
       setElapsed(Math.floor((Date.now() - startTime) / 1000));
     }, 1000);
-
-    setIsConnecting(true);
-    connect(WEBSOCKET_URL).catch(error => {
-      console.error('웹소켓 연결 실패:', error);
-      setError('연결할 수 없습니다.');
-      setIsConnecting(false);
-    });
-
     return () => {
-      clearInterval(interval);
-      disconnect().catch(error => {
-        console.error('연결 해제 실패:', error);
-      });
+      isCleanupRef.current = true;
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+      if (isRecordingRef.current) {
+        stopRecording();
+        isRecordingRef.current = false;
+      }
+      disconnect();
     };
-  }, [startTime, connect, disconnect]);
+  }, [startTime, connect, stopRecording, disconnect]);
 
   const handleSpeakerPress = () => {
     setSpeakerOn(prev => !prev);
@@ -107,14 +113,15 @@ const CallActiveScreen = () => {
 
   const handleHangUpPress = async () => {
     try {
-      if (isConnected && !micMuted) {
+      if (isRecordingRef.current) {
         await stopRecording();
+        isRecordingRef.current = false;
       }
       await disconnect();
       navigation.navigate('Home');
     } catch (error) {
       console.error('통화 종료 실패:', error);
-      navigation.navigate('Home'); // 에러가 발생해도 홈으로 이동
+      navigation.navigate('Home');
     }
   };
 
@@ -122,16 +129,15 @@ const CallActiveScreen = () => {
     try {
       const newMicMuted = !micMuted;
       setMicMuted(newMicMuted);
-
-      if (newMicMuted) {
+      if (newMicMuted && isRecordingRef.current) {
         await stopRecording();
-      } else if (isConnected) {
+        isRecordingRef.current = false;
+      } else if (!newMicMuted && isConnected && !isRecordingRef.current) {
         await startRecording();
+        isRecordingRef.current = true;
       }
     } catch (error) {
-      console.error('마이크 상태 변경 실패:', error);
       setError('마이크 상태를 변경할 수 없습니다.');
-      // 에러 발생 시 상태 되돌리기
       setMicMuted(prev => !prev);
     }
   };
