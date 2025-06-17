@@ -29,7 +29,6 @@ import CalendarScreen from '../screens/main/calendar/CalendarScreen';
 import CallLogScreen from '../screens/main/call-log/CallLogScreen';
 import ReportScreen from '../screens/main/report/ReportScreen';
 import SettingsScreen from '../screens/main/settings/SettingsScreen';
-import {initAiCall} from '../utils/aiCall';
 
 const Tab = createBottomTabNavigator();
 
@@ -137,17 +136,20 @@ const HomeTabs = () => {
       return;
     }
     setIsCalling(true);
-    await initAiCall({
-      callType: 'outgoing',
-      onSuccess: () => {
-        setIsCalling(false);
-        setModalVisible(false);
-        navigation.navigate('CallActive');
-      },
-      onError: () => {
-        setIsCalling(false);
-      },
-    });
+    setIsCalling(false);
+    setModalVisible(false);
+    navigation.navigate('CallActive');
+    // await initAiCall({
+    //   callType: 'outgoing',
+    //   onSuccess: () => {
+    //     setIsCalling(false);
+    //     setModalVisible(false);
+    //     navigation.navigate('CallActive');
+    //   },
+    //   onError: () => {
+    //     setIsCalling(false);
+    //   },
+    // });
   }, [isCalling, navigation]);
 
   const handleModalClose = useCallback(() => {
