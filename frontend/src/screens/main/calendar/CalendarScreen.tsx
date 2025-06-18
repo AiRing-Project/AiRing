@@ -1,6 +1,6 @@
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import React, {useState} from 'react';
+import React, {useCallback, useState} from 'react';
 import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import {Calendar, LocaleConfig} from 'react-native-calendars';
 
@@ -8,6 +8,7 @@ import {RootStackParamList} from '../../../../App';
 import EmotionIcon from '../../../components/common/EmotionIcon';
 import HorizontalDivider from '../../../components/common/HorizontalDivider';
 import ListItem from '../../../components/common/ListItem';
+import ReplyModal from '../../../components/common/ReplyModal';
 import AppScreen from '../../../components/layout/AppScreen';
 import MonthYearPicker from '../../../components/picker/MonthYearPicker';
 import {
@@ -17,6 +18,8 @@ import {
 } from '../../../constants/calendar';
 import {EMOTION_COLOR_MAP} from '../../../constants/emotion';
 import {useAuthStore} from '../../../store/authStore';
+import useDiaryStore from '../../../store/diaryStore';
+import {Emotion} from '../../../types/emotion';
 import {getDateString, isFuture} from '../../../utils/date';
 
 // 한글 요일/월 설정
@@ -29,211 +32,6 @@ LocaleConfig.locales.ko = {
 };
 LocaleConfig.defaultLocale = 'ko';
 
-// TODO: 서버 연동 후 삭제
-const diaryData = [
-  {
-    date: '2025-05-01',
-    id: 101,
-    title: '출장 준비',
-    emotion: ['흥분', '자신하는'],
-    tag: ['work', 'trip'],
-    hasReply: true,
-  },
-  {
-    date: '2025-05-02',
-    id: 106,
-    title: '아침 산책',
-    emotion: ['편안한', '자신하는'],
-    tag: ['health', 'morning'],
-    hasReply: true,
-  },
-  {
-    date: '2025-05-03',
-    id: 102,
-    title: '점심 데이트',
-    emotion: ['만족스러운', '기쁜'],
-    tag: ['food', 'friend'],
-    hasReply: true,
-  },
-  {
-    date: '2025-05-04',
-    id: 107,
-    title: '가족 모임',
-    emotion: ['감사하는', '편안한'],
-    tag: ['family'],
-    hasReply: true,
-  },
-  {
-    date: '2025-05-05',
-    id: 108,
-    title: '어린이날',
-    emotion: ['기쁜', '만족스러운'],
-    tag: ['holiday', 'family'],
-    hasReply: true,
-  },
-  {
-    date: '2025-05-07',
-    id: 103,
-    title: '책 읽기',
-    emotion: ['편안한', '자신하는'],
-    tag: ['hobby'],
-    hasReply: true,
-  },
-  {
-    date: '2025-05-10',
-    id: 109,
-    title: '운동 후 피곤함',
-    emotion: ['불안', '우울한'],
-    tag: ['health', 'exercise'],
-    hasReply: true,
-  },
-  {
-    date: '2025-05-12',
-    id: 110,
-    title: '업무 스트레스',
-    emotion: ['스트레스 받는', '분노'],
-    tag: ['work', 'stress'],
-    hasReply: true,
-  },
-  {
-    date: '2025-05-15',
-    id: 111,
-    title: '친구와 갈등',
-    emotion: ['당황', '스트레스 받는'],
-    tag: ['friend', 'conflict'],
-    hasReply: true,
-  },
-  {
-    date: '2025-05-18',
-    id: 112,
-    title: '카페에서 휴식',
-    emotion: ['편안한', '자신하는'],
-    tag: ['cafe', 'rest'],
-    hasReply: true,
-  },
-  {
-    date: '2025-05-20',
-    id: 113,
-    title: '새로운 취미 시작',
-    emotion: ['자신하는', '흥분'],
-    tag: ['hobby', 'new'],
-    hasReply: true,
-  },
-  {
-    date: '2025-05-22',
-    id: 114,
-    title: '비 오는 날',
-    emotion: ['우울한', '불안'],
-    tag: ['weather', 'rain'],
-    hasReply: true,
-  },
-  {
-    date: '2025-05-25',
-    id: 115,
-    title: '맛집 탐방',
-    emotion: ['기쁜', '만족스러운'],
-    tag: ['food', 'trip'],
-    hasReply: true,
-  },
-  {
-    date: '2025-05-28',
-    id: 116,
-    title: '야근',
-    emotion: ['슬픔', '스트레스 받는'],
-    tag: ['work', 'night'],
-    hasReply: true,
-  },
-  {
-    date: '2025-05-30',
-    id: 117,
-    title: '산책하며 생각 정리',
-    emotion: ['자신하는', '편안한'],
-    tag: ['health', 'walk'],
-    hasReply: true,
-  },
-  // 6월 데이터 예시
-  {
-    date: '2025-06-02',
-    id: 104,
-    title: '생각이 많은 날',
-    emotion: ['외로운', '우울한'],
-    tag: ['stress', 'tired'],
-    hasReply: true,
-  },
-  {
-    date: '2025-06-03',
-    id: 105,
-    title: '오늘 일기',
-    emotion: ['분노', '스트레스 받는'],
-    tag: ['stress', 'tired'],
-    hasReply: true,
-  },
-  {
-    date: '2025-06-05',
-    id: 199,
-    title: '오늘 일기',
-    emotion: ['그저 그런'],
-    tag: ['fine'],
-    hasReply: true,
-  },
-  {
-    date: '2025-06-07',
-    id: 200,
-    title: '오늘 일기',
-    emotion: ['흥분'],
-    tag: ['happy'],
-    hasReply: true,
-  },
-  {
-    date: '2025-06-08',
-    id: 201,
-    title: '테니스 치기',
-    emotion: ['기쁜'],
-    tag: ['stress'],
-    hasReply: true,
-  },
-  {
-    date: '2025-06-10',
-    id: 202,
-    title: '친구와 한강에서 피크닉',
-    emotion: ['편안한'],
-    tag: ['relax'],
-    hasReply: true,
-  },
-  {
-    date: '2025-06-11',
-    id: 203,
-    title: '카페에서 공부하기',
-    emotion: ['만족스러운'],
-    tag: ['study'],
-    hasReply: true,
-  },
-  {
-    date: '2025-06-13',
-    id: 204,
-    title: '친구와 갈등',
-    emotion: ['당황'],
-    tag: ['friend'],
-    hasReply: true,
-  },
-  {
-    date: '2025-06-15',
-    id: 205,
-    title: '친구와 갈등',
-    emotion: ['스트레스 받는'],
-    tag: ['friend'],
-    hasReply: true,
-  },
-  {
-    date: '2025-06-16',
-    id: 206,
-    title: '야근',
-    emotion: ['우울한'],
-    tag: ['work'],
-    hasReply: true,
-  },
-];
-
 const DAY_BOX_SIZE = 35;
 
 const CalendarScreen = () => {
@@ -241,16 +39,20 @@ const CalendarScreen = () => {
   const [selected, setSelected] = useState<string | null>(todayString);
   const [current, setCurrent] = useState<Date>(new Date());
   const [showMonthPicker, setShowMonthPicker] = useState<boolean>(false);
+  const [showReplyModal, setShowReplyModal] = useState<boolean>(false);
   const {user} = useAuthStore();
+  const {diaries, getDiaries} = useDiaryStore();
 
   const navigation =
     useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
+  // 화면 포커스 시 데이터 로드
   useFocusEffect(
-    React.useCallback(() => {
+    useCallback(() => {
       setSelected(getDateString());
       setCurrent(new Date());
-    }, []),
+      getDiaries();
+    }, [getDiaries]),
   );
 
   const handleDayPress = (day: any) => {
@@ -261,8 +63,8 @@ const CalendarScreen = () => {
   };
 
   const updateMonthAndSelected = (year: number, month: number) => {
-    setCurrent(new Date(year, month - 1, 1));
-    setSelected(null); // 월 변경 시 아무 날짜도 선택하지 않음
+    setCurrent(new Date(year, month - 1, 10));
+    setSelected(null);
   };
 
   const handleMonthChange = (month: {year: number; month: number}) => {
@@ -277,26 +79,33 @@ const CalendarScreen = () => {
   };
 
   // 선택된 날짜의 일기 데이터
-  const diary = selected ? diaryData.find(d => d.date === selected) : undefined;
+  const diary = selected ? diaries.find(d => d.date === selected) : undefined;
 
-  const handleGoToDiaryDetail = (id: number) => {
-    console.log('상세', id);
+  const handleGoToDiaryDetail = (id: string) => {
     navigation.navigate('Diary', {id, mode: 'read'});
   };
+
   const handleGoToDiaryWrite = (date: string) => {
-    console.log('작성', date);
-    navigation.navigate('Diary', {mode: 'edit'});
+    navigation.navigate('Diary', {mode: 'edit', date});
   };
+
+  // CalendarScreen 컴포넌트 내부, render 바로 위쯤
+  console.log(
+    '🏷️ current state:',
+    current,
+    '→ toISOString():',
+    current.toISOString().split('T')[0],
+  );
 
   const renderDay = ({date, state, marking: _marking}: any) => {
     const isToday = date.dateString === todayString;
     const isSelected = selected ? date.dateString === selected : false;
     // 해당 날짜의 일기 데이터
-    const selectedDiary = diaryData.find(d => d.date === date.dateString);
+    const selectedDiary = diaries.find(d => d.date === date.dateString);
     // 감정 색상(여러 감정이면 첫 번째만 적용)
     const emotionColor =
       selectedDiary && selectedDiary.emotion.length > 0
-        ? EMOTION_COLOR_MAP[selectedDiary.emotion[0]]
+        ? EMOTION_COLOR_MAP[selectedDiary.emotion[0] as Emotion]
         : undefined;
     const boxStyle = [
       styles.dayBox,
@@ -310,6 +119,7 @@ const CalendarScreen = () => {
       state === 'disabled' && styles.dayTextDisabled,
     ].filter(Boolean);
     const showCircle = isSelected;
+
     return (
       <TouchableOpacity
         style={styles.dayCell}
@@ -379,7 +189,7 @@ const CalendarScreen = () => {
               onPress={() => handleGoToDiaryDetail(diary.id)}>
               <EmotionIcon
                 size={45}
-                colors={EMOTION_COLOR_MAP[diary.emotion[0]]}
+                colors={EMOTION_COLOR_MAP[diary.emotion[0] as Emotion]}
               />
               {/* eslint-disable-next-line react-native/no-inline-styles */}
               <View style={{flex: 1, gap: 4}}>
@@ -392,7 +202,7 @@ const CalendarScreen = () => {
                   activeOpacity={0.8}
                   onPress={e => {
                     e.stopPropagation();
-                    // handleGoToDiaryDetail(diary.id); TODO: 답장 보기 페이지로
+                    setShowReplyModal(true);
                   }}>
                   <Text style={styles.seeReplyBtnText}>답장 보기</Text>
                 </TouchableOpacity>
@@ -441,6 +251,10 @@ const CalendarScreen = () => {
           />
         </View>
       </View>
+      <ReplyModal
+        visible={showReplyModal}
+        onClose={() => setShowReplyModal(false)}
+      />
     </AppScreen>
   );
 };

@@ -19,47 +19,60 @@ import {RootStackParamList} from '../../../../App';
 import HorizontalDivider from '../../../components/common/HorizontalDivider';
 import AppScreen from '../../../components/layout/AppScreen';
 import ModeHeader from '../../../components/layout/ModeHeader';
+import useDiaryStore from '../../../store/diaryStore';
 import {Mode} from '../../../types/diary';
 import {formatKoreanDate, getKoreanDay} from '../../../utils/date';
-
-// TODO: 데이터 연동 후 삭제
-const mockDiary = {
-  id: 1,
-  date: new Date('2025-05-16'),
-  title: '오늘의 일기',
-  content: `하루종일 이것저것 했는데, 막상 기억에 남는 건 별로 없는 그런 날. 기분이 나쁜 건 아닌데 딱히 좋지도 않고… 뭔가 애매한 상태
-같아.. 그래도 AIRING한테 그냥 주절주절 얘기하다 보니, 생각 정리가 좀 됐어. 누가 대신 말 걸어주니까 말문이 트이는 느낌이
-랄까?
-
-특별할 것 없는 하루였지만, 이렇게라도 남기니까 괜히 의미 있어지는 기분이다 :)`,
-  emotion: ['기쁜', '만족스러운'],
-  images: ['https://picsum.photos/1080/1920', 'https://picsum.photos/800/800'],
-};
 
 const MAX_IMAGES = 10;
 
 const DiaryScreen = () => {
   const route = useRoute<RouteProp<RootStackParamList, 'Diary'>>();
+  const navigation =
+    useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const {diaries, addDiary, updateDiary, getDiaryByDate} = useDiaryStore();
+
   const [mode, setMode] = useState<Mode>(route.params.mode);
-  const [content, setContent] = useState<string>(mockDiary.content);
-  const [tempContent, setTempContent] = useState<string>('');
-  const [images, setImages] = useState<string[]>(mockDiary.images);
+  const [title, setTitle] = useState('');
+  const [content, setContent] = useState('');
+  const [emotion, setEmotion] = useState<string[]>([]);
+  const [images, setImages] = useState<string[]>([]);
+  const [tempTitle, setTempTitle] = useState('');
+  const [tempContent, setTempContent] = useState('');
+  const [tempEmotion, setTempEmotion] = useState<string[]>([]);
   const [tempImages, setTempImages] = useState<string[]>([]);
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(
     null,
   );
   const imageScrollViewRef = useRef<ScrollView>(null);
 
-  const navigation =
-    useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  useEffect(() => {
+    if (route.params.id) {
+      const diary = diaries.find(d => d.id === route.params.id);
+      if (diary) {
+        setTitle(diary.title);
+        setContent(diary.content);
+        setEmotion(diary.emotion);
+        setImages(diary.images);
+      }
+    } else if (route.params.date) {
+      const diary = getDiaryByDate(route.params.date);
+      if (diary) {
+        setTitle(diary.title);
+        setContent(diary.content);
+        setEmotion(diary.emotion);
+        setImages(diary.images);
+      }
+    }
+  }, [route.params, diaries, getDiaryByDate]);
 
-  // 모드가 변경될 때 임시 상태 초기화
   useEffect(() => {
     if (mode === 'edit') {
+      setTempTitle(title);
       setTempContent(content);
+      setTempEmotion(emotion);
       setTempImages(images);
     }
-  }, [mode, content, images]);
+  }, [mode, title, content, emotion, images]);
 
   const handleImagePick = async () => {
     if (tempImages.length >= MAX_IMAGES) {
@@ -74,7 +87,6 @@ const DiaryScreen = () => {
     if (result.assets && result.assets[0]?.uri) {
       const newImages = [...tempImages, result.assets[0].uri];
       setTempImages(newImages);
-      // 이미지 추가 후 스크롤을 오른쪽 끝으로 이동
       setTimeout(() => {
         imageScrollViewRef.current?.scrollToEnd({animated: true});
       }, 100);
@@ -86,17 +98,13 @@ const DiaryScreen = () => {
     newImages.splice(index, 1);
     setTempImages(newImages);
 
-    // 스크롤 위치 조정
     setTimeout(() => {
       if (newImages.length === 0) {
-        // 이미지가 없으면 맨 왼쪽으로
         imageScrollViewRef.current?.scrollTo({x: 0, animated: true});
       } else if (index === tempImages.length - 1) {
-        // 마지막 이미지를 삭제한 경우, 새로운 마지막 이미지로
         imageScrollViewRef.current?.scrollToEnd({animated: true});
       } else {
-        // 그 외의 경우, 삭제된 이미지의 왼쪽 이미지 위치로
-        const scrollPosition = Math.max(0, (index - 1) * (100 + 8)); // 이미지 너비 + 간격
+        const scrollPosition = Math.max(0, (index - 1) * (100 + 8));
         imageScrollViewRef.current?.scrollTo({
           x: scrollPosition,
           animated: true,
@@ -117,10 +125,28 @@ const DiaryScreen = () => {
     setSelectedImageIndex(null);
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
+    if (route.params.id) {
+      await updateDiary(route.params.id, {
+        title: tempTitle,
+        content: tempContent,
+        emotion: tempEmotion,
+        images: tempImages,
+      });
+    } else {
+      await addDiary({
+        date: route.params.date!,
+        title: tempTitle,
+        content: tempContent,
+        emotion: tempEmotion,
+        images: tempImages,
+      });
+    }
+
+    setTitle(tempTitle);
     setContent(tempContent);
+    setEmotion(tempEmotion);
     setImages(tempImages);
-    // TODO: 실제 api로 저장
     setMode('read');
     imageScrollViewRef.current?.scrollTo({x: 0, animated: false});
   };
@@ -170,12 +196,12 @@ const DiaryScreen = () => {
     );
   };
 
+  const date = route.params.date ? new Date(route.params.date) : new Date();
+
   return (
     <AppScreen>
       <ModeHeader
-        title={`${formatKoreanDate(mockDiary.date)} ${getKoreanDay(
-          mockDiary.date,
-        )}`}
+        title={`${formatKoreanDate(date)} ${getKoreanDay(date)}`}
         marginBottom={25}
         mode={mode}
         onBackPress={() => navigation.goBack()}
@@ -190,10 +216,18 @@ const DiaryScreen = () => {
         keyboardShouldPersistTaps="handled">
         {mode === 'read' ? (
           <>
+            <Text style={styles.title}>{title}</Text>
             <Text style={styles.content}>{content}</Text>
           </>
         ) : (
           <>
+            <TextInput
+              style={[styles.title, styles.titleInput]}
+              value={tempTitle}
+              onChangeText={setTempTitle}
+              placeholder="제목을 입력하세요"
+              placeholderTextColor="rgba(0, 0, 0, 0.3)"
+            />
             <TextInput
               style={[styles.content, styles.contentInput]}
               value={tempContent}
@@ -249,48 +283,16 @@ const DiaryScreen = () => {
 };
 
 const styles = StyleSheet.create({
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 20,
-    height: 56,
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(0,0,0,0.1)',
-  },
-  backButton: {
-    padding: 8,
-  },
-  headerTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-  },
-  editButton: {
-    padding: 8,
-  },
-  editButtonText: {
-    color: '#007AFF',
-    fontSize: 16,
-  },
-  saveButton: {
-    padding: 8,
-  },
-  saveButtonText: {
-    color: '#007AFF',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  dateContainer: {
-    marginBottom: 20,
-  },
-  dateText: {
-    fontSize: 14,
-    color: '#666',
-  },
   title: {
     fontSize: 24,
     fontWeight: '600',
     marginBottom: 16,
+  },
+  titleInput: {
+    fontSize: 24,
+    fontWeight: '600',
+    marginBottom: 16,
+    padding: 0,
   },
   content: {
     fontSize: 14,
@@ -302,17 +304,6 @@ const styles = StyleSheet.create({
     padding: 0,
     textAlignVertical: 'top',
     includeFontPadding: false,
-  },
-  titleInput: {
-    fontSize: 24,
-    fontWeight: '600',
-    marginBottom: 16,
-    padding: 0,
-  },
-  emotionContainer: {
-    flexDirection: 'row',
-    gap: 8,
-    marginBottom: 24,
   },
   imageSection: {
     marginTop: 24,
@@ -360,24 +351,6 @@ const styles = StyleSheet.create({
     fontSize: 32,
     color: '#999',
     lineHeight: 32,
-  },
-  editControls: {
-    marginTop: 24,
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-  },
-  undoButton: {
-    padding: 8,
-  },
-  undoButtonDisabled: {
-    opacity: 0.5,
-  },
-  undoButtonText: {
-    color: '#007AFF',
-    fontSize: 16,
-  },
-  undoButtonTextDisabled: {
-    color: '#999',
   },
   modalContainer: {
     flex: 1,
