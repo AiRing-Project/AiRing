@@ -3,7 +3,7 @@
  * @param isoString - ISO 8601 형식의 시간 문자열
  * @returns 오전/오후 HH시 MM분 형식의 시간 문자열
  */
-export const formatTime = (isoString: string) => {
+export const formatTime = (isoString: string | Date) => {
   const date = new Date(isoString);
   let hours = date.getHours();
   const minutes = date.getMinutes();
@@ -186,4 +186,21 @@ export const parseTimeToDate = (time: string): Date => {
   d.setSeconds(0);
   d.setMilliseconds(0);
   return d;
+};
+
+/**
+ * HH:mm 형식을 오전/오후 시:분 형식으로 변환
+ * @param time HH:mm 형식 (예: '09:30', '15:45')
+ * @returns 오전/오후 시:분 형식 (예: '오전 9시 30분', '오후 3시')
+ */
+export const formatHHmm = (time: string): string => {
+  const [hour, minute] = time.split(':').map(Number);
+  const isAM = hour < 12;
+  let displayHour = hour % 12;
+  if (displayHour === 0) {
+    displayHour = 12;
+  }
+  return `${isAM ? '오전' : '오후'} ${displayHour}시${
+    minute > 0 ? ` ${minute}분` : ''
+  }`;
 };
