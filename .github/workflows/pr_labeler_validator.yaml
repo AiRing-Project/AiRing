@@ -3,11 +3,10 @@ name: Labeler and Validator
 on:
     pull_request:
         types: [opened, edited]
-        branches-ignore:
-            - "revert-*"
 
 jobs:
     label_and_validate:
+        if: ${{ !startsWith(github.event.pull_request.head.ref, 'revert-') }}
         permissions:
             contents: read
             pull-requests: write
@@ -26,10 +25,6 @@ jobs:
               run: |
                   branch_name=$(echo "${{ github.event.pull_request.head.ref }}")
                   echo "branch_name=$branch_name" >> "$GITHUB_ENV"
-
-                  if [[ $branch_name =~ ^revert ]]; then
-                    exit 0
-                  fi
 
                   if [[ ! $branch_name =~ ^(frontend|backend|infra|ai)\/RING-[1-9][0-9]*$ ]]; then
                     echo "is_invalid_branch_name=true" >> "$GITHUB_ENV"
