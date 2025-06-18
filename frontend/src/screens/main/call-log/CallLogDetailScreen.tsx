@@ -22,7 +22,7 @@ export interface CallDetail {
 
 const detail: CallDetail = {
   id: 1,
-  startedAt: '2025-05-11T20:30:05Z',
+  startedAt: '2025-05-14T20:30:05+09:00',
   messages: [
     {
       from: 'ai',

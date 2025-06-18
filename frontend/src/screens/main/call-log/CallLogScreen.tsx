@@ -18,8 +18,9 @@ import PhoneOutgoing from '../../../assets/icons/ic-phone-outgoing.svg';
 import IcSearch from '../../../assets/icons/ic-search.svg';
 import AppScreen from '../../../components/layout/AppScreen';
 import MonthYearPicker from '../../../components/picker/MonthYearPicker';
+import {useAiCallSettingsStore} from '../../../store/aiCallSettingsStore';
 import type {CallType} from '../../../types/call';
-import {formatSectionDate, formatTime} from '../../../utils/date';
+import {formatHHmm, formatSectionDate, formatTime} from '../../../utils/date';
 
 interface CallLogItem {
   id: number;
@@ -40,13 +41,13 @@ const callLogs: CallLog[] = [
     logs: [
       {
         id: 7,
-        startedAt: '2025-05-14T21:10:00Z',
+        startedAt: '2025-05-14T20:30:00',
         callType: 'incoming',
         summary: '퇴근 후 오늘 하루 돌아보기',
       },
       {
         id: 6,
-        startedAt: '2025-05-14T08:30:00Z',
+        startedAt: '2025-05-14T08:30:00',
         callType: 'outgoing',
         summary: '아침 인사와 일정 공유',
       },
@@ -57,13 +58,13 @@ const callLogs: CallLog[] = [
     logs: [
       {
         id: 5,
-        startedAt: '2025-05-13T20:00:00Z',
+        startedAt: '2025-05-13T20:00:00',
         callType: 'incoming',
         summary: '스트레스 해소 대화',
       },
       {
         id: 4,
-        startedAt: '2025-05-13T07:45:00Z',
+        startedAt: '2025-05-13T07:45:00',
         callType: 'outgoing',
         summary: '오늘 목표 세우기',
       },
@@ -74,13 +75,13 @@ const callLogs: CallLog[] = [
     logs: [
       {
         id: 3,
-        startedAt: '2025-05-12T19:30:00Z',
+        startedAt: '2025-05-12T19:30:00',
         callType: 'incoming',
         summary: '감정 일기 나누기',
       },
       {
         id: 2,
-        startedAt: '2025-05-12T08:00:00Z',
+        startedAt: '2025-05-12T08:00:00',
         callType: 'outgoing',
         summary: '기상 및 컨디션 체크',
       },
@@ -91,13 +92,13 @@ const callLogs: CallLog[] = [
     logs: [
       {
         id: 1,
-        startedAt: '2025-05-11T21:48:00Z',
+        startedAt: '2025-05-11T21:48:00',
         callType: 'outgoing',
         summary: '오늘 하루 대화',
       },
       {
         id: 0,
-        startedAt: '2025-05-11T20:30:00Z',
+        startedAt: '2025-05-11T20:30:00',
         callType: 'incoming',
         summary: '퇴근길 대화',
       },
@@ -108,7 +109,7 @@ const callLogs: CallLog[] = [
     logs: [
       {
         id: -1,
-        startedAt: '2025-05-10T20:00:00Z',
+        startedAt: '2025-05-10T20:00:00',
         callType: 'incoming',
         summary: '저녁 대화',
       },
@@ -165,6 +166,7 @@ const CallLogSection: React.FC<CallLogSectionProps> = ({section}) => (
 const CallLogScreen = () => {
   const [showMonthPicker, setShowMonthPicker] = useState<boolean>(false);
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const {time} = useAiCallSettingsStore();
 
   useFocusEffect(
     React.useCallback(() => {
@@ -196,8 +198,8 @@ const CallLogScreen = () => {
       <View style={styles.noticeBox}>
         <InfoCircle width={20} height={20} style={styles.noticeIcon} />
         <Text style={styles.noticeText}>
-          오늘 오후 <Text style={styles.noticeTime}>8시 30분</Text>에 AI 전화가
-          예약되어 있어요!
+          오늘 <Text style={styles.noticeTime}>{formatHHmm(time)}</Text>에 AI
+          전화가 예약되어 있어요!
         </Text>
       </View>
       <ScrollView
