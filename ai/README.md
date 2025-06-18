@@ -78,16 +78,13 @@ pip install -r requirements.txt
 
     ```bash
     GEMINI_API_KEY=your-api-key
+    OPENAI_API_KEY=your-api-key
     ```
-
-### 4. Google API Key 발급 방법
-
--   [Google AI Studio](https://aistudio.google.com/app/apikey)에서 API 키를 생성할 수 있습니다.
--   생성한 키를 `.env` 파일에 입력하세요.
 
 ## 애플리케이션 실행
 
 > [!IMPORTANT]
+> 반드시 `ai` 폴더가 아니라 **`app` 폴더**를 code editor에서 프로젝트로 열기
 > 반드시 `app` 폴더 기준 **절대 경로**로 import
 
 -   개발 서버 실행
