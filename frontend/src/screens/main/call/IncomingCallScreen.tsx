@@ -21,7 +21,6 @@ import AppScreen from '../../../components/layout/AppScreen';
 import {CALLBACK_LIST} from '../../../constants/aiCall';
 import {ACCEPT_COLOR, DECLINE_COLOR} from '../../../constants/colors';
 import {useAiCallSettingsStore} from '../../../store/aiCallSettingsStore';
-import {initAiCall} from '../../../utils/aiCall';
 import {scheduleAlarm} from '../../../utils/alarmManager';
 
 const {height: SCREEN_HEIGHT, width: SCREEN_WIDTH} = Dimensions.get('window');
@@ -60,21 +59,7 @@ const IncomingCallScreen = () => {
 
   const handleAccept = async () => {
     setResponse('accept');
-    await initAiCall({
-      callType: 'incoming',
-      onSuccess: () => {
-        navigation.navigate('CallActive');
-      },
-      onError: () => {
-        setResponse(null);
-        Animated.timing(pan, {
-          toValue: 0,
-          duration: 500,
-          easing: Easing.out(Easing.exp),
-          useNativeDriver: false,
-        }).start();
-      },
-    });
+    navigation.navigate('CallActive');
   };
 
   const panResponder = useRef(

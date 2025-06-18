@@ -48,8 +48,9 @@ export type RootStackParamList = {
 
   // Calendar Tab 내부 화면
   Diary: {
-    id?: number;
     mode: Mode;
+    id?: string;
+    date?: string;
   };
 
   // Call Modal 내부 화면
