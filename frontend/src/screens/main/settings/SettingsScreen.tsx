@@ -5,6 +5,7 @@ import {Alert, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 
 import {RootStackParamList} from '../../../../App';
 import {logout} from '../../../api/authApi';
+import IcDev from '../../../assets/icons/ic-dev.svg';
 import IcEllipse from '../../../assets/icons/ic-ellipse.svg';
 import IcLock from '../../../assets/icons/ic-lock.svg';
 import IcPerson from '../../../assets/icons/ic-person.svg';
@@ -14,6 +15,7 @@ import IcSetting from '../../../assets/icons/ic-setting.svg';
 import ListItem from '../../../components/common/ListItem';
 import AppScreen from '../../../components/layout/AppScreen';
 import {useAuthStore} from '../../../store/authStore';
+import {scheduleAlarm} from '../../../utils/alarmManager';
 import {getRefreshToken, removeTokens} from '../../../utils/tokenManager';
 
 const SettingsScreen = () => {
@@ -69,6 +71,15 @@ const SettingsScreen = () => {
         <ListItem
           leftIcon={<IcPieChart width={22} height={22} />}
           label="데이터 관리"
+        />
+        <ListItem
+          leftIcon={<IcDev width={22} height={22} />}
+          label="10초 후 알람 테스트"
+          rightIcon={<></>}
+          onPress={() => {
+            Alert.alert('알람 테스트', '10초 후 알람이 발생합니다.');
+            scheduleAlarm('test', new Date(Date.now() + 10000), false);
+          }}
         />
       </View>
     </AppScreen>
