@@ -7,6 +7,9 @@
     음성 기반 AI 통화로 간편하게 하루를 기록해보세요.<br>
     AI가 듣고, 공감하고, 일기로 정리해드립니다.
   </p>
+  <p align="center">
+    📱 <a href="https://file.notion.so/f/f/94307929-c5e3-48fa-b0fc-4859be48e042/43d5a41d-5283-4dd6-b448-7741b76f9cc7/%EC%8B%9C%EC%97%B0%EC%98%81%EC%83%81%ED%95%A9%EB%B3%B8-1080p.mp4?table=block&id=21c8ad35-8684-805f-857c-fab4ec80a51d&spaceId=94307929-c5e3-48fa-b0fc-4859be48e042&expirationTimestamp=1750780800000&signature=_0zSuI1CiMRhfjdi_YLqmf4UDIt7tvGuqf_f-zXVOVg&downloadName=%EC%8B%9C%EC%97%B0%EC%98%81%EC%83%81%ED%95%A9%EB%B3%B8-1080p.mp4">시연 영상</a>
+  </p>
 </p>
 
 <br/><br/>
