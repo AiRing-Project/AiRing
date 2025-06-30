@@ -70,7 +70,7 @@ def chunk_text_with_kss(text, tokenizer, max_tokens=512):
             if current_chunk:
                 chunks.append(' '.join(current_chunk))
                 current_chunk = []
-            # 긴 문장을 단어 단위로 분할
+            # 긴 문장을 단어 단위로 분할하기기
             sentence_chunks = _split_long_sentence(sentence, tokenizer, max_tokens)
             chunks.extend(sentence_chunks)
             current_length = 0
@@ -114,7 +114,7 @@ def predict_emotions(text: str, threshold: float = THRESHOLD):
             return predicted
         except Exception as e:
             raise RuntimeError(f"감정 예측 실패: {e}")
-    # 512토큰 초과: chunk로 분할 후 chunk별 예측, 평균 확률 산출
+    # 512토큰 초과: chunk로 분할 후 chunk별 예측, 평균 확률 산출하기기
     try:
         chunks = chunk_text_with_kss(text, tokenizer, max_tokens=MAX_TOKEN)
         all_probs = []
