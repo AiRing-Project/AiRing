@@ -1,5 +1,6 @@
 import os
-from transformers import AutoTokenizer, AutoConfig, AutoModelForSequenceClassification
+from transformers import AutoTokenizer
+from models.bertcnn import BertCNNForMultiLabel, BertCNNConfig
 import torch
 import numpy as np
 from kss import split_sentences
@@ -28,8 +29,8 @@ def get_tokenizer():
 def get_model():
     global _model
     if _model is None:
-        config = AutoConfig.from_pretrained(MODEL_PATH)
-        _model = AutoModelForSequenceClassification.from_pretrained(MODEL_PATH, config=config)
+        config = BertCNNConfig.from_pretrained(MODEL_PATH)
+        _model = BertCNNForMultiLabel.from_pretrained(MODEL_PATH, config=config)
         _model.eval()
     return _model
 
@@ -53,6 +54,7 @@ def _split_long_sentence(sentence, tokenizer, max_tokens):
     if current_chunk:
         chunks.append(' '.join(current_chunk))
     return chunks
+
 def chunk_text_with_kss(text, tokenizer, max_tokens=512):
     """
     긴 텍스트를 문장 단위로 쪼개고, 512토큰 이하로 chunk를 묶음.
@@ -70,7 +72,7 @@ def chunk_text_with_kss(text, tokenizer, max_tokens=512):
             if current_chunk:
                 chunks.append(' '.join(current_chunk))
                 current_chunk = []
-            # 긴 문장을 단어 단위로 분할하기기
+            # 긴 문장을 단어 단위로 분할하기
             sentence_chunks = _split_long_sentence(sentence, tokenizer, max_tokens)
             chunks.extend(sentence_chunks)
             current_length = 0
@@ -114,7 +116,7 @@ def predict_emotions(text: str, threshold: float = THRESHOLD):
             return predicted
         except Exception as e:
             raise RuntimeError(f"감정 예측 실패: {e}")
-    # 512토큰 초과: chunk로 분할 후 chunk별 예측, 평균 확률 산출하기기
+    # 512토큰 초과: chunk로 분할 후 chunk별 예측, 평균 확률 산출
     try:
         chunks = chunk_text_with_kss(text, tokenizer, max_tokens=MAX_TOKEN)
         all_probs = []
