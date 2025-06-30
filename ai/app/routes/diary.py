@@ -19,4 +19,4 @@ def summarize_diary(messages: List[Message]):
 @router.post("/emotion", response_model=DiaryEmotionResponse)
 def diary_emotion(request: DiaryEmotionRequest):
     emotion_list = analyze_diary_emotion(request.content)
-    return DiaryEmotionResponse(emotion_list=emotion_list)
+    return DiaryEmotionResponse(emotionList=emotion_list)
