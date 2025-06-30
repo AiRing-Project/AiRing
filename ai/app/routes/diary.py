@@ -15,6 +15,7 @@ def summarize_diary(messages: List[Message]):
     result = generate_diary_from_dialogue(raw_script)
     return result
 
+
 @router.post("/emotion", response_model=DiaryEmotionResponse)
 def diary_emotion(request: DiaryEmotionRequest):
     emotion_list = analyze_diary_emotion(request.content)
