@@ -1,4 +1,4 @@
-from ..models.model_def import predict_emotions
+from models.model_def import predict_emotions
 
 
 def analyze_diary_emotion(content: str) -> list[str]:
